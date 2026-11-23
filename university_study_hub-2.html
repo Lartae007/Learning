@@ -1,0 +1,3167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F8FAFC" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="StudyHub" />
+  <meta name="application-name" content="StudyHub" />
+  <link rel="manifest" id="dynamicManifestLink" />
+  <link rel="apple-touch-icon" id="dynamicAppleTouchIcon" />
+  <title>StudyHub — คลังข้อมูลการเรียนมหาวิทยาลัย</title>
+
+  <!-- Google Fonts: Prompt สำหรับหัวข้อและปุ่ม, Sarabun สำหรับเนื้อหาที่อ่านง่าย -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Prompt', 'sans-serif'],
+            sans: ['Sarabun', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px -4px rgba(15, 23, 42, 0.06)',
+            card: '0 10px 30px -8px rgba(15, 23, 42, 0.08)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ตั้งค่าฟอนต์พื้นฐานและป้องกันอาการเด้ง/ไฮไลต์บนมือถือ */
+    html, body {
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background-color: #F8FAFC;
+      color: #1E293B;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .font-heading, button, label, select, input::placeholder, textarea::placeholder {
+      font-family: 'Prompt', sans-serif;
+    }
+
+    /* Safe Area Insets สำหรับมือถือที่มีรอยบาก (Notch) และแถบ Gesture ด้านล่าง */
+    .safe-top {
+      padding-top: env(safe-area-inset-top);
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* ป้องกันหน้าจอมือถือซูมเข้าเองอัตโนมัติเวลาแตะช่องพิมพ์ข้อความ */
+    @media (max-width: 767px) {
+      input[type="text"],
+      input[type="password"],
+      input[type="url"],
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+    }
+
+    /* สัมผัสปุ่มแบบแอปมือถือ */
+    button, a {
+      -webkit-touch-callout: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* Animation Helpers */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-up {
+      animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Lightbox Image Pan & Zoom */
+    #lightboxImg {
+      transition: transform 0.15s ease-out;
+      user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
+    }
+    #lightboxImg.dragging {
+      transition: none;
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- ===================================================================== -->
+  <!-- TOP NAVIGATION BAR (แสดงตลอดเวลา พร้อมปุ่มติดตั้งแอปและตั้งค่า AI)      -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/70 safe-top">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+      <!-- โลโก้แอป -->
+      <button onclick="navigateToHome()" class="flex items-center gap-2.5 text-left group focus:outline-none shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-heading font-semibold text-base sm:text-lg text-slate-900 tracking-tight block leading-none">StudyHub</span>
+          <span class="text-[11px] text-slate-400 font-heading hidden sm:block mt-0.5">คลังข้อมูลการเรียนมหาวิทยาลัย</span>
+        </div>
+      </button>
+
+      <!-- กลุ่มปุ่มด้านขวา -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- ปุ่มติดตั้งเป็นแอปมือถือ (PWA / APK) -->
+        <button onclick="handleInstallAppButtonClick()" id="installAppHeaderBtn" title="ติดตั้งเป็นแอปบนมือถือ"
+          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-indigo-700 hover:text-indigo-900 bg-indigo-50/90 hover:bg-indigo-100 border border-indigo-200/80 shadow-2xs transition-all">
+          <span>📲</span>
+          <span id="installAppBtnLabel" class="hidden sm:inline">ติดตั้งแอป</span>
+        </button>
+
+        <!-- ปุ่มตั้งค่า AI (แสดงทุกหน้า พร้อมจุดสถานะสีเขียว/ส้ม) -->
+        <button onclick="openAISettingsModal()" id="aiSettingsHeaderBtn" title="ตั้งค่า Google Gemini API Key"
+          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200/90 shadow-2xs transition-all">
+          <span id="aiStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+          <span>⚙️ ตั้งค่า AI</span>
+        </button>
+
+        <!-- ปุ่มสำรองข้อมูล / นำเข้าข้อมูล (แสดงบนหน้าแรก) -->
+        <div id="homeHeaderActions" class="flex items-center gap-1.5 sm:gap-2">
+          <button onclick="exportBackupData()" title="ดาวน์โหลดไฟล์สำรองข้อมูลทั้งหมด (.json)"
+            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 bg-white transition-all">
+            <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="hidden md:inline">สำรองข้อมูล</span>
+          </button>
+
+          <label title="กู้คืนข้อมูลจากไฟล์สำรอง (.json)"
+            class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 bg-white transition-all">
+            <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span class="hidden md:inline">นำเข้า</span>
+            <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importBackupData(event)" />
+          </label>
+        </div>
+
+        <!-- ปุ่มกลับหน้าแรก (แสดงเมื่ออยู่ในหน้าวิชาเรียน) -->
+        <div id="workspaceHeaderActions" class="hidden items-center">
+          <button onclick="navigateToHome()"
+            class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 transition-all">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            <span>กลับหน้าแรก</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 1: CLEAN HOME DASHBOARD (หน้าแรกโล่ง สบายตา + ปุ่มวิชาเรียนใหญ่ๆ)    -->
+  <!-- ===================================================================== -->
+  <main id="homeView" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col">
+
+    <!-- สถานะเริ่มต้น (หน้าโล่งเมื่อยังไม่มีวิชาเรียน) -->
+    <section id="emptyHomeState" class="hidden flex-1 flex flex-col items-center justify-center text-center py-12 sm:py-20 animate-fade-up">
+      <div class="w-20 h-20 rounded-3xl bg-white border border-slate-200/80 shadow-soft flex items-center justify-center text-slate-400 mb-6">
+        <svg class="w-9 h-9 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <line x1="12" y1="8" x2="12" y2="14"/>
+          <line x1="9" y1="11" x2="15" y2="11"/>
+        </svg>
+      </div>
+
+      <h1 class="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">
+        พื้นที่เก็บข้อมูลการเรียนของคุณ
+      </h1>
+      <p class="text-slate-500 text-base sm:text-lg max-w-md mb-8 leading-relaxed">
+        เริ่มต้นด้วยการสร้างรายวิชาแรก เพื่อเก็บรูปภาพกระดานเลกเชอร์ ลิงก์ติว โน้ตสรุป และใช้ผู้ช่วยติว AI ในที่เดียว
+      </p>
+
+      <button onclick="openSubjectModal()"
+        class="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-indigo-600 text-white font-heading font-medium text-base sm:text-lg shadow-card hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+        <span class="w-7 h-7 rounded-xl bg-white/15 flex items-center justify-center group-hover:rotate-90 transition-transform duration-200">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+        <span>+ เพิ่มวิชาเรียน</span>
+      </button>
+    </section>
+
+    <!-- สถานะเมื่อมีรายวิชาแล้ว (Grid ปุ่มการ์ดวิชาเรียนขนาดใหญ่) -->
+    <section id="populatedHomeState" class="hidden animate-fade-up">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">รายวิชาเรียนของคุณ</h1>
+            <span id="subjectCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-heading font-medium bg-slate-200/70 text-slate-700">0 วิชา</span>
+          </div>
+          <p class="text-slate-500 text-sm sm:text-base mt-1">แตะที่ปุ่มรายวิชาเพื่อเปิดคลังภาพเลกเชอร์ โน้ตสรุป และผู้ช่วยติว AI</p>
+        </div>
+
+        <button onclick="openSubjectModal()"
+          class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-900 hover:bg-indigo-600 text-white font-heading font-medium text-sm sm:text-base shadow-soft hover:shadow-md transition-all shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>+ เพิ่มวิชาเรียน</span>
+        </button>
+      </div>
+
+      <!-- Responsive Grid ของปุ่มการ์ดวิชาเรียนขนาดใหญ่ -->
+      <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        <!-- การ์ดวิชาเรียนจะถูกสร้างแบบไดนามิกที่นี่ -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 2: SUBJECT WORKSPACE (พื้นที่ภายในแต่ละวิชาเรียน)                   -->
+  <!-- ===================================================================== -->
+  <main id="workspaceView" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-28 md:pb-10 animate-fade-up">
+
+    <!-- แถบหัวข้อวิชาเรียน (Subject Header Banner) -->
+    <div id="workspaceHeaderCard" class="rounded-3xl p-5 sm:p-7 mb-6 border transition-all relative overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div class="flex items-start sm:items-center gap-4">
+          <div id="wsSubjectIconBox" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-white">
+            <!-- ไอคอนประจำวิชา -->
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span id="wsSubjectCode" class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-heading font-medium bg-white/80 text-slate-700 border border-black/5">
+                รหัสวิชา
+              </span>
+            </div>
+            <h1 id="wsSubjectName" class="font-heading text-xl sm:text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
+              ชื่อวิชาเรียน
+            </h1>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          <button onclick="editCurrentSubject()"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/85 hover:bg-white text-slate-700 border border-black/5 shadow-xs transition-all">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span>แก้ไขข้อมูลวิชา</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- แถบเลือก 3 แท็บหลักสำหรับหน้าจอแท็บเล็ตและคอมพิวเตอร์ (Desktop Tabs) -->
+    <div class="hidden md:grid bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-soft mb-6 grid-cols-3 gap-1.5">
+      <button onclick="switchWorkspaceTab('photos')" id="tabBtn-photos"
+        class="ws-tab-btn flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-heading font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span class="truncate">คลังภาพเลกเชอร์</span>
+        <span id="tabPhotoCount" class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-600">0</span>
+      </button>
+
+      <button onclick="switchWorkspaceTab('resources')" id="tabBtn-resources"
+        class="ws-tab-btn flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-heading font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span class="truncate">ตัวช่วย & โน้ตสรุป</span>
+        <span id="tabResourceCount" class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-600">0</span>
+      </button>
+
+      <button onclick="switchWorkspaceTab('ai')" id="tabBtn-ai"
+        class="ws-tab-btn flex items-center justify-center gap-2 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-heading font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6L12 2z"/>
+        </svg>
+        <span class="truncate">ผู้ช่วยติว AI</span>
+      </button>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: คลังภาพเลกเชอร์ & กระดาน (Lecture Photos Gallery)              -->
+    <!-- =================================================================== -->
+    <div id="tabContent-photos" class="ws-tab-panel space-y-6">
+      <!-- พื้นที่ถ่ายรูปกระดานจากกล้องมือถือ & เลือกรูปจากอัลบั้ม -->
+      <div id="photoDropzone"
+        class="bg-white border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-3xl p-5 sm:p-8 text-center transition-all">
+        <!-- Input สำหรับถ่ายภาพจากกล้องมือถือโดยตรง -->
+        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoFilesSelected(event)" />
+        <!-- Input สำหรับเลือกรูปภาพหลายรูปจากอัลบั้ม -->
+        <input type="file" id="photoUploadInput" accept="image/*" multiple class="hidden" onchange="handlePhotoFilesSelected(event)" />
+
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <h3 class="font-heading font-medium text-base sm:text-lg text-slate-800">
+          เก็บรูปถ่ายกระดานไวท์บอร์ด สไลด์ หรือชีทสรุป
+        </h3>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1 mb-5">
+          ถ่ายจากกล้องในห้องเรียนได้ทันที หรือเลือกรูปจากอัลบั้มทีละหลายรูป (บีบอัดอัตโนมัติ คมชัด ประหยัดพื้นที่)
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
+          <button type="button" onclick="document.getElementById('cameraCaptureInput').click()"
+            class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-indigo-600 active:scale-[0.98] text-white font-heading font-medium text-sm sm:text-base shadow-soft transition-all">
+            <span class="text-base">📷</span>
+            <span>ถ่ายรูปกระดาน</span>
+          </button>
+
+          <button type="button" onclick="document.getElementById('photoUploadInput').click()"
+            class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 active:scale-[0.98] text-indigo-700 border border-indigo-200/80 font-heading font-medium text-sm sm:text-base transition-all">
+            <span class="text-base">🖼️</span>
+            <span>เลือกรูปจากอัลบั้ม</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- แถบกรองแท็กและค้นหาภาพ -->
+      <div id="photoFilterBar" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1" id="photoTagFilters">
+          <!-- ปุ่มกรองแท็กจะสร้างที่นี่ -->
+        </div>
+        <div class="relative w-full sm:w-64">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="photoSearchInput" oninput="renderPhotosGrid()" placeholder="ค้นหาชื่อภาพหรือแท็ก..."
+            class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-400" />
+        </div>
+      </div>
+
+      <!-- แสดงแกลเลอรีรูปภาพ -->
+      <div id="photosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- การ์ดรูปภาพจะแสดงที่นี่ -->
+      </div>
+
+      <div id="emptyPhotosState" class="bg-white rounded-3xl border border-slate-200/70 p-10 text-center">
+        <p class="text-slate-400 text-sm sm:text-base">ยังไม่มีรูปภาพเลกเชอร์ในวิชานี้ ลองอัปโหลดรูปกระดานหรือสไลด์แรกของคุณได้เลย</p>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: รวมตัวช่วยเรียน & โน้ตสรุป (Study Resources & Notes)          -->
+    <!-- =================================================================== -->
+    <div id="tabContent-resources" class="ws-tab-panel hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ฝั่งซ้าย (7 คอลัมน์): ลิงก์ตัวช่วยการเรียน -->
+      <div class="lg:col-span-7 space-y-5">
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="font-heading font-semibold text-lg text-slate-900">ลิงก์ตัวช่วยการเรียน</h2>
+              <p class="text-xs sm:text-sm text-slate-500">รวบรวมคลิปติว YouTube, Google Drive ชีทเรียน หรือเว็บอ้างอิง</p>
+            </div>
+          </div>
+
+          <!-- ฟอร์มเพิ่มลิงก์ใหม่ -->
+          <form onsubmit="handleAddLink(event)" class="bg-slate-50 rounded-2xl p-4 border border-slate-200/60 space-y-3 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2">
+                <input type="text" id="linkTitleInput" required placeholder="ชื่อลิงก์ เช่น คลิปติวบทที่ 1-3, ชีทสรุปอาจารย์..."
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <select id="linkCategoryInput"
+                  class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-700 focus:outline-none focus:border-indigo-500">
+                  <option value="คลิปติว">🎬 คลิปติว</option>
+                  <option value="ชีทสรุป">📄 ชีทสรุป</option>
+                  <option value="แนวข้อสอบ">📝 แนวข้อสอบ</option>
+                  <option value="เว็บไซต์">🌐 เว็บไซต์</option>
+                  <option value="อื่นๆ">🔗 อื่นๆ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <input type="text" id="linkUrlInput" required placeholder="วางลิงก์ URL ที่นี่ (เช่น https://youtube.com/...)"
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+              <button type="submit"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-heading font-medium text-sm transition-colors shrink-0">
+                + บันทึกลิงก์
+              </button>
+            </div>
+          </form>
+
+          <!-- ตัวกรองหมวดหมู่ลิงก์ -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3" id="linkCategoryFilters">
+            <button type="button" onclick="setLinkFilter('ทั้งหมด')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-900 text-white whitespace-nowrap">ทั้งหมด</button>
+            <button type="button" onclick="setLinkFilter('คลิปติว')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">🎬 คลิปติว</button>
+            <button type="button" onclick="setLinkFilter('ชีทสรุป')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">📄 ชีทสรุป</button>
+            <button type="button" onclick="setLinkFilter('แนวข้อสอบ')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">📝 แนวข้อสอบ</button>
+            <button type="button" onclick="setLinkFilter('เว็บไซต์')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">🌐 เว็บไซต์</button>
+            <button type="button" onclick="setLinkFilter('อื่นๆ')" class="link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">🔗 อื่นๆ</button>
+          </div>
+
+          <!-- รายการลิงก์ -->
+          <div id="linksList" class="space-y-2.5">
+            <!-- ลิงก์จะแสดงที่นี่ -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ฝั่งขวา (5 คอลัมน์): เช็กลิสต์งาน/สอบ & โน้ตย่อประจำวิชา -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- เช็กลิสต์งาน / อ่านหนังสือสอบ -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="font-heading font-semibold text-lg text-slate-900">เช็กลิสต์งาน & อ่านสอบ</h2>
+              <p class="text-xs text-slate-500">ติดตามบทที่อ่านจบแล้วหรืองานที่ต้องส่ง</p>
+            </div>
+            <span id="taskProgressBadge" class="px-2.5 py-1 rounded-lg text-xs font-heading font-medium bg-emerald-50 text-emerald-700">
+              0/0 เสร็จแล้ว
+            </span>
+          </div>
+
+          <!-- แถบความคืบหน้า (Progress Bar) -->
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+            <div id="taskProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+
+          <form onsubmit="handleAddTask(event)" class="flex gap-2 mb-4">
+            <input type="text" id="taskInput" required placeholder="เพิ่มรายการ เช่น อ่านบทที่ 4, ส่งรายงาน..."
+              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:border-indigo-500" />
+            <button type="submit"
+              class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-heading font-medium text-sm transition-colors shrink-0">
+              เพิ่ม
+            </button>
+          </form>
+
+          <div id="tasksList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+            <!-- รายการเช็กลิสต์จะแสดงที่นี่ -->
+          </div>
+        </div>
+
+        <!-- โน้ตย่อประจำวิชา -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft">
+          <div class="mb-3">
+            <h2 class="font-heading font-semibold text-lg text-slate-900">โน้ตสรุป & จุดเน้นข้อสอบ</h2>
+            <p class="text-xs text-slate-500">จดสูตรสำคัญ วันสอบ หรือแนวที่อาจารย์เน้นในห้อง (แก้ไขได้ตลอด)</p>
+          </div>
+
+          <form onsubmit="handleAddNote(event)" class="space-y-2.5 mb-4">
+            <input type="text" id="noteTitleInput" placeholder="หัวข้อโน้ต (เช่น แนวข้อสอบมิดเทอม)"
+              class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:border-indigo-500" />
+            <textarea id="noteContentInput" rows="3" required placeholder="พิมพ์ข้อความสรุปสั้นๆ ที่นี่..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+            <button type="submit"
+              class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-heading font-medium text-sm transition-colors">
+              + บันทึกโน้ตสรุป
+            </button>
+          </form>
+
+          <div id="notesList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <!-- โน้ตย่อจะแสดงที่นี่ -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: ผู้ช่วยติว AI (AI Study Helper powered by Gemini 2.5 Flash)   -->
+    <!-- =================================================================== -->
+    <div id="tabContent-ai" class="ws-tab-panel hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ฝั่งตั้งค่าและป้อนข้อมูลให้ AI -->
+        <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft h-fit space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6L12 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-heading font-semibold text-lg text-slate-900">ผู้ช่วยติวก่อนสอบ AI</h2>
+                <p class="text-xs text-slate-500">สรุปจากภาพกระดานหรือสร้างแนวข้อสอบอัตโนมัติ</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- แถบแจ้งเตือนสถานะ API Key (แสดงเมื่อยังไม่ได้ใส่คีย์) -->
+          <div id="aiKeyMissingNotice" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-200/90 text-xs text-amber-900 flex items-start justify-between gap-2.5">
+            <div class="leading-relaxed">
+              <strong class="font-heading block text-amber-950 mb-0.5">ยังไม่ได้ตั้งค่า Gemini API Key</strong>
+              กรุณาใส่ API Key ฟรีของ Google ก่อนเริ่มใช้งานผู้ช่วยติว AI บนเว็บไซต์นี้
+            </div>
+            <button type="button" onclick="openAISettingsModal()"
+              class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-heading font-medium shrink-0 transition-colors">
+              ใส่คีย์เลย
+            </button>
+          </div>
+
+          <!-- เลือกรูปแบบความช่วยเหลือ -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">เลือกโหมดการติว</label>
+            <div class="grid grid-cols-1 gap-2">
+              <label class="cursor-pointer flex items-center gap-3 p-3 rounded-xl border border-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/40 transition-all">
+                <input type="radio" name="aiMode" value="summary" checked class="accent-indigo-600" />
+                <div>
+                  <span class="font-heading font-medium text-sm text-slate-800 block">สรุปเนื้อหาแบบกระชับ เข้าใจง่าย</span>
+                  <span class="text-xs text-slate-500">แยกประเด็นสำคัญเป็นข้อๆ สำหรับอ่านทบทวนไวๆ</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer flex items-center gap-3 p-3 rounded-xl border border-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/40 transition-all">
+                <input type="radio" name="aiMode" value="quiz" class="accent-indigo-600" />
+                <div>
+                  <span class="font-heading font-medium text-sm text-slate-800 block">สร้างแนวข้อสอบ 5 ข้อ พร้อมเฉลยละเอียด</span>
+                  <span class="text-xs text-slate-500">ฝึกทำโจทย์ปรนัย/อัตนัยเพื่อทดสอบความเข้าใจ</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer flex items-center gap-3 p-3 rounded-xl border border-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/40 transition-all">
+                <input type="radio" name="aiMode" value="explain" class="accent-indigo-600" />
+                <div>
+                  <span class="font-heading font-medium text-sm text-slate-800 block">อธิบายเจาะลึกให้เข้าใจเหมือนมีรุ่นพี่ติว</span>
+                  <span class="text-xs text-slate-500">ยกตัวอย่างประกอบให้เห็นภาพชัดเจน</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- เลือกรูปภาพจากคลังเลกเชอร์ของวิชานี้ + พรีวิวภาพที่เลือก -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">แนบรูปกระดาน/สไลด์จากคลังของวิชานี้ (ถ้ามี)</label>
+            <select id="aiPhotoSelect" onchange="handleAIPhotoSelectionChange()"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500">
+              <option value="">— ไม่ใช้รูปภาพ (วิเคราะห์จากข้อความด้านล่าง) —</option>
+            </select>
+
+            <!-- กล่องพรีวิวรูปที่เลือก -->
+            <div id="aiSelectedPhotoPreview" class="hidden mt-2.5 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+              <img id="aiPreviewImg" src="" alt="พรีวิวรูปเลกเชอร์" class="w-16 h-16 rounded-xl object-cover bg-white border border-slate-200 shrink-0" />
+              <div class="min-w-0 flex-1">
+                <span class="text-[11px] font-heading text-indigo-600 font-medium block">รูปภาพที่จะส่งให้ AI วิเคราะห์:</span>
+                <p id="aiPreviewTitle" class="text-xs font-heading font-medium text-slate-800 truncate mt-0.5"></p>
+              </div>
+              <button type="button" onclick="clearAISelectedPhoto()" title="ยกเลิกการแนบรูป"
+                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ช่องพิมพ์เนื้อหาหรือหัวข้อ -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">หัวข้อที่เรียน หรือวางเนื้อหาสไลด์/เลกเชอร์</label>
+            <textarea id="aiPromptInput" rows="4"
+              placeholder="พิมพ์ชื่อเรื่อง เช่น 'Freytag's Pyramid คืออะไร' หรือวางเนื้อหาที่จดไว้..."
+              class="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+          </div>
+
+          <button id="aiGenerateBtn" onclick="runAIStudyHelper()"
+            class="w-full py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-heading font-medium text-sm sm:text-base shadow-soft transition-all flex items-center justify-center gap-2">
+            <span>✨ ให้ AI ช่วยสรุป / สร้างแนวข้อสอบ</span>
+          </button>
+        </div>
+
+        <!-- ฝั่งแสดงผลลัพธ์จาก AI -->
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-7 shadow-soft flex flex-col min-h-[380px]">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-100">
+            <span class="font-heading font-semibold text-base sm:text-lg text-slate-900">ผลลัพธ์การติวจาก AI</span>
+            <div id="aiResultActions" class="hidden flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <button onclick="shareAIOutput()"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-heading font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors">
+                <span>📤 แชร์</span>
+              </button>
+              <button onclick="copyAIOutput()"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                คัดลอก
+              </button>
+              <button onclick="saveAIOutputToNotes()"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-medium bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors">
+                + บันทึกลงโน้ตสรุป
+              </button>
+            </div>
+          </div>
+
+          <!-- สถานะรอใช้งาน -->
+          <div id="aiEmptyResult" class="flex-1 flex flex-col items-center justify-center text-center py-10 text-slate-400">
+            <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-3 text-slate-300">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <p class="text-sm sm:text-base font-heading text-slate-500">พร้อมช่วยคุณติวสอบเสมอ</p>
+            <p class="text-xs sm:text-sm max-w-sm mt-1">เลือกภาพกระดานหรือพิมพ์หัวข้อทางด้านซ้าย แล้วกดปุ่มเพื่อให้ AI ช่วยสรุปหรือออกแนวข้อสอบได้เลย</p>
+          </div>
+
+          <!-- สถานะกำลังประมวลผล -->
+          <div id="aiLoadingState" class="hidden flex-1 flex flex-col items-center justify-center text-center py-12">
+            <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+            <p class="font-heading font-medium text-slate-800">กำลังวิเคราะห์เนื้อหาและเรียบเรียงคำอธิบาย...</p>
+            <p class="text-xs text-slate-400 mt-1">รอสักครู่นะครับ</p>
+          </div>
+
+          <!-- กล่องแสดงข้อผิดพลาดชัดเจน (Error Card) -->
+          <div id="aiErrorState" class="hidden flex-1 flex flex-col items-center justify-center text-center py-8 px-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3 class="font-heading font-semibold text-base text-slate-900 mb-1">ไม่สามารถประมวลผลได้</h3>
+            <p id="aiErrorDetailText" class="text-sm text-rose-600 max-w-md mb-4 leading-relaxed"></p>
+            <button type="button" onclick="openAISettingsModal()"
+              class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs sm:text-sm font-heading font-medium transition-colors">
+              ⚙️ ตรวจสอบ / ตั้งค่า Gemini API Key
+            </button>
+          </div>
+
+          <!-- กล่องแสดงข้อความผลลัพธ์ -->
+          <div id="aiFormattedOutput" class="hidden text-slate-700 text-sm sm:text-base leading-relaxed space-y-3 overflow-y-auto">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MOBILE BOTTOM NAVIGATION BAR (แถบเมนูนิ้วโป้งด้านล่างเฉพาะบนมือถือ)      -->
+  <!-- ===================================================================== -->
+  <nav id="mobileBottomNav" class="hidden md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/80 safe-bottom shadow-[0_-6px_24px_-6px_rgba(15,23,42,0.08)]">
+    <div class="grid grid-cols-3 h-16 px-2 gap-1">
+      <button onclick="switchWorkspaceTab('photos')" id="mobileTabBtn-photos"
+        class="mobile-ws-tab-btn flex flex-col items-center justify-center gap-0.5 rounded-xl text-slate-500 transition-all relative">
+        <div class="relative">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span id="mobileTabPhotoCount" class="absolute -top-1.5 -right-3.5 px-1.5 py-0.2 rounded-full text-[10px] font-heading font-semibold bg-slate-200 text-slate-700">0</span>
+        </div>
+        <span class="text-[11px] font-heading font-medium">คลังภาพ</span>
+      </button>
+
+      <button onclick="switchWorkspaceTab('resources')" id="mobileTabBtn-resources"
+        class="mobile-ws-tab-btn flex flex-col items-center justify-center gap-0.5 rounded-xl text-slate-500 transition-all relative">
+        <div class="relative">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span id="mobileTabResourceCount" class="absolute -top-1.5 -right-3.5 px-1.5 py-0.2 rounded-full text-[10px] font-heading font-semibold bg-slate-200 text-slate-700">0</span>
+        </div>
+        <span class="text-[11px] font-heading font-medium">โน้ต & ลิงก์</span>
+      </button>
+
+      <button onclick="switchWorkspaceTab('ai')" id="mobileTabBtn-ai"
+        class="mobile-ws-tab-btn flex flex-col items-center justify-center gap-0.5 rounded-xl text-slate-500 transition-all">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6L12 2z"/>
+        </svg>
+        <span class="text-[11px] font-heading font-medium">ผู้ช่วย AI</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: ติดตั้งแอปมือถือ (PWA / iOS / Android & APK Guide)              -->
+  <!-- ===================================================================== -->
+  <div id="installAppModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-fade-up max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-heading text-lg sm:text-xl font-semibold text-slate-900">ใช้งาน StudyHub เป็นแอปมือถือ</h2>
+            <p id="appStandaloneStatusText" class="text-xs text-slate-500">ติดตั้งลงหน้าจอโฮมได้ทันที ไม่ต้องผ่านสโตร์</p>
+          </div>
+        </div>
+        <button onclick="closeInstallAppModal()" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ปุ่มติดตั้งอัตโนมัติ (แสดงเมื่อเบราว์เซอร์รองรับ beforeinstallprompt) -->
+      <div id="nativeInstallPromptBox" class="hidden mb-4 p-4 rounded-2xl bg-indigo-50 border border-indigo-200/80 text-center space-y-2.5">
+        <p class="text-xs sm:text-sm text-indigo-950 font-heading font-medium">อุปกรณ์ของคุณพร้อมติดตั้งแอป StudyHub ลงหน้าจอหลักแล้ว!</p>
+        <button type="button" onclick="triggerNativeInstallPrompt()"
+          class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-heading font-medium text-sm shadow-soft transition-colors">
+          📲 ติดตั้งแอปลงหน้าจอโฮมทันที
+        </button>
+      </div>
+
+      <!-- สถานะพื้นที่เก็บข้อมูลถาวร (Persistent Storage) -->
+      <div class="mb-4 p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-heading font-semibold text-emerald-900 block">🛡️ สถานะพื้นที่เก็บรูปภาพในเครื่อง</span>
+          <span id="storageQuotaText" class="text-xs text-emerald-700 mt-0.5 block">กำลังตรวจสอบพื้นที่จัดเก็บ...</span>
+        </div>
+        <span id="storagePersistBadge" class="px-2.5 py-1 rounded-lg text-[11px] font-heading font-medium bg-white text-emerald-700 border border-emerald-200 shrink-0">
+          พร้อมใช้งาน
+        </span>
+      </div>
+
+      <!-- วิธีติดตั้งแยกตามระบบปฏิบัติการ -->
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <p class="font-heading font-semibold text-slate-900 text-sm mb-1">🤖 สำหรับมือถือ Android (Google Chrome):</p>
+          <p>แตะปุ่มเมนู <strong>จุด 3 จุด (⋮)</strong> ที่มุมขวาบนของเบราว์เซอร์ &rarr; เลือก <strong>"ติดตั้งแอป" (Install app)</strong> หรือ <strong>"เพิ่มลงในหน้าจอหลัก"</strong> แอปจะปรากฏบนหน้าจอเหมือนแอปทั่วไป</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <p class="font-heading font-semibold text-slate-900 text-sm mb-1">🍎 สำหรับ iPhone / iPad (Safari):</p>
+          <p>แตะปุ่ม <strong>แชร์ (รูปสี่เหลี่ยมมีลูกศรชี้ขึ้น)</strong> ด้านล่าง &rarr; เลื่อนลงแล้วเลือก <strong>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</strong></p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <p class="font-heading font-semibold text-slate-900 text-sm mb-1">📦 ต้องการแปลงเป็นไฟล์ติดตั้ง .APK:</p>
+          <p>นำ URL หน้าเว็บ GitHub Pages ของคุณไปวางที่เว็บไซต์ฟรีอย่าง <strong>PWABuilder.com</strong> แล้วกด Package for Android เพื่อดาวน์โหลดไฟล์ <code>.apk</code> ไปติดตั้งลงเครื่องได้ทันที</p>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end">
+        <button type="button" onclick="closeInstallAppModal()"
+          class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-sm font-heading font-medium transition-colors">
+          เข้าใจแล้ว
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 0: ตั้งค่า GOOGLE GEMINI API KEY (ใช้ได้จริงบน GitHub Pages)      -->
+  <!-- ===================================================================== -->
+  <div id="aiSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-fade-up max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-heading text-lg sm:text-xl font-semibold text-slate-900">ตั้งค่า Google Gemini API Key</h2>
+            <p class="text-xs text-slate-500">เปิดใช้งานผู้ช่วยติว AI และวิเคราะห์ภาพกระดาน</p>
+          </div>
+        </div>
+        <button onclick="closeAISettingsModal()" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- แถบแจ้งเตือนสาเหตุ (แสดงอัตโนมัติเมื่อเปิดจาก Error หรือยังไม่มีคีย์) -->
+      <div id="aiModalReasonBanner" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-900 leading-relaxed">
+      </div>
+
+      <form onsubmit="handleSaveAISettings(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">
+            วางรหัส Gemini API Key ของคุณ
+          </label>
+          <div class="relative">
+            <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..."
+              class="w-full pl-4 pr-12 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-mono focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+            <button type="button" onclick="toggleApiKeyVisibility()" title="แสดง/ซ่อนรหัส"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700">
+              <svg id="eyeIconShow" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1.5">
+            🔒 ปลอดภัย 100%: รหัสนี้จะถูกบันทึกไว้ในเบราว์เซอร์บนเครื่องของคุณ (<code class="text-slate-600">localStorage</code>) เท่านั้น ไม่มีการส่งขึ้น GitHub
+          </p>
+        </div>
+
+        <!-- คู่มือขอรับ API Key ฟรีเป็นภาษาไทย -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2 text-xs text-slate-600 leading-relaxed">
+          <p class="font-heading font-semibold text-slate-800 text-sm">วิธีขอรับ Google Gemini API Key ฟรี (ใช้เวลา 30 วินาที):</p>
+          <ol class="list-decimal list-inside space-y-1.5">
+            <li>
+              เปิดหน้าเว็บไซต์ Google AI Studio:
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
+                class="text-indigo-600 hover:text-indigo-800 underline font-medium break-all">
+                https://aistudio.google.com/apikey
+              </a>
+            </li>
+            <li>เข้าสู่ระบบด้วยบัญชี Google (Gmail) แล้วกดปุ่ม <strong class="text-slate-800">"Create API key"</strong></li>
+            <li>คัดลอกรหัสที่ขึ้นต้นด้วย <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-800">AIza...</code> มาวางในช่องด้านบน แล้วกดบันทึก</li>
+          </ol>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between gap-2">
+          <button type="button" id="clearApiKeyBtn" onclick="clearSavedApiKey()"
+            class="hidden px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-medium text-rose-600 hover:bg-rose-50 transition-colors">
+            ล้างคีย์ที่บันทึกไว้
+          </button>
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" onclick="closeAISettingsModal()"
+              class="px-4 py-2.5 rounded-xl text-sm font-heading font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+              ยกเลิก
+            </button>
+            <button type="submit"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-heading font-medium shadow-soft transition-colors">
+              บันทึก API Key
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: เพิ่ม / แก้ไขวิชาเรียน (Add / Edit Subject Modal)             -->
+  <!-- ===================================================================== -->
+  <div id="subjectModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-fade-up max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h2 id="subjectModalTitle" class="font-heading text-xl font-semibold text-slate-900">เพิ่มวิชาเรียนใหม่</h2>
+        <button onclick="closeSubjectModal()" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveSubject(event)" class="space-y-5">
+        <input type="hidden" id="subjectIdField" />
+
+        <!-- ชื่อวิชา (บังคับ) -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">
+            ชื่อวิชาเรียน <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="subjectNameField" required placeholder="เช่น Data Structures, แคลคูลัส 1, วรรณคดีวิจารณ์"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-base focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+        </div>
+
+        <!-- รหัสวิชา / ตารางเรียน (ตัวเลือก) -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">
+            รหัสวิชา / ตารางเรียน <span class="text-slate-400 font-normal text-xs">(ไม่บังคับ)</span>
+          </label>
+          <input type="text" id="subjectCodeField" placeholder="เช่น CS201 • จันทร์ 09:00 - 12:00 น."
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors" />
+        </div>
+
+        <!-- เลือกธีมสีการ์ด (8 สีพาสเทลโมเดิร์น) -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">เลือกธีมสีการ์ดวิชา</label>
+          <div id="colorPickerGrid" class="grid grid-cols-4 sm:grid-cols-8 gap-2.5">
+            <!-- สร้างปุ่มสีแบบไดนามิก -->
+          </div>
+        </div>
+
+        <!-- เลือกไอคอนประจำวิชา -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">เลือกไอคอนประจำวิชา</label>
+          <div id="iconPickerGrid" class="grid grid-cols-6 gap-2">
+            <!-- สร้างปุ่มไอคอนแบบไดนามิก -->
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeSubjectModal()"
+            class="px-5 py-2.5 rounded-xl text-sm font-heading font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+            ยกเลิก
+          </button>
+          <button type="submit"
+            class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-sm font-heading font-medium shadow-soft transition-colors">
+            บันทึกวิชาเรียน
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: ตั้งชื่อและแท็กก่อนบันทึกรูปภาพ (Batch Photo Upload Modal)      -->
+  <!-- ===================================================================== -->
+  <div id="uploadModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-fade-up max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between mb-4 shrink-0">
+        <div>
+          <h2 class="font-heading text-xl font-semibold text-slate-900">รายละเอียดรูปภาพเลกเชอร์</h2>
+          <p class="text-xs sm:text-sm text-slate-500">ใส่คำอธิบายสั้นๆ หรือเลือกแท็กเพื่อให้ค้นหาก่อนสอบได้ง่ายขึ้น</p>
+        </div>
+        <button onclick="closeUploadModal()" class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ตั้งแท็กให้ทุกรูปพร้อมกัน + สร้างแท็กเอง -->
+      <div class="bg-slate-50 rounded-2xl p-3.5 mb-4 border border-slate-200/70 shrink-0 space-y-2.5">
+        <span class="text-xs font-heading font-medium text-slate-600 block">ติดแท็กด่วนให้ทุกรูปที่เลือก:</span>
+        <div class="flex flex-wrap gap-1.5" id="batchQuickTags">
+          <!-- แท็กด่วน -->
+        </div>
+        <div class="flex gap-2 pt-1">
+          <input type="text" id="customBatchTagInput" placeholder="พิมพ์แท็กเพิ่มเอง เช่น บทที่1, ควิซ..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault(); addCustomBatchTag();}"
+            class="flex-1 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs focus:outline-none focus:border-indigo-500" />
+          <button type="button" onclick="addCustomBatchTag()"
+            class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white text-xs font-heading font-medium transition-colors">
+            + เพิ่มแท็ก
+          </button>
+        </div>
+      </div>
+
+      <!-- รายการรูปที่กำลังจะอัปโหลด -->
+      <div id="pendingUploadsList" class="flex-1 overflow-y-auto space-y-3 pr-1 mb-5">
+        <!-- พรีวิวแต่ละรูป -->
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 shrink-0">
+        <button type="button" onclick="closeUploadModal()"
+          class="px-5 py-2.5 rounded-xl text-sm font-heading font-medium text-slate-600 hover:bg-slate-100">
+          ยกเลิก
+        </button>
+        <button type="button" id="confirmUploadBtn" onclick="confirmSaveUploadedPhotos()"
+          class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-sm font-heading font-medium shadow-soft transition-colors">
+          บันทึกรูปภาพทั้งหมด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 3: LIGHTBOX ขยายดูรูปภาพกระดานเต็มจอ + ซูมได้                    -->
+  <!-- ===================================================================== -->
+  <div id="lightboxModal" class="hidden fixed inset-0 z-50 bg-slate-950/95 flex flex-col">
+    <!-- แถบเครื่องมือด้านบนของ Lightbox -->
+    <div class="px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 text-white bg-black/40 border-b border-white/10 z-10">
+      <div class="min-w-0 flex-1">
+        <h3 id="lbTitle" class="font-heading font-medium text-sm sm:text-base truncate">ชื่อรูปภาพ</h3>
+        <div id="lbTags" class="flex items-center gap-1.5 mt-0.5 flex-wrap"></div>
+      </div>
+
+      <!-- ปุ่มควบคุมการซูม ดาวน์โหลด และปิด -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button onclick="adjustLightboxZoom(-0.35)" title="ซูมออก"
+          class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </button>
+        <button onclick="resetLightboxZoom()" id="lbZoomLevel" title="รีเซ็ตขนาดภาพ"
+          class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-heading font-medium text-white min-w-[52px]">
+          100%
+        </button>
+        <button onclick="adjustLightboxZoom(0.35)" title="ซูมเข้าดูตัวหนังสือ"
+          class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </button>
+
+        <div class="w-px h-5 bg-white/15 mx-1"></div>
+
+        <button onclick="shareCurrentLightboxPhoto()" title="แชร์รูปภาพไปยังแอปอื่น"
+          class="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-500/25 hover:bg-emerald-600 text-emerald-200 hover:text-white text-xs font-heading inline-flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          <span class="hidden sm:inline">แชร์</span>
+        </button>
+
+        <button onclick="downloadCurrentLightboxPhoto()" title="ดาวน์โหลดรูปภาพ"
+          class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-heading inline-flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span class="hidden sm:inline">ดาวน์โหลด</span>
+        </button>
+
+        <button onclick="deleteCurrentLightboxPhoto()" title="ลบรูปภาพนี้"
+          class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+
+        <button onclick="closeLightbox()" title="ปิดหน้าต่าง"
+          class="p-2 rounded-xl bg-white/15 hover:bg-white/30 text-white ml-1 transition-colors">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- พื้นที่แสดงภาพตรงกลาง -->
+    <div id="lightboxStage" class="flex-1 relative flex items-center justify-center overflow-hidden p-4">
+      <button onclick="navigateLightbox(-1)" id="lbPrevBtn"
+        class="absolute left-3 sm:left-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-white/15 transition-all">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <img id="lightboxImg" src="" alt="ภาพเลกเชอร์" class="max-h-full max-w-full object-contain rounded-lg cursor-grab" />
+
+      <button onclick="navigateLightbox(1)" id="lbNextBtn"
+        class="absolute right-3 sm:right-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-white/15 transition-all">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- แถบคำแนะนำด้านล่าง -->
+    <div class="py-2.5 px-4 text-center text-xs text-slate-400 bg-black/40 border-t border-white/10 safe-bottom">
+      เคล็ดลับ: จีบ 2 นิ้วเพื่อซูม, แตะ 2 ครั้งเพื่อขยายเร็ว และใช้นิ้วลากเลื่อนดูตัวหนังสือบนกระดานได้
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 4: CUSTOM CONFIRMATION DIALOG (แทน confirm() ของเบราว์เซอร์)      -->
+  <!-- ===================================================================== -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-fade-up">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3 id="confirmTitle" class="font-heading font-semibold text-lg text-slate-900 mb-1">ยืนยันการลบข้อมูล</h3>
+      <p id="confirmMessage" class="text-sm text-slate-500 mb-6 leading-relaxed">คุณต้องการลบรายการนี้ใช่หรือไม่?</p>
+      <div class="flex items-center justify-end gap-2.5">
+        <button onclick="closeConfirmModal()"
+          class="px-4 py-2.5 rounded-xl text-sm font-heading font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+          ยกเลิก
+        </button>
+        <button id="confirmActionBtn"
+          class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-heading font-medium transition-colors">
+          ยืนยันการลบ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST NOTIFICATION CONTAINER (แทน alert() ของเบราว์เซอร์)               -->
+  <!-- ===================================================================== -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-xs sm:max-w-sm"></div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * 1. ค่าคงที่การตั้งค่า API, ธีมสีการ์ดวิชาเรียน และชุดไอคอน
+     */
+    const GEMINI_API_KEY_STORAGE = 'studyhub_gemini_api_key';
+    const GEMINI_MODEL = 'gemini-2.5-flash';
+
+    const SUBJECT_THEMES = [
+      { id: 'indigo',  name: 'ครามโมเดิร์น',  bg: 'bg-indigo-50/90',  border: 'border-indigo-200/80', hover: 'hover:border-indigo-400',  accent: 'bg-indigo-600',  text: 'text-indigo-700',  swatch: '#4F46E5' },
+      { id: 'emerald', name: 'เขียวมิ้นท์',    bg: 'bg-emerald-50/90', border: 'border-emerald-200/80',hover: 'hover:border-emerald-400', accent: 'bg-emerald-600', text: 'text-emerald-700', swatch: '#059669' },
+      { id: 'sky',     name: 'ฟ้าสกาย',       bg: 'bg-sky-50/90',     border: 'border-sky-200/80',    hover: 'hover:border-sky-400',     accent: 'bg-sky-600',     text: 'text-sky-700',     swatch: '#0284C7' },
+      { id: 'rose',    name: 'ชมพูคอรัล',     bg: 'bg-rose-50/90',    border: 'border-rose-200/80',   hover: 'hover:border-rose-400',    accent: 'bg-rose-600',    text: 'text-rose-700',    swatch: '#E11D48' },
+      { id: 'amber',   name: 'เหลืองอบอุ่น',  bg: 'bg-amber-50/90',   border: 'border-amber-200/80',  hover: 'hover:border-amber-400',   accent: 'bg-amber-600',   text: 'text-amber-700',   swatch: '#D97706' },
+      { id: 'violet',  name: 'ม่วงลาเวนเดอร์', bg: 'bg-violet-50/90',  border: 'border-violet-200/80', hover: 'hover:border-violet-400',  accent: 'bg-violet-600',  text: 'text-violet-700',  swatch: '#7C3AED' },
+      { id: 'teal',    name: 'เขียวน้ำทะเล',  bg: 'bg-teal-50/90',    border: 'border-teal-200/80',   hover: 'hover:border-teal-400',    accent: 'bg-teal-600',    text: 'text-teal-700',    swatch: '#0D9488' },
+      { id: 'slate',   name: 'เทามินิมอล',    bg: 'bg-slate-100/90',  border: 'border-slate-300/80',  hover: 'hover:border-slate-500',   accent: 'bg-slate-800',   text: 'text-slate-700',   swatch: '#334155' },
+    ];
+
+    const SUBJECT_ICONS = {
+      book: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+      code: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+      calc: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>`,
+      flask: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6"/><path d="M10 9V3"/><path d="M14 9V3"/><path d="M6.864 18.364 10 9h4l3.136 9.364A2 2 0 0 1 15.238 21H8.762a2 2 0 0 1-1.898-2.636Z"/></svg>`,
+      globe: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+      cpu: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>`,
+      palette: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,
+      briefcase: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+      heart: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+      scale: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>`,
+      bulb: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`,
+      grad: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`
+    };
+
+    const DEFAULT_TAGS = ['มิดเทอม', 'ไฟนอล', 'สำคัญ', 'สูตร', 'กระดาน', 'สไลด์'];
+
+    /**
+     * 2. สถานะของแอปพลิเคชัน (Application State)
+     */
+    const state = {
+      db: null,
+      subjects: [],
+      photos: [],
+      links: [],
+      tasks: [],
+      notes: [],
+      currentSubjectId: null,
+      currentTab: 'photos',
+      selectedThemeId: 'indigo',
+      selectedIconId: 'book',
+      activePhotoTagFilter: 'ทั้งหมด',
+      activeLinkCategoryFilter: 'ทั้งหมด',
+      pendingUploads: [],
+      customSessionTags: [],
+      lightboxPhotos: [],
+      lightboxIndex: 0,
+      lbZoom: 1,
+      lbPanX: 0,
+      lbPanY: 0,
+      lastAIOutputRaw: '',
+      editingNoteId: null,
+      deferredInstallPrompt: null
+    };
+
+    /**
+     * 2.5 ระบบสร้าง App Icon & Web App Manifest แบบ Standalone และจัดการพื้นที่จัดเก็บถาวร
+     */
+    function generateAppIconDataUrl(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // พื้นหลังสี่เหลี่ยมโค้งมนสีเข้มโมเดิร์น
+      const radius = Math.round(size * 0.22);
+      ctx.fillStyle = '#0F172A';
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // วงกลมแสงสีครามด้านหลังไอคอน
+      const grad = ctx.createRadialGradient(size * 0.5, size * 0.45, size * 0.05, size * 0.5, size * 0.5, size * 0.48);
+      grad.addColorStop(0, 'rgba(99, 102, 241, 0.38)');
+      grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // วาดไอคอนหมวกรับปริญญาตรงกลาง
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.lineWidth = Math.max(4, Math.round(size * 0.045));
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const cx = size * 0.5;
+      const cy = size * 0.46;
+      const w = size * 0.34;
+      const h = size * 0.16;
+
+      // ปีกหมวกสี่เหลี่ยมข้าวหลามตัด
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - h);
+      ctx.lineTo(cx + w, cy);
+      ctx.lineTo(cx, cy + h);
+      ctx.lineTo(cx - w, cy);
+      ctx.closePath();
+      ctx.stroke();
+
+      // ตัวหมวกด้านล่าง
+      ctx.beginPath();
+      ctx.moveTo(cx - w * 0.58, cy + h * 0.45);
+      ctx.lineTo(cx - w * 0.58, cy + h * 1.45);
+      ctx.quadraticCurveTo(cx, cy + h * 2.05, cx + w * 0.58, cy + h * 1.45);
+      ctx.lineTo(cx + w * 0.58, cy + h * 0.45);
+      ctx.stroke();
+
+      // พู่ด้านขวา
+      ctx.beginPath();
+      ctx.moveTo(cx + w, cy);
+      ctx.lineTo(cx + w, cy + h * 1.35);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
+
+    function initPWAManifestAndIcons() {
+      try {
+        const icon192 = generateAppIconDataUrl(192);
+        const icon512 = generateAppIconDataUrl(512);
+
+        const appleIconLink = document.getElementById('dynamicAppleTouchIcon');
+        if (appleIconLink) appleIconLink.href = icon192;
+
+        const manifestObj = {
+          name: 'StudyHub — คลังข้อมูลการเรียนมหาวิทยาลัย',
+          short_name: 'StudyHub',
+          description: 'แอปเก็บรูปถ่ายกระดานเลกเชอร์ โน้ตสรุป ลิงก์ติว และผู้ช่วยติว AI',
+          start_url: window.location.href,
+          display: 'standalone',
+          orientation: 'portrait-primary',
+          background_color: '#F8FAFC',
+          theme_color: '#F8FAFC',
+          icons: [
+            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+        const manifestLink = document.getElementById('dynamicManifestLink');
+        if (manifestLink) manifestLink.href = manifestUrl;
+      } catch (e) {
+        // ข้ามหากเบราว์เซอร์บล็อก Blob manifest
+      }
+    }
+
+    function setupPWAInstallPrompt() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const labelEl = document.getElementById('installAppBtnLabel');
+      const statusTextEl = document.getElementById('appStandaloneStatusText');
+
+      if (isStandalone) {
+        if (labelEl) labelEl.textContent = 'ข้อมูลแอป';
+        if (statusTextEl) statusTextEl.textContent = 'กำลังใช้งานในโหมดแอปเต็มหน้าจอ (Standalone App)';
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        state.deferredInstallPrompt = e;
+        if (labelEl) labelEl.textContent = 'ติดตั้งแอป';
+        const nativeBox = document.getElementById('nativeInstallPromptBox');
+        if (nativeBox) nativeBox.classList.remove('hidden');
+      });
+
+      window.addEventListener('appinstalled', () => {
+        state.deferredInstallPrompt = null;
+        const nativeBox = document.getElementById('nativeInstallPromptBox');
+        if (nativeBox) nativeBox.classList.add('hidden');
+        showToast('ติดตั้งแอป StudyHub ลงหน้าจอเรียบร้อยแล้ว!');
+      });
+    }
+
+    function handleInstallAppButtonClick() {
+      openInstallAppModal();
+    }
+
+    async function triggerNativeInstallPrompt() {
+      if (!state.deferredInstallPrompt) return;
+      state.deferredInstallPrompt.prompt();
+      const { outcome } = await state.deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') {
+        state.deferredInstallPrompt = null;
+        closeInstallAppModal();
+      }
+    }
+
+    async function updateStorageQuotaStatus() {
+      const quotaText = document.getElementById('storageQuotaText');
+      const persistBadge = document.getElementById('storagePersistBadge');
+      if (!quotaText || !persistBadge) return;
+
+      try {
+        let isPersisted = false;
+        if (navigator.storage && navigator.storage.persisted) {
+          isPersisted = await navigator.storage.persisted();
+          if (!isPersisted && navigator.storage.persist) {
+            isPersisted = await navigator.storage.persist();
+          }
+        }
+
+        if (navigator.storage && navigator.storage.estimate) {
+          const est = await navigator.storage.estimate();
+          const usedMB = ((est.usage || 0) / (1024 * 1024)).toFixed(1);
+          quotaText.textContent = `ใช้พื้นที่ไปแล้ว ${usedMB} MB (เก็บรูปภาพทั้งหมด ${state.photos.length} รูปในเครื่อง)`;
+        } else {
+          quotaText.textContent = `เก็บรูปภาพทั้งหมด ${state.photos.length} รูปในฐานข้อมูลเครื่อง`;
+        }
+
+        persistBadge.textContent = isPersisted ? '✓ ป้องกันข้อมูลถาวร' : '✓ บันทึกในเครื่อง';
+      } catch (e) {
+        quotaText.textContent = `เก็บรูปภาพทั้งหมด ${state.photos.length} รูปในเครื่อง`;
+      }
+    }
+
+    function openInstallAppModal() {
+      updateStorageQuotaStatus();
+      if (state.deferredInstallPrompt) {
+        document.getElementById('nativeInstallPromptBox').classList.remove('hidden');
+      }
+      document.getElementById('installAppModal').classList.remove('hidden');
+    }
+
+    function closeInstallAppModal() {
+      document.getElementById('installAppModal').classList.add('hidden');
+    }
+
+    /**
+     * 3. ระบบจัดการ Google Gemini API Key (รองรับทั้ง Preview และ GitHub Pages)
+     */
+    function getSavedGeminiApiKey() {
+      try {
+        return (localStorage.getItem(GEMINI_API_KEY_STORAGE) || '').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function updateAIStatusIndicator() {
+      const apiKey = getSavedGeminiApiKey();
+      const dot = document.getElementById('aiStatusDot');
+      const btn = document.getElementById('aiSettingsHeaderBtn');
+      const missingNotice = document.getElementById('aiKeyMissingNotice');
+
+      if (apiKey) {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0';
+        btn.classList.remove('border-amber-300', 'bg-amber-50/60');
+        btn.classList.add('border-slate-200/90', 'bg-white');
+        if (missingNotice) missingNotice.classList.add('hidden');
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0';
+        btn.classList.remove('border-slate-200/90', 'bg-white');
+        btn.classList.add('border-amber-300', 'bg-amber-50/60');
+        if (missingNotice) missingNotice.classList.remove('hidden');
+      }
+    }
+
+    function openAISettingsModal(reasonMessage = '') {
+      const modal = document.getElementById('aiSettingsModal');
+      const input = document.getElementById('geminiApiKeyInput');
+      const banner = document.getElementById('aiModalReasonBanner');
+      const clearBtn = document.getElementById('clearApiKeyBtn');
+
+      const existingKey = getSavedGeminiApiKey();
+      input.value = existingKey;
+      input.type = 'password';
+
+      if (existingKey) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      if (reasonMessage) {
+        banner.textContent = reasonMessage;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 60);
+    }
+
+    function closeAISettingsModal() {
+      document.getElementById('aiSettingsModal').classList.add('hidden');
+    }
+
+    function toggleApiKeyVisibility() {
+      const input = document.getElementById('geminiApiKeyInput');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function handleSaveAISettings(event) {
+      event.preventDefault();
+      const rawKey = document.getElementById('geminiApiKeyInput').value.trim();
+
+      if (!rawKey) {
+        showToast('กรุณาวางรหัส Gemini API Key ก่อนกดบันทึก', 'error');
+        return;
+      }
+
+      try {
+        localStorage.setItem(GEMINI_API_KEY_STORAGE, rawKey);
+      } catch (e) {
+        showToast('เบราว์เซอร์ไม่อนุญาตให้บันทึกข้อมูลใน localStorage', 'error');
+        return;
+      }
+
+      updateAIStatusIndicator();
+      closeAISettingsModal();
+      showToast('บันทึก Gemini API Key เรียบร้อยแล้ว พร้อมใช้งาน AI!');
+    }
+
+    function clearSavedApiKey() {
+      try {
+        localStorage.removeItem(GEMINI_API_KEY_STORAGE);
+      } catch (e) {}
+      document.getElementById('geminiApiKeyInput').value = '';
+      updateAIStatusIndicator();
+      closeAISettingsModal();
+      showToast('ล้างรหัส API Key ออกจากเครื่องแล้ว', 'info');
+    }
+
+    /**
+     * 4. ระบบจัดเก็บข้อมูลถาวรด้วย IndexedDB (StudyHubDB)
+     */
+    const DB_NAME = 'StudyHubDB';
+    const DB_VERSION = 1;
+
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains('subjects')) {
+            db.createObjectStore('subjects', { keyPath: 'id' });
+          }
+          if (!db.objectStoreNames.contains('photos')) {
+            const photoStore = db.createObjectStore('photos', { keyPath: 'id' });
+            photoStore.createIndex('subjectId', 'subjectId', { unique: false });
+          }
+          if (!db.objectStoreNames.contains('links')) {
+            const linkStore = db.createObjectStore('links', { keyPath: 'id' });
+            linkStore.createIndex('subjectId', 'subjectId', { unique: false });
+          }
+          if (!db.objectStoreNames.contains('tasks')) {
+            const taskStore = db.createObjectStore('tasks', { keyPath: 'id' });
+            taskStore.createIndex('subjectId', 'subjectId', { unique: false });
+          }
+          if (!db.objectStoreNames.contains('notes')) {
+            const noteStore = db.createObjectStore('notes', { keyPath: 'id' });
+            noteStore.createIndex('subjectId', 'subjectId', { unique: false });
+          }
+        };
+
+        request.onsuccess = (event) => {
+          state.db = event.target.result;
+          resolve(state.db);
+        };
+
+        request.onerror = (event) => {
+          reject(event.target.error);
+        };
+      });
+    }
+
+    function dbGetAll(storeName) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbPut(storeName, item) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.put(item);
+        req.onsuccess = () => resolve(item);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbDelete(storeName, id) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function dbClearAndBulkPut(storeName, items) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        store.clear();
+        items.forEach(item => store.put(item));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function loadAllDataFromDB() {
+      const [subjects, photos, links, tasks, notes] = await Promise.all([
+        dbGetAll('subjects'),
+        dbGetAll('photos'),
+        dbGetAll('links'),
+        dbGetAll('tasks'),
+        dbGetAll('notes')
+      ]);
+
+      state.subjects = subjects.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      state.photos = photos.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      state.links = links.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      state.tasks = tasks.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      state.notes = notes.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    /**
+     * 5. ฟังก์ชันช่วยเหลือทั่วไป (UUID, Toast, Custom Confirm, Clipboard)
+     */
+    function generateId(prefix = 'id') {
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bgClass = type === 'error'
+        ? 'bg-rose-600 text-white'
+        : type === 'info'
+          ? 'bg-slate-800 text-white'
+          : 'bg-slate-900 text-white';
+
+      toast.className = `${bgClass} px-4 py-3 rounded-2xl shadow-lg text-sm font-heading flex items-center gap-2.5 animate-fade-up pointer-events-auto`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${type === 'error' ? 'bg-rose-200' : 'bg-emerald-400'} shrink-0"></span>
+        <span>${escapeHTML(message)}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(6px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 3200);
+    }
+
+    function openConfirmModal(title, message, onConfirmCallback) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      const btn = document.getElementById('confirmActionBtn');
+      btn.onclick = () => {
+        closeConfirmModal();
+        onConfirmCallback();
+      };
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.add('hidden');
+    }
+
+    function copyTextToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('คัดลอกข้อความเรียบร้อยแล้ว');
+      } catch (err) {
+        showToast('ไม่สามารถคัดลอกข้อความได้', 'error');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatThaiDate(timestamp) {
+      if (!timestamp) return '';
+      const d = new Date(timestamp);
+      return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+    }
+
+    /**
+     * 6. การนำทางระหว่างหน้าแรก (Home Dashboard) และหน้าวิชาเรียน (Workspace)
+     */
+    function navigateToHome(fromPopState = false) {
+      state.currentSubjectId = null;
+      document.getElementById('workspaceView').classList.add('hidden');
+      document.getElementById('mobileBottomNav').classList.add('hidden');
+      document.getElementById('workspaceHeaderActions').classList.add('hidden');
+      document.getElementById('workspaceHeaderActions').classList.remove('flex');
+
+      document.getElementById('homeView').classList.remove('hidden');
+      document.getElementById('homeHeaderActions').classList.remove('hidden');
+      renderHomeDashboard();
+
+      if (!fromPopState && window.history && window.history.state && window.history.state.view === 'workspace') {
+        try { window.history.back(); } catch (e) {}
+      }
+    }
+
+    function openSubjectWorkspace(subjectId) {
+      const subject = state.subjects.find(s => s.id === subjectId);
+      if (!subject) return;
+
+      state.currentSubjectId = subjectId;
+      state.activePhotoTagFilter = 'ทั้งหมด';
+      state.activeLinkCategoryFilter = 'ทั้งหมด';
+
+      document.getElementById('homeView').classList.add('hidden');
+      document.getElementById('homeHeaderActions').classList.add('hidden');
+
+      document.getElementById('workspaceView').classList.remove('hidden');
+      document.getElementById('mobileBottomNav').classList.remove('hidden');
+      document.getElementById('workspaceHeaderActions').classList.remove('hidden');
+      document.getElementById('workspaceHeaderActions').classList.add('flex');
+
+      if (window.history && window.history.pushState) {
+        try {
+          window.history.pushState({ view: 'workspace', subjectId }, '');
+        } catch (e) {}
+      }
+
+      renderWorkspaceHeader();
+      switchWorkspaceTab('photos');
+    }
+
+    /**
+     * 7. การแสดงผลหน้าแรก (Clean Home Dashboard & Big Subject Buttons)
+     */
+    function renderHomeDashboard() {
+      const emptyState = document.getElementById('emptyHomeState');
+      const populatedState = document.getElementById('populatedHomeState');
+      const grid = document.getElementById('subjectsGrid');
+      const badge = document.getElementById('subjectCountBadge');
+
+      if (state.subjects.length === 0) {
+        emptyState.classList.remove('hidden');
+        populatedState.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      populatedState.classList.remove('hidden');
+      badge.textContent = `${state.subjects.length} วิชา`;
+
+      grid.innerHTML = state.subjects.map(sub => {
+        const theme = SUBJECT_THEMES.find(t => t.id === sub.themeId) || SUBJECT_THEMES[0];
+        const iconSvg = SUBJECT_ICONS[sub.iconId] || SUBJECT_ICONS.book;
+
+        const photoCount = state.photos.filter(p => p.subjectId === sub.id).length;
+        const resourceCount = state.links.filter(l => l.subjectId === sub.id).length +
+                              state.notes.filter(n => n.subjectId === sub.id).length;
+        const pendingTasks = state.tasks.filter(t => t.subjectId === sub.id && !t.completed).length;
+
+        return `
+          <div onclick="openSubjectWorkspace('${sub.id}')"
+            class="group cursor-pointer rounded-3xl ${theme.bg} border-2 ${theme.border} ${theme.hover} p-6 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between min-h-[195px] relative">
+
+            <!-- แถวบน: ไอคอนประจำวิชา + ปุ่มแก้ไข/ลบ -->
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div class="w-14 h-14 rounded-2xl bg-white shadow-xs flex items-center justify-center ${theme.text} group-hover:scale-105 transition-transform">
+                ${iconSvg}
+              </div>
+
+              <div class="flex items-center gap-1 opacity-85 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+                <button onclick="openSubjectModal('${sub.id}')" title="แก้ไขวิชา"
+                  class="p-2 rounded-xl bg-white/80 hover:bg-white text-slate-600 hover:text-slate-900 shadow-2xs transition-colors">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button onclick="confirmDeleteSubject('${sub.id}')" title="ลบวิชา"
+                  class="p-2 rounded-xl bg-white/80 hover:bg-rose-500 text-slate-600 hover:text-white shadow-2xs transition-colors">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- ตรงกลาง: รหัสวิชา และ ชื่อวิชาขนาดใหญ่ -->
+            <div class="mb-5">
+              ${sub.code ? `<span class="inline-block text-xs font-heading font-medium ${theme.text} bg-white/75 px-2.5 py-0.5 rounded-lg mb-1.5">${escapeHTML(sub.code)}</span>` : ''}
+              <h2 class="font-heading text-xl sm:text-2xl font-semibold text-slate-900 leading-snug line-clamp-2">
+                ${escapeHTML(sub.name)}
+              </h2>
+            </div>
+
+            <!-- แถวล่าง: สถิติจำนวนรูปภาพและโน้ตที่เก็บไว้ -->
+            <div class="pt-3.5 border-t border-black/5 flex items-center justify-between text-xs font-heading text-slate-600">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  ${photoCount} รูป
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  ${resourceCount} โน้ต/ลิงก์
+                </span>
+              </div>
+
+              ${pendingTasks > 0
+                ? `<span class="px-2 py-0.5 rounded-md bg-white/90 text-amber-700 font-medium">${pendingTasks} งานค้าง</span>`
+                : `<span class="inline-flex items-center gap-0.5 font-medium ${theme.text} group-hover:translate-x-0.5 transition-transform">เปิดดู &rarr;</span>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /**
+     * 8. Modal เพิ่ม / แก้ไขวิชาเรียน
+     */
+    function renderColorAndIconPickers() {
+      const colorGrid = document.getElementById('colorPickerGrid');
+      colorGrid.innerHTML = SUBJECT_THEMES.map(theme => `
+        <button type="button" onclick="selectSubjectTheme('${theme.id}')"
+          class="w-full aspect-square rounded-2xl flex items-center justify-center border-2 transition-all ${state.selectedThemeId === theme.id ? 'border-slate-900 scale-105 shadow-xs' : 'border-transparent hover:scale-105'}"
+          style="background-color: ${theme.swatch}20" title="${theme.name}">
+          <span class="w-6 h-6 rounded-full shadow-2xs flex items-center justify-center text-white" style="background-color: ${theme.swatch}">
+            ${state.selectedThemeId === theme.id ? '✓' : ''}
+          </span>
+        </button>
+      `).join('');
+
+      const iconGrid = document.getElementById('iconPickerGrid');
+      iconGrid.innerHTML = Object.entries(SUBJECT_ICONS).map(([key, svg]) => `
+        <button type="button" onclick="selectSubjectIcon('${key}')"
+          class="aspect-square rounded-2xl flex items-center justify-center border transition-all ${state.selectedIconId === key ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
+          ${svg}
+        </button>
+      `).join('');
+    }
+
+    function selectSubjectTheme(themeId) {
+      state.selectedThemeId = themeId;
+      renderColorAndIconPickers();
+    }
+
+    function selectSubjectIcon(iconId) {
+      state.selectedIconId = iconId;
+      renderColorAndIconPickers();
+    }
+
+    function openSubjectModal(editSubjectId = null) {
+      const modal = document.getElementById('subjectModal');
+      const titleEl = document.getElementById('subjectModalTitle');
+      const idField = document.getElementById('subjectIdField');
+      const nameField = document.getElementById('subjectNameField');
+      const codeField = document.getElementById('subjectCodeField');
+
+      if (editSubjectId) {
+        const sub = state.subjects.find(s => s.id === editSubjectId);
+        if (!sub) return;
+        titleEl.textContent = 'แก้ไขข้อมูลวิชาเรียน';
+        idField.value = sub.id;
+        nameField.value = sub.name;
+        codeField.value = sub.code || '';
+        state.selectedThemeId = sub.themeId || 'indigo';
+        state.selectedIconId = sub.iconId || 'book';
+      } else {
+        titleEl.textContent = 'เพิ่มวิชาเรียนใหม่';
+        idField.value = '';
+        nameField.value = '';
+        codeField.value = '';
+        const randomTheme = SUBJECT_THEMES[state.subjects.length % SUBJECT_THEMES.length];
+        state.selectedThemeId = randomTheme.id;
+        state.selectedIconId = 'book';
+      }
+
+      renderColorAndIconPickers();
+      modal.classList.remove('hidden');
+      setTimeout(() => nameField.focus(), 60);
+    }
+
+    function closeSubjectModal() {
+      document.getElementById('subjectModal').classList.add('hidden');
+    }
+
+    function editCurrentSubject() {
+      if (state.currentSubjectId) {
+        openSubjectModal(state.currentSubjectId);
+      }
+    }
+
+    async function handleSaveSubject(event) {
+      event.preventDefault();
+      const id = document.getElementById('subjectIdField').value;
+      const name = document.getElementById('subjectNameField').value.trim();
+      const code = document.getElementById('subjectCodeField').value.trim();
+
+      if (!name) return;
+
+      if (id) {
+        const existing = state.subjects.find(s => s.id === id);
+        if (existing) {
+          existing.name = name;
+          existing.code = code;
+          existing.themeId = state.selectedThemeId;
+          existing.iconId = state.selectedIconId;
+          await dbPut('subjects', existing);
+          showToast('อัปเดตข้อมูลวิชาเรียบร้อยแล้ว');
+        }
+      } else {
+        const newSubject = {
+          id: generateId('sub'),
+          name,
+          code,
+          themeId: state.selectedThemeId,
+          iconId: state.selectedIconId,
+          createdAt: Date.now()
+        };
+        await dbPut('subjects', newSubject);
+        state.subjects.unshift(newSubject);
+        showToast(`เพิ่มวิชา "${name}" เรียบร้อยแล้ว`);
+      }
+
+      closeSubjectModal();
+      if (state.currentSubjectId) {
+        renderWorkspaceHeader();
+      } else {
+        renderHomeDashboard();
+      }
+    }
+
+    function confirmDeleteSubject(subjectId) {
+      const sub = state.subjects.find(s => s.id === subjectId);
+      if (!sub) return;
+
+      openConfirmModal(
+        `ลบวิชา "${sub.name}"?`,
+        'รูปภาพเลกเชอร์ ลิงก์ และโน้ตสรุปทั้งหมดในวิชานี้จะถูกลบออกอย่างถาวร',
+        async () => {
+          const subPhotos = state.photos.filter(p => p.subjectId === subjectId);
+          const subLinks = state.links.filter(l => l.subjectId === subjectId);
+          const subTasks = state.tasks.filter(t => t.subjectId === subjectId);
+          const subNotes = state.notes.filter(n => n.subjectId === subjectId);
+
+          await Promise.all([
+            dbDelete('subjects', subjectId),
+            ...subPhotos.map(p => dbDelete('photos', p.id)),
+            ...subLinks.map(l => dbDelete('links', l.id)),
+            ...subTasks.map(t => dbDelete('tasks', t.id)),
+            ...subNotes.map(n => dbDelete('notes', n.id)),
+          ]);
+
+          state.subjects = state.subjects.filter(s => s.id !== subjectId);
+          state.photos = state.photos.filter(p => p.subjectId !== subjectId);
+          state.links = state.links.filter(l => l.subjectId !== subjectId);
+          state.tasks = state.tasks.filter(t => t.subjectId !== subjectId);
+          state.notes = state.notes.filter(n => n.subjectId !== subjectId);
+
+          showToast('ลบรายวิชาเรียบร้อยแล้ว');
+          renderHomeDashboard();
+        }
+      );
+    }
+
+    /**
+     * 9. พื้นที่ภายในแต่ละวิชาเรียน (Subject Workspace)
+     */
+    function renderWorkspaceHeader() {
+      const sub = state.subjects.find(s => s.id === state.currentSubjectId);
+      if (!sub) return;
+
+      const theme = SUBJECT_THEMES.find(t => t.id === sub.themeId) || SUBJECT_THEMES[0];
+      const headerCard = document.getElementById('workspaceHeaderCard');
+      headerCard.className = `rounded-3xl p-5 sm:p-7 mb-6 border transition-all relative overflow-hidden ${theme.bg} ${theme.border}`;
+
+      const iconBox = document.getElementById('wsSubjectIconBox');
+      iconBox.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-white ${theme.text}`;
+      iconBox.innerHTML = SUBJECT_ICONS[sub.iconId] || SUBJECT_ICONS.book;
+
+      const codeEl = document.getElementById('wsSubjectCode');
+      if (sub.code) {
+        codeEl.textContent = sub.code;
+        codeEl.classList.remove('hidden');
+      } else {
+        codeEl.classList.add('hidden');
+      }
+
+      document.getElementById('wsSubjectName').textContent = sub.name;
+      updateWorkspaceBadges();
+    }
+
+    function updateWorkspaceBadges() {
+      const subId = state.currentSubjectId;
+      const pCount = state.photos.filter(p => p.subjectId === subId).length;
+      const rCount = state.links.filter(l => l.subjectId === subId).length +
+                     state.notes.filter(n => n.subjectId === subId).length;
+
+      document.getElementById('tabPhotoCount').textContent = pCount;
+      document.getElementById('tabResourceCount').textContent = rCount;
+      const mobilePhotoBadge = document.getElementById('mobileTabPhotoCount');
+      const mobileResourceBadge = document.getElementById('mobileTabResourceCount');
+      if (mobilePhotoBadge) mobilePhotoBadge.textContent = pCount;
+      if (mobileResourceBadge) mobileResourceBadge.textContent = rCount;
+    }
+
+    function switchWorkspaceTab(tabName) {
+      state.currentTab = tabName;
+
+      // อัปเดตแถบแท็บด้านบน (Desktop)
+      document.querySelectorAll('.ws-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-900', 'text-white', 'shadow-xs');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+      });
+      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        activeBtn.classList.add('bg-slate-900', 'text-white', 'shadow-xs');
+      }
+
+      // อัปเดตแถบแท็บนิ้วโป้งด้านล่าง (Mobile Bottom Navigation)
+      document.querySelectorAll('.mobile-ws-tab-btn').forEach(btn => {
+        btn.classList.remove('text-indigo-600', 'bg-indigo-50/80');
+        btn.classList.add('text-slate-500');
+      });
+      const activeMobileBtn = document.getElementById(`mobileTabBtn-${tabName}`);
+      if (activeMobileBtn) {
+        activeMobileBtn.classList.remove('text-slate-500');
+        activeMobileBtn.classList.add('text-indigo-600', 'bg-indigo-50/80');
+      }
+
+      document.querySelectorAll('.ws-tab-panel').forEach(panel => panel.classList.add('hidden'));
+      document.getElementById(`tabContent-${tabName}`).classList.remove('hidden');
+
+      if (tabName === 'photos') {
+        renderPhotosGrid();
+      } else if (tabName === 'resources') {
+        renderLinksList();
+        renderTasksList();
+        renderNotesList();
+      } else if (tabName === 'ai') {
+        updateAIStatusIndicator();
+        populateAIPhotoDropdown();
+      }
+    }
+
+    /**
+     * 10. แท็บที่ 1: คลังภาพเลกเชอร์ & กระดาน (Upload, Compression, Tags, Gallery, Lightbox)
+     */
+    function setupPhotoDropzone() {
+      const dropzone = document.getElementById('photoDropzone');
+      ['dragenter', 'dragover'].forEach(evtName => {
+        dropzone.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('border-indigo-500', 'bg-indigo-50/40');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evtName => {
+        dropzone.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('border-indigo-500', 'bg-indigo-50/40');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length > 0) {
+          processSelectedImageFiles(files);
+        }
+      });
+    }
+
+    function handlePhotoFilesSelected(event) {
+      const files = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
+      if (files.length > 0) {
+        processSelectedImageFiles(files);
+      }
+      event.target.value = '';
+    }
+
+    function optimizeImageFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX_DIM = 1920;
+            let width = img.width;
+            let height = img.height;
+
+            if (width <= MAX_DIM && height <= MAX_DIM && file.size < 1.4 * 1024 * 1024) {
+              resolve(e.target.result);
+              return;
+            }
+
+            if (width > height && width > MAX_DIM) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else if (height > MAX_DIM) {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function processSelectedImageFiles(files) {
+      showToast(`กำลังเตรียมรูปภาพ ${files.length} รูป...`, 'info');
+      const processed = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const dataUrl = await optimizeImageFile(file);
+        const defaultName = file.name.replace(/\.[^/.]+$/, '') || `เลกเชอร์วันที่ ${formatThaiDate(Date.now())}`;
+        processed.push({
+          tempId: i,
+          dataUrl,
+          title: defaultName,
+          tags: []
+        });
+      }
+
+      state.pendingUploads = processed;
+      openUploadModal();
+    }
+
+    function getAllAvailableTags() {
+      const subPhotos = state.photos.filter(p => p.subjectId === state.currentSubjectId);
+      const usedTags = subPhotos.flatMap(p => p.tags || []);
+      return Array.from(new Set([...DEFAULT_TAGS, ...state.customSessionTags, ...usedTags]));
+    }
+
+    function openUploadModal() {
+      renderBatchQuickTags();
+      renderPendingUploadsList();
+      document.getElementById('uploadModal').classList.remove('hidden');
+    }
+
+    function renderBatchQuickTags() {
+      const quickTagsBox = document.getElementById('batchQuickTags');
+      const tags = getAllAvailableTags();
+      quickTagsBox.innerHTML = tags.map(tag => `
+        <button type="button" onclick="applyTagToAllPending('${escapeHTML(tag)}')"
+          class="px-3 py-1 rounded-lg text-xs font-heading font-medium bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 transition-colors">
+          + #${escapeHTML(tag)}
+        </button>
+      `).join('');
+    }
+
+    function addCustomBatchTag() {
+      const input = document.getElementById('customBatchTagInput');
+      const rawTag = input.value.trim().replace(/^#/, '');
+      if (!rawTag) return;
+
+      if (!state.customSessionTags.includes(rawTag)) {
+        state.customSessionTags.push(rawTag);
+      }
+      applyTagToAllPending(rawTag);
+      input.value = '';
+      renderBatchQuickTags();
+    }
+
+    function closeUploadModal() {
+      state.pendingUploads = [];
+      document.getElementById('uploadModal').classList.add('hidden');
+    }
+
+    function applyTagToAllPending(tag) {
+      state.pendingUploads.forEach(item => {
+        if (!item.tags.includes(tag)) {
+          item.tags.push(tag);
+        }
+      });
+      renderPendingUploadsList();
+    }
+
+    function togglePendingItemTag(index, tag) {
+      const item = state.pendingUploads[index];
+      if (!item) return;
+      if (item.tags.includes(tag)) {
+        item.tags = item.tags.filter(t => t !== tag);
+      } else {
+        item.tags.push(tag);
+      }
+      renderPendingUploadsList();
+    }
+
+    function renderPendingUploadsList() {
+      const container = document.getElementById('pendingUploadsList');
+      const availableTags = getAllAvailableTags();
+
+      container.innerHTML = state.pendingUploads.map((item, idx) => `
+        <div class="flex flex-col sm:flex-row gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+          <img src="${item.dataUrl}" class="w-full sm:w-28 h-28 object-cover rounded-xl bg-white border border-slate-200 shrink-0" />
+          <div class="flex-1 space-y-2">
+            <input type="text" value="${escapeHTML(item.title)}"
+              oninput="state.pendingUploads[${idx}].title = this.value"
+              placeholder="หัวข้อหรือคำอธิบายภาพ เช่น กระดานเรื่อง Linked List"
+              class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+            <div class="flex flex-wrap gap-1.5">
+              ${availableTags.map(tag => {
+                const active = item.tags.includes(tag);
+                return `
+                  <button type="button" onclick="togglePendingItemTag(${idx}, '${escapeHTML(tag)}')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-heading transition-colors ${active ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">
+                    ${active ? '✓ ' : ''}#${escapeHTML(tag)}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function confirmSaveUploadedPhotos() {
+      if (state.pendingUploads.length === 0) return;
+
+      const btn = document.getElementById('confirmUploadBtn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      try {
+        for (const item of state.pendingUploads) {
+          const photoRecord = {
+            id: generateId('photo'),
+            subjectId: state.currentSubjectId,
+            title: item.title.trim() || `ภาพเลกเชอร์ ${formatThaiDate(Date.now())}`,
+            tags: item.tags,
+            dataUrl: item.dataUrl,
+            createdAt: Date.now()
+          };
+          await dbPut('photos', photoRecord);
+          state.photos.unshift(photoRecord);
+        }
+
+        const savedCount = state.pendingUploads.length;
+        closeUploadModal();
+        updateWorkspaceBadges();
+        renderPhotosGrid();
+        showToast(`บันทึกรูปภาพ ${savedCount} รูปเรียบร้อยแล้ว`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกรูปภาพทั้งหมด';
+      }
+    }
+
+    function setPhotoTagFilter(tag) {
+      state.activePhotoTagFilter = tag;
+      renderPhotosGrid();
+    }
+
+    function renderPhotosGrid() {
+      const subPhotos = state.photos.filter(p => p.subjectId === state.currentSubjectId);
+      const filterBar = document.getElementById('photoFilterBar');
+      const emptyState = document.getElementById('emptyPhotosState');
+      const grid = document.getElementById('photosGrid');
+
+      if (subPhotos.length === 0) {
+        filterBar.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        grid.innerHTML = '';
+        return;
+      }
+
+      filterBar.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      const tagFiltersContainer = document.getElementById('photoTagFilters');
+      const allFilterTags = ['ทั้งหมด', ...getAllAvailableTags()];
+      tagFiltersContainer.innerHTML = allFilterTags.map(tag => {
+        const active = state.activePhotoTagFilter === tag;
+        return `
+          <button onclick="setPhotoTagFilter('${escapeHTML(tag)}')"
+            class="px-3 py-1.5 rounded-xl text-xs font-heading font-medium whitespace-nowrap transition-colors ${active ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+            ${tag === 'ทั้งหมด' ? 'ทั้งหมด' : '#' + escapeHTML(tag)}
+          </button>
+        `;
+      }).join('');
+
+      const keyword = (document.getElementById('photoSearchInput')?.value || '').trim().toLowerCase().replace(/^#/, '');
+      const filtered = subPhotos.filter(p => {
+        const matchTag = state.activePhotoTagFilter === 'ทั้งหมด' || (p.tags && p.tags.includes(state.activePhotoTagFilter));
+        const matchKeyword = !keyword ||
+          (p.title && p.title.toLowerCase().includes(keyword)) ||
+          (p.tags && p.tags.some(t => t.toLowerCase().includes(keyword)));
+        return matchTag && matchKeyword;
+      });
+
+      state.lightboxPhotos = filtered;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-3xl border border-slate-200/70 p-8 text-center text-slate-400 text-sm">
+            ไม่พบรูปภาพที่ตรงกับการค้นหาหรือแท็กที่เลือก
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((photo, idx) => `
+        <div onclick="openLightbox(${idx})"
+          class="group cursor-pointer bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all flex flex-col">
+          <div class="aspect-[4/3] bg-slate-100 relative overflow-hidden">
+            <img src="${photo.dataUrl}" alt="${escapeHTML(photo.title)}" loading="lazy"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3">
+              <span class="text-white text-xs font-heading bg-black/50 backdrop-blur-xs px-2.5 py-1 rounded-lg">
+                คลิกเพื่อขยาย & ซูม
+              </span>
+              <button onclick="event.stopPropagation(); confirmDeletePhoto('${photo.id}')" title="ลบรูปภาพ"
+                class="p-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 class="font-heading font-medium text-sm sm:text-base text-slate-900 line-clamp-1 mb-1.5">
+                ${escapeHTML(photo.title)}
+              </h4>
+              <div class="flex flex-wrap gap-1">
+                ${(photo.tags || []).map(tag => `
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-heading font-medium bg-indigo-50 text-indigo-700">
+                    #${escapeHTML(tag)}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+            <span class="text-[11px] text-slate-400 mt-3 block">บันทึกเมื่อ ${formatThaiDate(photo.createdAt)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function confirmDeletePhoto(photoId) {
+      openConfirmModal(
+        'ลบรูปภาพเลกเชอร์?',
+        'คุณต้องการลบรูปภาพนี้ออกจากคลังของวิชาใช่หรือไม่?',
+        async () => {
+          await dbDelete('photos', photoId);
+          state.photos = state.photos.filter(p => p.id !== photoId);
+          updateWorkspaceBadges();
+          renderPhotosGrid();
+          showToast('ลบรูปภาพเรียบร้อยแล้ว');
+        }
+      );
+    }
+
+    /**
+     * 11. Lightbox ขยายเต็มจอ + ระบบซูมและลาก/สัมผัสเลื่อนภาพเพื่ออ่านกระดาน
+     */
+    function openLightbox(index) {
+      if (!state.lightboxPhotos.length) return;
+      state.lightboxIndex = index;
+      resetLightboxZoom();
+      updateLightboxView();
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+
+    function updateLightboxView() {
+      const photo = state.lightboxPhotos[state.lightboxIndex];
+      if (!photo) return;
+
+      document.getElementById('lightboxImg').src = photo.dataUrl;
+      document.getElementById('lbTitle').textContent = photo.title;
+      document.getElementById('lbTags').innerHTML = (photo.tags || []).map(t =>
+        `<span class="px-2 py-0.5 rounded-md text-[11px] bg-white/15 text-indigo-200 font-heading">#${escapeHTML(t)}</span>`
+      ).join('');
+
+      document.getElementById('lbPrevBtn').style.visibility = state.lightboxPhotos.length > 1 ? 'visible' : 'hidden';
+      document.getElementById('lbNextBtn').style.visibility = state.lightboxPhotos.length > 1 ? 'visible' : 'hidden';
+    }
+
+    function navigateLightbox(step) {
+      const len = state.lightboxPhotos.length;
+      if (len <= 1) return;
+      state.lightboxIndex = (state.lightboxIndex + step + len) % len;
+      resetLightboxZoom();
+      updateLightboxView();
+    }
+
+    function applyLightboxTransform() {
+      const img = document.getElementById('lightboxImg');
+      img.style.transform = `translate(${state.lbPanX}px, ${state.lbPanY}px) scale(${state.lbZoom})`;
+      document.getElementById('lbZoomLevel').textContent = `${Math.round(state.lbZoom * 100)}%`;
+    }
+
+    function adjustLightboxZoom(delta) {
+      state.lbZoom = Math.min(4.5, Math.max(1, +(state.lbZoom + delta).toFixed(2)));
+      if (state.lbZoom <= 1) {
+        state.lbPanX = 0;
+        state.lbPanY = 0;
+      }
+      applyLightboxTransform();
+    }
+
+    function resetLightboxZoom() {
+      state.lbZoom = 1;
+      state.lbPanX = 0;
+      state.lbPanY = 0;
+      applyLightboxTransform();
+    }
+
+    function setupLightboxInteractions() {
+      const stage = document.getElementById('lightboxStage');
+      const img = document.getElementById('lightboxImg');
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      // ตัวแปรสำหรับ Pinch-to-Zoom และ Double-Tap บนมือถือ
+      let isPinching = false;
+      let initialPinchDist = 0;
+      let initialPinchZoom = 1;
+      let lastTapTime = 0;
+      let swipeStartX = 0;
+
+      function getTouchDistance(t1, t2) {
+        const dx = t1.clientX - t2.clientX;
+        const dy = t1.clientY - t2.clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      stage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        adjustLightboxZoom(e.deltaY < 0 ? 0.25 : -0.25);
+      }, { passive: false });
+
+      // Double-click สำหรับคอมพิวเตอร์
+      img.addEventListener('dblclick', () => {
+        if (state.lbZoom > 1) {
+          resetLightboxZoom();
+        } else {
+          state.lbZoom = 2.4;
+          applyLightboxTransform();
+        }
+      });
+
+      // รองรับ Mouse Drag
+      img.addEventListener('mousedown', (e) => {
+        if (state.lbZoom <= 1) return;
+        isDragging = true;
+        img.classList.add('dragging');
+        startX = e.clientX - state.lbPanX;
+        startY = e.clientY - state.lbPanY;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        state.lbPanX = e.clientX - startX;
+        state.lbPanY = e.clientY - startY;
+        applyLightboxTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        img.classList.remove('dragging');
+      });
+
+      // รองรับ Touch Pinch-to-Zoom, Double-Tap, Pan และ Swipe เปลี่ยนรูปบนมือถือ
+      stage.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          isPinching = true;
+          isDragging = false;
+          img.classList.add('dragging');
+          initialPinchDist = getTouchDistance(e.touches[0], e.touches[1]);
+          initialPinchZoom = state.lbZoom;
+          return;
+        }
+
+        if (e.touches.length === 1) {
+          const now = Date.now();
+          if (now - lastTapTime < 280) {
+            // Double-Tap สลับซูมเข้า/ออก
+            if (state.lbZoom > 1) {
+              resetLightboxZoom();
+            } else {
+              state.lbZoom = 2.4;
+              applyLightboxTransform();
+            }
+            lastTapTime = 0;
+            return;
+          }
+          lastTapTime = now;
+
+          swipeStartX = e.touches[0].clientX;
+          if (state.lbZoom > 1) {
+            isDragging = true;
+            img.classList.add('dragging');
+            startX = e.touches[0].clientX - state.lbPanX;
+            startY = e.touches[0].clientY - state.lbPanY;
+          }
+        }
+      }, { passive: true });
+
+      stage.addEventListener('touchmove', (e) => {
+        if (isPinching && e.touches.length === 2) {
+          e.preventDefault();
+          const currentDist = getTouchDistance(e.touches[0], e.touches[1]);
+          if (initialPinchDist > 0) {
+            const scaleRatio = currentDist / initialPinchDist;
+            state.lbZoom = Math.min(4.5, Math.max(1, +(initialPinchZoom * scaleRatio).toFixed(2)));
+            if (state.lbZoom <= 1) {
+              state.lbPanX = 0;
+              state.lbPanY = 0;
+            }
+            applyLightboxTransform();
+          }
+          return;
+        }
+
+        if (isDragging && e.touches.length === 1 && state.lbZoom > 1) {
+          e.preventDefault();
+          state.lbPanX = e.touches[0].clientX - startX;
+          state.lbPanY = e.touches[0].clientY - startY;
+          applyLightboxTransform();
+        }
+      }, { passive: false });
+
+      stage.addEventListener('touchend', (e) => {
+        if (isPinching && e.touches.length < 2) {
+          isPinching = false;
+          img.classList.remove('dragging');
+        }
+        if (isDragging) {
+          isDragging = false;
+          img.classList.remove('dragging');
+        } else if (state.lbZoom === 1 && e.changedTouches && e.changedTouches.length === 1 && swipeStartX > 0) {
+          const deltaX = e.changedTouches[0].clientX - swipeStartX;
+          if (Math.abs(deltaX) > 65) {
+            navigateLightbox(deltaX < 0 ? 1 : -1);
+          }
+          swipeStartX = 0;
+        }
+      }, { passive: true });
+
+      window.addEventListener('keydown', (e) => {
+        const lb = document.getElementById('lightboxModal');
+        if (lb.classList.contains('hidden')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+      });
+    }
+
+    async function shareCurrentLightboxPhoto() {
+      const photo = state.lightboxPhotos[state.lightboxIndex];
+      if (!photo) return;
+
+      try {
+        const res = await fetch(photo.dataUrl);
+        const blob = await res.blob();
+        const fileName = `${photo.title.replace(/[^a-zA-Z0-9ก-๙_-]/g, '_') || 'lecture'}.jpg`;
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: photo.title,
+            text: `ภาพเลกเชอร์: ${photo.title} (จาก StudyHub)`,
+            files: [file]
+          });
+          return;
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+
+      // หากอุปกรณ์ไม่รองรับแชร์ไฟล์โดยตรง ให้ดาวน์โหลดภาพแทนพร้อมแจ้งเตือน
+      downloadCurrentLightboxPhoto();
+      showToast('บันทึกรูปภาพลงเครื่องแล้ว สามารถส่งต่อใน LINE ได้เลย', 'info');
+    }
+
+    function downloadCurrentLightboxPhoto() {
+      const photo = state.lightboxPhotos[state.lightboxIndex];
+      if (!photo) return;
+      const a = document.createElement('a');
+      a.href = photo.dataUrl;
+      a.download = `${photo.title.replace(/[^a-zA-Z0-9ก-๙_-]/g, '_')}.jpg`;
+      a.click();
+    }
+
+    function deleteCurrentLightboxPhoto() {
+      const photo = state.lightboxPhotos[state.lightboxIndex];
+      if (!photo) return;
+      closeLightbox();
+      confirmDeletePhoto(photo.id);
+    }
+
+    /**
+     * 12. แท็บที่ 2: รวมตัวช่วยเรียน (Links), เช็กลิสต์งาน (Tasks) และโน้ตย่อ (Notes)
+     */
+    async function handleAddLink(event) {
+      event.preventDefault();
+      const title = document.getElementById('linkTitleInput').value.trim();
+      const category = document.getElementById('linkCategoryInput').value;
+      let url = document.getElementById('linkUrlInput').value.trim();
+
+      if (!title || !url) return;
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      const newLink = {
+        id: generateId('link'),
+        subjectId: state.currentSubjectId,
+        title,
+        category,
+        url,
+        createdAt: Date.now()
+      };
+
+      await dbPut('links', newLink);
+      state.links.unshift(newLink);
+
+      document.getElementById('linkTitleInput').value = '';
+      document.getElementById('linkUrlInput').value = '';
+      updateWorkspaceBadges();
+      renderLinksList();
+      showToast('บันทึกลิงก์ตัวช่วยเรียนแล้ว');
+    }
+
+    function setLinkFilter(category) {
+      state.activeLinkCategoryFilter = category;
+      document.querySelectorAll('.link-filter-btn').forEach(btn => {
+        if (btn.textContent.includes(category)) {
+          btn.className = 'link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-900 text-white whitespace-nowrap';
+        } else {
+          btn.className = 'link-filter-btn px-3 py-1 rounded-lg text-xs font-heading font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap';
+        }
+      });
+      renderLinksList();
+    }
+
+    function renderLinksList() {
+      const container = document.getElementById('linksList');
+      const subLinks = state.links.filter(l => l.subjectId === state.currentSubjectId);
+      const filtered = state.activeLinkCategoryFilter === 'ทั้งหมด'
+        ? subLinks
+        : subLinks.filter(l => l.category === state.activeLinkCategoryFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-sm bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+            ยังไม่มีลิงก์ตัวช่วยเรียนในหมวดนี้
+          </div>
+        `;
+        return;
+      }
+
+      const catBadgeColors = {
+        'คลิปติว': 'bg-rose-50 text-rose-700',
+        'ชีทสรุป': 'bg-sky-50 text-sky-700',
+        'แนวข้อสอบ': 'bg-amber-50 text-amber-700',
+        'เว็บไซต์': 'bg-indigo-50 text-indigo-700',
+        'อื่นๆ': 'bg-slate-100 text-slate-700'
+      };
+
+      container.innerHTML = filtered.map(link => `
+        <div class="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/70 hover:border-indigo-200 transition-all group">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-heading font-medium ${catBadgeColors[link.category] || catBadgeColors['อื่นๆ']} shrink-0">
+                ${escapeHTML(link.category)}
+              </span>
+              <a href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer"
+                class="font-heading font-medium text-sm sm:text-base text-slate-900 hover:text-indigo-600 truncate">
+                ${escapeHTML(link.title)}
+              </a>
+            </div>
+            <p class="text-xs text-slate-400 truncate">${escapeHTML(link.url)}</p>
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <a href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer"
+              class="px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-600 text-slate-700 hover:text-white border border-slate-200 text-xs font-heading font-medium transition-colors">
+              เปิดลิงก์
+            </a>
+            <button onclick="deleteLink('${link.id}')" title="ลบลิงก์"
+              class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function deleteLink(id) {
+      await dbDelete('links', id);
+      state.links = state.links.filter(l => l.id !== id);
+      updateWorkspaceBadges();
+      renderLinksList();
+      showToast('ลบลิงก์เรียบร้อยแล้ว');
+    }
+
+    // เช็กลิสต์งาน & อ่านหนังสือสอบ
+    async function handleAddTask(event) {
+      event.preventDefault();
+      const input = document.getElementById('taskInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newTask = {
+        id: generateId('task'),
+        subjectId: state.currentSubjectId,
+        text,
+        completed: false,
+        createdAt: Date.now()
+      };
+
+      await dbPut('tasks', newTask);
+      state.tasks.push(newTask);
+      input.value = '';
+      renderTasksList();
+    }
+
+    async function toggleTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (!task) return;
+      task.completed = !task.completed;
+      await dbPut('tasks', task);
+      renderTasksList();
+    }
+
+    async function deleteTask(id) {
+      await dbDelete('tasks', id);
+      state.tasks = state.tasks.filter(t => t.id !== id);
+      renderTasksList();
+    }
+
+    function renderTasksList() {
+      const container = document.getElementById('tasksList');
+      const badge = document.getElementById('taskProgressBadge');
+      const bar = document.getElementById('taskProgressBar');
+      const subTasks = state.tasks.filter(t => t.subjectId === state.currentSubjectId);
+      const doneCount = subTasks.filter(t => t.completed).length;
+
+      badge.textContent = `${doneCount}/${subTasks.length} เสร็จแล้ว`;
+      const pct = subTasks.length === 0 ? 0 : Math.round((doneCount / subTasks.length) * 100);
+      bar.style.width = `${pct}%`;
+
+      if (subTasks.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">ยังไม่มีรายการเช็กลิสต์</p>`;
+        return;
+      }
+
+      container.innerHTML = subTasks.map(task => `
+        <div class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 transition-colors">
+          <label class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')"
+              class="w-4 h-4 rounded accent-emerald-600 cursor-pointer shrink-0" />
+            <span class="text-sm truncate ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'}">
+              ${escapeHTML(task.text)}
+            </span>
+          </label>
+          <button onclick="deleteTask('${task.id}')" class="text-slate-400 hover:text-rose-500 p-1">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // โน้ตสรุปประจำวิชา (บันทึกอัตโนมัติเมื่อแก้ไข)
+    async function handleAddNote(event) {
+      event.preventDefault();
+      const titleInput = document.getElementById('noteTitleInput');
+      const contentInput = document.getElementById('noteContentInput');
+      const title = titleInput.value.trim() || `โน้ตสรุป (${formatThaiDate(Date.now())})`;
+      const content = contentInput.value.trim();
+      if (!content) return;
+
+      const newNote = {
+        id: generateId('note'),
+        subjectId: state.currentSubjectId,
+        title,
+        content,
+        createdAt: Date.now()
+      };
+
+      await dbPut('notes', newNote);
+      state.notes.unshift(newNote);
+      titleInput.value = '';
+      contentInput.value = '';
+      updateWorkspaceBadges();
+      renderNotesList();
+      showToast('บันทึกโน้ตสรุปเรียบร้อยแล้ว');
+    }
+
+    async function autoSaveNoteEdit(noteId, newContent) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      note.content = newContent;
+      await dbPut('notes', note);
+    }
+
+    async function deleteNote(id) {
+      await dbDelete('notes', id);
+      state.notes = state.notes.filter(n => n.id !== id);
+      updateWorkspaceBadges();
+      renderNotesList();
+      showToast('ลบโน้ตสรุปแล้ว');
+    }
+
+    function renderNotesList() {
+      const container = document.getElementById('notesList');
+      const subNotes = state.notes.filter(n => n.subjectId === state.currentSubjectId);
+
+      if (subNotes.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">ยังไม่มีโน้ตสรุปในวิชานี้</p>`;
+        return;
+      }
+
+      container.innerHTML = subNotes.map(note => `
+        <div class="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/70 space-y-1.5">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="font-heading font-semibold text-sm text-slate-900">${escapeHTML(note.title)}</h4>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="shareNoteItem('${note.id}')" title="แชร์โน้ตไปยังแอปอื่น"
+                class="p-1 text-slate-400 hover:text-emerald-600">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+              </button>
+              <button onclick="copyTextToClipboard(${JSON.stringify(note.content)})" title="คัดลอกโน้ต"
+                class="p-1 text-slate-400 hover:text-slate-700">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button onclick="deleteNote('${note.id}')" title="ลบโน้ต"
+                class="p-1 text-slate-400 hover:text-rose-600">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <textarea oninput="autoSaveNoteEdit('${note.id}', this.value)" rows="3"
+            class="w-full bg-transparent text-xs sm:text-sm text-slate-700 leading-relaxed focus:bg-white/80 focus:p-2 rounded-xl focus:outline-none resize-y">${escapeHTML(note.content)}</textarea>
+          <span class="text-[10px] text-slate-400 block">${formatThaiDate(note.createdAt)} • บันทึกอัตโนมัติ</span>
+        </div>
+      `).join('');
+    }
+
+    async function shareTextContent(title, text) {
+      const shareBody = `${title}\n\n${text}\n\n— บันทึกจาก StudyHub`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text: shareBody });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+      copyTextToClipboard(shareBody);
+      showToast('คัดลอกข้อความแล้ว สามารถนำไปวางใน LINE ได้เลย', 'info');
+    }
+
+    function shareNoteItem(noteId) {
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      shareTextContent(note.title, note.content);
+    }
+
+    /**
+     * 13. แท็บที่ 3: ผู้ช่วยติว AI (Gemini 2.5 Flash + Vision + Error Handling)
+     */
+    function populateAIPhotoDropdown() {
+      const select = document.getElementById('aiPhotoSelect');
+      const currentVal = select.value;
+      const subPhotos = state.photos.filter(p => p.subjectId === state.currentSubjectId);
+
+      select.innerHTML = `<option value="">— ไม่ใช้รูปภาพ (วิเคราะห์จากข้อความด้านล่าง) —</option>` +
+        subPhotos.map(p => `<option value="${p.id}">📷 ${escapeHTML(p.title)}</option>`).join('');
+
+      if (subPhotos.some(p => p.id === currentVal)) {
+        select.value = currentVal;
+      }
+      handleAIPhotoSelectionChange();
+    }
+
+    function handleAIPhotoSelectionChange() {
+      const photoId = document.getElementById('aiPhotoSelect').value;
+      const previewBox = document.getElementById('aiSelectedPhotoPreview');
+      const previewImg = document.getElementById('aiPreviewImg');
+      const previewTitle = document.getElementById('aiPreviewTitle');
+
+      if (!photoId) {
+        previewBox.classList.add('hidden');
+        return;
+      }
+
+      const photo = state.photos.find(p => p.id === photoId);
+      if (!photo) {
+        previewBox.classList.add('hidden');
+        return;
+      }
+
+      previewImg.src = photo.dataUrl;
+      previewTitle.textContent = photo.title;
+      previewBox.classList.remove('hidden');
+    }
+
+    function clearAISelectedPhoto() {
+      document.getElementById('aiPhotoSelect').value = '';
+      handleAIPhotoSelectionChange();
+    }
+
+    function formatAIResponseHTML(rawText) {
+      let safe = escapeHTML(rawText);
+      safe = safe.replace(/^###\s+(.+)$/gm, '<h4 class="font-heading font-semibold text-base text-slate-900 mt-4 mb-1">$1</h4>');
+      safe = safe.replace(/^##\s+(.+)$/gm, '<h3 class="font-heading font-semibold text-lg text-indigo-900 mt-4 mb-1.5">$1</h3>');
+      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+      safe = safe.replace(/^[\-\*]\s+(.+)$/gm, '<div class="flex items-start gap-2 pl-1"><span class="text-indigo-500 mt-1">•</span><span>$1</span></div>');
+      safe = safe.replace(/\n/g, '<br/>');
+      return safe;
+    }
+
+    async function callGeminiAPIWithRetry(payload, apiKey, maxRetries = 2) {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        let response;
+        try {
+          response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } catch (networkErr) {
+          if (attempt === maxRetries) {
+            const err = new Error('ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบสัญญาณเน็ตของคุณแล้วลองใหม่อีกครั้ง');
+            err.code = 'NETWORK_ERROR';
+            throw err;
+          }
+          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+          continue;
+        }
+
+        if (!response.ok) {
+          let errJson = null;
+          try {
+            errJson = await response.json();
+          } catch (e) {}
+          const apiMsg = errJson?.error?.message || '';
+
+          // ตรวจสอบกรณี API Key ไม่ถูกต้องหรือไม่มีสิทธิ์ (400 / 403)
+          if (
+            response.status === 400 ||
+            response.status === 403 ||
+            /api key|permission|unregistered|invalid/i.test(apiMsg)
+          ) {
+            const err = new Error('API Key ไม่ถูกต้องหรือยังไม่ได้ตั้งค่า กรุณาตรวจสอบรหัส Gemini API Key ของคุณ');
+            err.code = 'INVALID_API_KEY';
+            throw err;
+          }
+
+          // ตรวจสอบกรณีโควตาเต็มชั่วคราว (429)
+          if (response.status === 429) {
+            if (attempt < maxRetries) {
+              await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1200));
+              continue;
+            }
+            const err = new Error('ใช้งานเกินโควตาชั่วคราว (Rate Limit) กรุณารอสัก 1 นาทีแล้วลองกดใหม่อีกครั้ง');
+            err.code = 'QUOTA_EXCEEDED';
+            throw err;
+          }
+
+          if (response.status >= 500 && attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+            continue;
+          }
+
+          throw new Error(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ AI (รหัส ${response.status}${apiMsg ? ': ' + apiMsg : ''})`);
+        }
+
+        const data = await response.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) {
+          throw new Error('AI ไม่ได้ส่งข้อความตอบกลับ กรุณาลองปรับคำถามหรือรูปภาพอีกครั้ง');
+        }
+        return text;
+      }
+    }
+
+    async function runAIStudyHelper() {
+      const apiKey = localStorage.getItem(GEMINI_API_KEY_STORAGE) || "";
+
+      // หากยังไม่ได้ใส่ API Key บนเว็บภายนอก ให้เปิดหน้าต่างตั้งค่า API Key ทันที
+      if (!apiKey.trim()) {
+        openAISettingsModal('ยังไม่ได้ใส่รหัส Gemini API Key — กรุณาขอรับ API Key ฟรีด้านล่างแล้วบันทึกเพื่อเริ่มใช้งาน AI');
+        showToast('กรุณาตั้งค่า Gemini API Key ก่อนใช้งาน AI', 'error');
+        return;
+      }
+
+      const mode = document.querySelector('input[name="aiMode"]:checked')?.value || 'summary';
+      const selectedPhotoId = document.getElementById('aiPhotoSelect').value;
+      const userText = document.getElementById('aiPromptInput').value.trim();
+
+      if (!selectedPhotoId && !userText) {
+        showToast('กรุณาพิมพ์หัวข้อ/เนื้อหา หรือเลือกรูปเลกเชอร์ก่อนครับ', 'error');
+        return;
+      }
+
+      const subject = state.subjects.find(s => s.id === state.currentSubjectId);
+      const subjectName = subject ? subject.name : 'รายวิชามหาวิทยาลัย';
+
+      const modeInstructions = {
+        summary: 'สรุปเนื้อหาต่อไปนี้ให้กระชับ อ่านง่าย แบ่งเป็นหัวข้อหลักและข้อย่อย เน้นคีย์เวิร์ดสำคัญที่มักออกสอบ',
+        quiz: 'สร้างแนวข้อสอบจำนวน 5 ข้อ (คละระหว่างปรนัยและคำถามสั้นๆ) จากเนื้อหานี้ พร้อมเฉลยและคำอธิบายเหตุผลอย่างละเอียดในตอนท้าย',
+        explain: 'อธิบายเจาะลึกเนื้อหาหรือหัวข้อนี้ให้เข้าใจง่ายเหมือนรุ่นพี่ที่เก่งมากกำลังติวให้น้อง ยกตัวอย่างประกอบให้เห็นภาพชัดเจน'
+      };
+
+      const systemInstruction = `คุณคือผู้ช่วยติวหนังสือระดับมหาวิทยาลัยสำหรับวิชา "${subjectName}" ตอบเป็นภาษาไทยที่สุภาพ เป็นกันเอง อ่านง่าย จัดโครงสร้างชัดเจนด้วยหัวข้อและสัญลักษณ์ข้อย่อย`;
+
+      const parts = [
+        {
+          text: `คำสั่ง: ${modeInstructions[mode]}\n\n${
+            userText
+              ? `ข้อมูลเพิ่มเติมจากนักศึกษา: ${userText}`
+              : 'โปรดอ่านและวิเคราะห์เนื้อหาทั้งหมดจากรูปภาพกระดาน/สไลด์เลกเชอร์ที่แนบมานี้'
+          }`
+        }
+      ];
+
+      // แนบรูปภาพจากคลังเลกเชอร์ส่งให้ Gemini Vision วิเคราะห์
+      if (selectedPhotoId) {
+        const photo = state.photos.find(p => p.id === selectedPhotoId);
+        if (photo && photo.dataUrl) {
+          const match = photo.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+          if (match) {
+            parts.push({
+              inline_data: {
+                mime_type: match[1],
+                data: match[2]
+              }
+            });
+          }
+        }
+      }
+
+      const btn = document.getElementById('aiGenerateBtn');
+      btn.disabled = true;
+      document.getElementById('aiEmptyResult').classList.add('hidden');
+      document.getElementById('aiErrorState').classList.add('hidden');
+      document.getElementById('aiFormattedOutput').classList.add('hidden');
+      document.getElementById('aiResultActions').classList.add('hidden');
+      document.getElementById('aiLoadingState').classList.remove('hidden');
+
+      try {
+        const payload = {
+          contents: [{ role: 'user', parts }],
+          systemInstruction: { parts: [{ text: systemInstruction }] }
+        };
+
+        const responseText = await callGeminiAPIWithRetry(payload, apiKey.trim());
+        state.lastAIOutputRaw = responseText;
+
+        const outputEl = document.getElementById('aiFormattedOutput');
+        outputEl.innerHTML = formatAIResponseHTML(responseText);
+        outputEl.classList.remove('hidden');
+        document.getElementById('aiResultActions').classList.remove('hidden');
+        document.getElementById('aiResultActions').classList.add('flex');
+      } catch (err) {
+        const errorMessage = err?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI กรุณาลองใหม่อีกครั้ง';
+        document.getElementById('aiErrorDetailText').textContent = errorMessage;
+        document.getElementById('aiErrorState').classList.remove('hidden');
+        showToast(errorMessage, 'error');
+
+        if (err?.code === 'INVALID_API_KEY') {
+          openAISettingsModal(errorMessage);
+        }
+      } finally {
+        btn.disabled = false;
+        document.getElementById('aiLoadingState').classList.add('hidden');
+      }
+    }
+
+    function copyAIOutput() {
+      if (state.lastAIOutputRaw) {
+        copyTextToClipboard(state.lastAIOutputRaw);
+      }
+    }
+
+    function shareAIOutput() {
+      if (!state.lastAIOutputRaw) return;
+      const sub = state.subjects.find(s => s.id === state.currentSubjectId);
+      const title = `สรุปติววิชา ${sub ? sub.name : 'StudyHub'}`;
+      shareTextContent(title, state.lastAIOutputRaw.replace(/\*\*/g, ''));
+    }
+
+    async function saveAIOutputToNotes() {
+      if (!state.lastAIOutputRaw || !state.currentSubjectId) return;
+      const topicHint = document.getElementById('aiPromptInput').value.trim().slice(0, 35);
+      const selectedPhotoId = document.getElementById('aiPhotoSelect').value;
+      const photoObj = selectedPhotoId ? state.photos.find(p => p.id === selectedPhotoId) : null;
+      const labelHint = topicHint || (photoObj ? photoObj.title : '');
+
+      const newNote = {
+        id: generateId('note'),
+        subjectId: state.currentSubjectId,
+        title: `สรุปจาก AI${labelHint ? `: ${labelHint}` : ''}`,
+        content: state.lastAIOutputRaw.replace(/\*\*/g, ''),
+        createdAt: Date.now()
+      };
+      await dbPut('notes', newNote);
+      state.notes.unshift(newNote);
+      updateWorkspaceBadges();
+      showToast('บันทึกผลลัพธ์ AI ลงใน "ตัวช่วย & โน้ตสรุป" เรียบร้อยแล้ว');
+    }
+
+    /**
+     * 14. ระบบสำรองข้อมูล (Export) และนำเข้าข้อมูล (Import)
+     */
+    function exportBackupData() {
+      const backupPayload = {
+        app: 'StudyHubDB',
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        data: {
+          subjects: state.subjects,
+          photos: state.photos,
+          links: state.links,
+          tasks: state.tasks,
+          notes: state.notes
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(backupPayload)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `StudyHub_Backup_${dateStr}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อยแล้ว');
+    }
+
+    function importBackupData(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const validApps = ['StudyHubDB', 'UniversityStudyHub'];
+          if (!parsed || !validApps.includes(parsed.app) || !parsed.data) {
+            showToast('ไฟล์สำรองข้อมูลไม่ถูกต้อง', 'error');
+            return;
+          }
+
+          const { subjects = [], photos = [], links = [], tasks = [], notes = [] } = parsed.data;
+          await Promise.all([
+            dbClearAndBulkPut('subjects', subjects),
+            dbClearAndBulkPut('photos', photos),
+            dbClearAndBulkPut('links', links),
+            dbClearAndBulkPut('tasks', tasks),
+            dbClearAndBulkPut('notes', notes)
+          ]);
+
+          await loadAllDataFromDB();
+          navigateToHome();
+          showToast(`นำเข้าข้อมูลสำเร็จ (${subjects.length} วิชา, ${photos.length} รูปภาพ)`);
+        } catch (err) {
+          showToast('เกิดข้อผิดพลาดในการอ่านไฟล์สำรองข้อมูล', 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    /**
+     * 15. เริ่มต้นการทำงานของแอปพลิเคชันเมื่อโหลดหน้าเว็บเสร็จ
+     */
+    window.addEventListener('DOMContentLoaded', async () => {
+      initPWAManifestAndIcons();
+      setupPWAInstallPrompt();
+      updateAIStatusIndicator();
+
+      window.addEventListener('popstate', () => {
+        if (state.currentSubjectId) {
+          navigateToHome(true);
+        }
+      });
+
+      try {
+        await initIndexedDB();
+        await loadAllDataFromDB();
+        await updateStorageQuotaStatus();
+        setupPhotoDropzone();
+        setupLightboxInteractions();
+        renderHomeDashboard();
+      } catch (err) {
+        showToast('ไม่สามารถเปิดฐานข้อมูลในเบราว์เซอร์ได้', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
