@@ -55,7 +55,6 @@
       min-height: 100dvh;
     }
 
-    /* ป้องกันหน้าจอมือถือซูมอัตโนมัติเวลาแตะช่องพิมพ์ */
     input, textarea, select {
       font-size: 16px !important;
     }
@@ -85,7 +84,6 @@
       animation: fadeIn 0.22s ease-out forwards;
     }
 
-    /* สไตล์เนื้อหาผลลัพธ์จาก AI */
     .ai-markdown h1, .ai-markdown h2, .ai-markdown h3 {
       font-weight: 600;
       color: #0A2458;
@@ -126,10 +124,8 @@
   <!-- Top App Bar -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 safe-top">
     <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
-      <!-- Brand / Logo -->
       <button onclick="goHome()" class="flex items-center gap-2.5 text-left focus:outline-none group">
         <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
-          <!-- Shield + Graduation Cap + Book Icon -->
           <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 3L2 8l10 5 10-5-10-5z" fill="currentColor" stroke="none"/>
             <path d="M5 10.5V14c0 3.5 3.1 6.3 7 7 3.9-.7 7-3.5 7-7v-3.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -139,30 +135,25 @@
         <span class="font-bold text-lg tracking-tight text-slate-900">StudyHub</span>
       </button>
 
-      <!-- Right Action Buttons -->
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <!-- Install PWA Button -->
         <button id="installAppBtn" onclick="openInstallModal()" title="ติดตั้งเป็นแอปมือถือ"
           class="h-9 px-2.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 transition flex items-center justify-center text-slate-700 text-xs font-medium gap-1">
           <span>📲</span>
           <span class="hidden sm:inline">ติดตั้งแอป</span>
         </button>
 
-        <!-- AI Settings Button -->
         <button onclick="openAiSettingsModal()"
           class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1.5 text-xs font-medium text-slate-700 shadow-2xs">
           <span id="aiStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
           <span>⚙️ ตั้งค่า AI</span>
         </button>
 
-        <!-- Backup / Restore Button (Home Only) -->
         <button id="headerBackupBtn" onclick="openBackupModal()" title="สำรอง / กู้คืนข้อมูล"
           class="h-9 px-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1 text-xs font-medium text-slate-700">
           <span>💾</span>
           <span class="hidden md:inline">สำรองข้อมูล</span>
         </button>
 
-        <!-- Back Home Button (Subject View Only) -->
         <button id="headerBackBtn" onclick="goHome()"
           class="hidden h-9 px-3 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 transition items-center gap-1 text-xs font-medium text-slate-700">
           <span>← กลับหน้าแรก</span>
@@ -176,7 +167,6 @@
 
     <!-- ==================== VIEW 1: HOME DASHBOARD ==================== -->
     <section id="homeView" class="animate-fade-in">
-      <!-- Top Action Bar -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 class="text-xl sm:text-2xl font-bold text-slate-900">รายวิชาของฉัน</h1>
@@ -189,7 +179,6 @@
         </button>
       </div>
 
-      <!-- Empty State (แสดงเมื่อยังไม่มีวิชาเรียน) -->
       <div id="emptySubjectsState" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-10 sm:p-14 text-center my-4">
         <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mx-auto mb-4">
           🎓
@@ -205,13 +194,11 @@
         </button>
       </div>
 
-      <!-- Large Subject Buttons Grid -->
       <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
     <!-- ==================== VIEW 2: SUBJECT WORKSPACE ==================== -->
     <section id="subjectView" class="hidden animate-fade-in">
-      <!-- Subject Header Banner -->
       <div id="subjectBanner" class="rounded-3xl p-5 sm:p-6 mb-5 border shadow-xs relative overflow-hidden">
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3.5">
@@ -260,22 +247,22 @@
 
       <!-- ========== TAB 1: PHOTOS & WHITEBOARD GALLERY ========== -->
       <div id="tab-photos" class="tab-panel space-y-4">
-        <!-- Upload Card -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs">
           <div class="flex flex-col sm:flex-row gap-2.5">
-            <!-- Camera Capture Button -->
-            <label class="flex-1 cursor-pointer py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-sm transition">
+            <!-- In-App Camera Button (Works reliably in Android WebView & Browsers) -->
+            <button type="button" onclick="openInAppCamera()"
+              class="flex-1 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-sm transition">
               <span>📷</span>
               <span>ถ่ายรูปกระดาน</span>
-              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoFiles(event)" />
-            </label>
+            </button>
 
-            <!-- Gallery Multi-select Button -->
-            <label class="flex-1 cursor-pointer py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200/80 active:scale-[0.99] text-slate-800 font-medium text-sm flex items-center justify-center gap-2 transition">
+            <!-- Direct-Tap File Input Overlay (Never hidden with display:none so WebView allows tap) -->
+            <div class="relative flex-1 rounded-2xl bg-slate-100 hover:bg-slate-200/80 active:scale-[0.99] text-slate-800 font-medium text-sm flex items-center justify-center gap-2 py-3 px-4 transition overflow-hidden">
               <span>🖼️</span>
-              <span>เลือกรูปจากอัลบั้ม</span>
-              <input type="file" accept="image/*" multiple class="hidden" onchange="handlePhotoFiles(event)" />
-            </label>
+              <span>เลือกรูปจากอัลบั้ม / ไฟล์</span>
+              <input id="galleryFileInput" type="file" accept="image/*" multiple onchange="handlePhotoFiles(event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+            </div>
           </div>
 
           <!-- Search & Tag Filter -->
@@ -289,7 +276,6 @@
           </div>
         </div>
 
-        <!-- Photo Grid -->
         <div id="photosEmpty" class="hidden bg-white rounded-3xl p-10 text-center border border-dashed border-slate-300">
           <div class="text-4xl mb-2">📸</div>
           <p class="font-medium text-slate-700">ยังไม่มีรูปกระดานหรือสไลด์ในวิชานี้</p>
@@ -301,7 +287,6 @@
 
       <!-- ========== TAB 2: NOTES, LINKS & CHECKLIST ========== -->
       <div id="tab-notes" class="tab-panel hidden space-y-5">
-        <!-- Quick Summary Note -->
         <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
           <div class="flex items-center justify-between mb-3">
             <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2">
@@ -320,7 +305,6 @@
             class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
         </div>
 
-        <!-- Study Checklist -->
         <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
           <div class="flex items-center justify-between mb-2">
             <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2">
@@ -329,7 +313,6 @@
             </h2>
             <span id="taskProgressText" class="text-xs font-semibold text-indigo-600">0/0</span>
           </div>
-          <!-- Progress Bar -->
           <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden mb-4">
             <div id="taskProgressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
           </div>
@@ -345,7 +328,6 @@
           <div id="tasksList" class="space-y-2"></div>
         </div>
 
-        <!-- Study Links & Resources -->
         <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
           <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2 mb-3">
             <span>🔗</span>
@@ -386,7 +368,6 @@
             </span>
           </div>
 
-          <!-- Study Mode Radio Cards -->
           <div class="space-y-2.5">
             <label class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/40 cursor-pointer transition ai-mode-card">
               <input type="radio" name="aiMode" value="summary" checked onchange="updateAiModeCards()" class="mt-1 accent-indigo-600 w-4 h-4" />
@@ -413,7 +394,6 @@
             </label>
           </div>
 
-          <!-- Attach Whiteboard / Slide Image -->
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1.5">
               แนบรูปกระดาน/สไลด์จากคลังของวิชานี้ (ถ้ามี)
@@ -423,7 +403,6 @@
               <option value="">-- ไม่แนบรูปภาพ --</option>
             </select>
 
-            <!-- Selected Image Preview Card -->
             <div id="aiPhotoPreviewBox" class="hidden mt-2.5 p-2.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
                 <img id="aiPhotoPreviewImg" src="" alt="Preview" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-white" />
@@ -439,7 +418,6 @@
             </div>
           </div>
 
-          <!-- Topic / Lecture Text Input -->
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1.5">
               หัวข้อที่เรียน หรือวางเนื้อหาสไลด์/เลกเชอร์
@@ -449,7 +427,6 @@
               class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
           </div>
 
-          <!-- Generate AI Button -->
           <button id="runAiBtn" onclick="runAiTutor()"
             class="w-full py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition">
             <span>✨</span>
@@ -457,7 +434,6 @@
           </button>
         </div>
 
-        <!-- AI Result Card -->
         <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
           <div class="flex items-center justify-between mb-3">
             <h3 class="font-semibold text-base text-slate-900">ผลลัพธ์การติวจาก AI</h3>
@@ -477,7 +453,6 @@
             </div>
           </div>
 
-          <!-- Empty / Loading / Output States -->
           <div id="aiOutputPlaceholder" class="py-10 text-center">
             <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto mb-3">
               💬
@@ -500,7 +475,7 @@
     </section>
   </main>
 
-  <!-- Mobile Bottom Navigation Bar (Subject View Only) -->
+  <!-- Mobile Bottom Navigation Bar -->
   <nav id="mobileBottomNav" class="hidden sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 safe-bottom">
     <div class="grid grid-cols-3 h-14">
       <button onclick="switchTab('photos')" data-tab="photos"
@@ -520,6 +495,44 @@
       </button>
     </div>
   </nav>
+
+  <!-- ==================== MODAL: IN-APP LIVE CAMERA ==================== -->
+  <div id="cameraModal" class="hidden fixed inset-0 z-50 bg-black flex flex-col select-none">
+    <div class="flex items-center justify-between px-4 py-3 text-white bg-black/70 safe-top z-10">
+      <div class="font-semibold text-sm">📷 ถ่ายรูปกระดาน / สไลด์</div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="switchCameraFacing()" class="px-3 py-1.5 rounded-xl bg-white/15 text-xs font-medium">
+          🔄 สลับกล้อง
+        </button>
+        <button type="button" onclick="closeInAppCamera()" class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-base">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
+      <video id="cameraVideoPreview" autoplay playsinline muted class="w-full h-full object-contain"></video>
+      <div id="cameraErrorOverlay" class="hidden absolute inset-0 bg-slate-900/95 p-6 flex flex-col items-center justify-center text-center text-white">
+        <div class="text-4xl mb-3">⚠️</div>
+        <h4 class="font-bold text-base mb-1.5">ไม่สามารถเปิดกล้องในแอปได้</h4>
+        <p id="cameraErrorText" class="text-xs text-slate-300 max-w-xs leading-relaxed mb-5">
+          กรุณาไปที่ การตั้งค่ามือถือ → แอป → StudyHub → การอนุญาต (Permissions) → เปิดสิทธิ์ "กล้อง" และ "รูปภาพ"
+        </p>
+        <div class="relative px-5 py-3 rounded-2xl bg-indigo-600 text-white font-semibold text-xs overflow-hidden">
+          <span>เลือกรูปจากอัลบั้มแทน</span>
+          <input type="file" accept="image/*" onchange="closeInAppCamera(); handlePhotoFiles(event);"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+        </div>
+      </div>
+    </div>
+
+    <div class="py-5 px-4 bg-black/80 flex items-center justify-center safe-bottom z-10">
+      <button type="button" onclick="captureCameraFrame()"
+        class="w-16 h-16 rounded-full bg-white border-4 border-indigo-400 active:scale-90 transition shadow-lg flex items-center justify-center">
+        <span class="w-12 h-12 rounded-full bg-white border border-slate-300"></span>
+      </button>
+    </div>
+  </div>
 
   <!-- ==================== MODAL: ADD / EDIT SUBJECT ==================== -->
   <div id="subjectModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -632,7 +645,7 @@
           <label class="block text-xs font-semibold text-slate-700 mb-1">รุ่นโมเดล AI (Model)</label>
           <input id="geminiModelInput" type="text" value="gemini-3.8-flash"
             class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-indigo-500" />
-          <p class="text-[11px] text-slate-400 mt-1">ค่าเริ่มต้นคือ <code class="text-indigo-600">gemini-3.8-flash</code> (รองรับการอ่านรูปกระดานและภาษาไทย)</p>
+          <p class="text-[11px] text-slate-400 mt-1">ค่าเริ่มต้นคือ <code class="text-indigo-600">gemini-3.8-flash</code></p>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -663,11 +676,12 @@
           <span>ดาวน์โหลดไฟล์สำรองข้อมูล (.json)</span>
         </button>
 
-        <label class="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm flex items-center justify-center gap-2 cursor-pointer">
+        <div class="relative w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm flex items-center justify-center gap-2 overflow-hidden">
           <span>⬆️</span>
           <span>นำเข้าข้อมูลจากไฟล์ (.json)</span>
-          <input type="file" accept=".json,application/json" class="hidden" onchange="importBackupJson(event)" />
-        </label>
+          <input type="file" accept=".json,application/json" onchange="importBackupJson(event)"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+        </div>
       </div>
     </div>
   </div>
@@ -699,9 +713,8 @@
     </div>
   </div>
 
-  <!-- ==================== FULLSCREEN LIGHTBOX (PINCH-TO-ZOOM) ==================== -->
+  <!-- ==================== FULLSCREEN LIGHTBOX ==================== -->
   <div id="lightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col select-none">
-    <!-- Lightbox Header -->
     <div class="flex items-center justify-between px-4 py-3 text-white bg-black/60 backdrop-blur-xs safe-top z-10">
       <div class="min-w-0 pr-2">
         <div id="lightboxTitle" class="font-semibold text-sm truncate"></div>
@@ -720,13 +733,11 @@
       </div>
     </div>
 
-    <!-- Lightbox Image Viewport -->
     <div id="lightboxViewport" class="flex-1 relative overflow-hidden flex items-center justify-center touch-none">
       <img id="lightboxImg" src="" alt="Lecture"
         class="max-w-full max-h-full object-contain transition-transform duration-75 origin-center will-change-transform" />
     </div>
 
-    <!-- Lightbox Controls -->
     <div class="px-4 py-3 bg-black/60 backdrop-blur-xs flex items-center justify-between text-white safe-bottom z-10">
       <button onclick="prevLightboxPhoto()" class="px-4 py-2 rounded-xl bg-white/15 text-xs font-medium">← ก่อนหน้า</button>
       <div class="flex items-center gap-2">
@@ -775,6 +786,10 @@
     let noteSaveTimer = null;
     let deferredInstallPrompt = null;
 
+    // Camera State
+    let activeCameraStream = null;
+    let cameraFacingMode = 'environment';
+
     // Lightbox State
     let lightboxPhotos = [];
     let lightboxIndex = 0;
@@ -816,7 +831,6 @@
           req.onerror = () => reject(req.error);
         });
       } catch (err) {
-        // Fallback to localStorage if IndexedDB is restricted in WebView
         try {
           return JSON.parse(localStorage.getItem('studyhub_fallback_subjects') || '[]');
         } catch {
@@ -855,102 +869,8 @@
       }
     }
 
-    // ==================== DYNAMIC PWA ICON & MANIFEST ====================
-    function setupDynamicPwaAssets() {
-      try {
-        const createIconDataUrl = (size) => {
-          const canvas = document.createElement('canvas');
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext('2d');
-
-          // Navy rounded background (#0A2458)
-          const radius = size * 0.22;
-          ctx.fillStyle = '#0A2458';
-          ctx.beginPath();
-          ctx.moveTo(radius, 0);
-          ctx.lineTo(size - radius, 0);
-          ctx.quadraticCurveTo(size, 0, size, radius);
-          ctx.lineTo(size, size - radius);
-          ctx.quadraticCurveTo(size, size, size - radius, size);
-          ctx.lineTo(radius, size);
-          ctx.quadraticCurveTo(0, size, 0, size - radius);
-          ctx.lineTo(0, radius);
-          ctx.quadraticCurveTo(0, 0, radius, 0);
-          ctx.closePath();
-          ctx.fill();
-
-          // White Graduation Cap + Shield
-          ctx.fillStyle = '#FFFFFF';
-          ctx.strokeStyle = '#FFFFFF';
-          const cx = size * 0.5;
-          const cy = size * 0.48;
-
-          // Cap Diamond
-          ctx.beginPath();
-          ctx.moveTo(cx, cy - size * 0.24);
-          ctx.lineTo(cx + size * 0.28, cy - size * 0.11);
-          ctx.lineTo(cx, cy + size * 0.02);
-          ctx.lineTo(cx - size * 0.28, cy - size * 0.11);
-          ctx.closePath();
-          ctx.fill();
-
-          // Shield Outline
-          ctx.lineWidth = size * 0.035;
-          ctx.beginPath();
-          ctx.moveTo(cx - size * 0.22, cy - size * 0.03);
-          ctx.lineTo(cx - size * 0.22, cy + size * 0.12);
-          ctx.quadraticCurveTo(cx - size * 0.20, cy + size * 0.26, cx, cy + size * 0.32);
-          ctx.quadraticCurveTo(cx + size * 0.20, cy + size * 0.26, cx + size * 0.22, cy + size * 0.12);
-          ctx.lineTo(cx + size * 0.22, cy - size * 0.03);
-          ctx.stroke();
-
-          // Open Book Center
-          ctx.fillRect(cx - size * 0.12, cy + size * 0.05, size * 0.105, size * 0.14);
-          ctx.fillRect(cx + size * 0.015, cy + size * 0.05, size * 0.105, size * 0.14);
-
-          return canvas.toDataURL('image/png');
-        };
-
-        const icon192 = createIconDataUrl(192);
-        const icon512 = createIconDataUrl(512);
-
-        const appleIcon = document.createElement('link');
-        appleIcon.rel = 'apple-touch-icon';
-        appleIcon.href = icon192;
-        document.head.appendChild(appleIcon);
-
-        const favicon = document.createElement('link');
-        favicon.rel = 'icon';
-        favicon.type = 'image/png';
-        favicon.href = icon192;
-        document.head.appendChild(favicon);
-
-        const manifest = {
-          name: 'StudyHub - ศูนย์รวมข้อมูลการเรียน',
-          short_name: 'StudyHub',
-          start_url: '.',
-          display: 'standalone',
-          background_color: '#F4F6FB',
-          theme_color: '#0A2458',
-          icons: [
-            { src: icon192, sizes: '192x192', type: 'image/png' },
-            { src: icon512, sizes: '512x512', type: 'image/png' }
-          ]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.href = URL.createObjectURL(blob);
-        document.head.appendChild(manifestLink);
-      } catch (e) {
-        // Ignore if blocked
-      }
-    }
-
     // ==================== INITIALIZATION ====================
     document.addEventListener('DOMContentLoaded', async () => {
-      setupDynamicPwaAssets();
       renderFormPickers();
       updateAiStatusIndicator();
 
@@ -968,6 +888,10 @@
       });
 
       window.addEventListener('popstate', () => {
+        if (!document.getElementById('cameraModal').classList.contains('hidden')) {
+          closeInAppCamera();
+          return;
+        }
         if (!document.getElementById('lightboxModal').classList.contains('hidden')) {
           closeLightbox(true);
           return;
@@ -1048,7 +972,6 @@
       renderSubjectHeader();
       switchTab('photos');
 
-      // Reset AI Tab
       document.getElementById('aiOutputPlaceholder').classList.remove('hidden');
       document.getElementById('aiOutputLoading').classList.add('hidden');
       document.getElementById('aiOutputContent').classList.add('hidden');
@@ -1065,7 +988,6 @@
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       document.getElementById('tab-' + tabName).classList.remove('hidden');
 
-      // Desktop tab buttons
       document.querySelectorAll('.tab-btn').forEach(btn => {
         const active = btn.dataset.tab === tabName;
         btn.className = active
@@ -1073,7 +995,6 @@
           : 'tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-2';
       });
 
-      // Mobile bottom nav buttons
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
         const active = btn.dataset.tab === tabName;
         btn.className = active
@@ -1258,13 +1179,101 @@
       goHome();
     }
 
-    // ==================== PHOTOS & IMAGE COMPRESSION ====================
-    function compressImageFile(file, maxDim = 1920, quality = 0.85) {
+    // ==================== IN-APP LIVE CAMERA ====================
+    async function openInAppCamera() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraVideoPreview');
+      const errOverlay = document.getElementById('cameraErrorOverlay');
+
+      modal.classList.remove('hidden');
+      errOverlay.classList.add('hidden');
+
+      await startCameraStream();
+    }
+
+    async function startCameraStream() {
+      const video = document.getElementById('cameraVideoPreview');
+      const errOverlay = document.getElementById('cameraErrorOverlay');
+      const errText = document.getElementById('cameraErrorText');
+
+      stopCameraStream();
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้องในแอป');
+        }
+        activeCameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: cameraFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false
+        });
+        video.srcObject = activeCameraStream;
+        await video.play();
+      } catch (err) {
+        errText.textContent = 'ไม่สามารถเข้าถึงกล้องได้ กรุณาเปิดสิทธิ์ "กล้อง" ในการตั้งค่าแอปมือถือ หรือกดปุ่มด้านล่างเพื่อเลือกรูปแทน';
+        errOverlay.classList.remove('hidden');
+      }
+    }
+
+    function stopCameraStream() {
+      if (activeCameraStream) {
+        activeCameraStream.getTracks().forEach(track => track.stop());
+        activeCameraStream = null;
+      }
+    }
+
+    async function switchCameraFacing() {
+      cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+      await startCameraStream();
+    }
+
+    function closeInAppCamera() {
+      stopCameraStream();
+      document.getElementById('cameraModal').classList.add('hidden');
+    }
+
+    function captureCameraFrame() {
+      const video = document.getElementById('cameraVideoPreview');
+      if (!video || !video.videoWidth) {
+        showToast('กล้องยังไม่พร้อม กรุณารอสักครู่', 'info');
+        return;
+      }
+
+      const maxDim = 1600;
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      closeInAppCamera();
+
+      const timeLabel = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      openPhotoDetailsDialog([{
+        dataUrl,
+        defaultName: `ภาพกระดาน ${timeLabel}`
+      }]);
+    }
+
+    // ==================== PHOTOS & LOW-MEMORY IMAGE COMPRESSION ====================
+    function compressImageFile(file, maxDim = 1600, quality = 0.82) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          try {
             let width = img.width;
             let height = img.height;
 
@@ -1283,13 +1292,19 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
+            const result = canvas.toDataURL('image/jpeg', quality);
+            URL.revokeObjectURL(objectUrl);
+            resolve(result);
+          } catch (e) {
+            URL.revokeObjectURL(objectUrl);
+            reject(e);
+          }
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        img.onerror = (err) => {
+          URL.revokeObjectURL(objectUrl);
+          reject(err);
+        };
+        img.src = objectUrl;
       });
     }
 
@@ -1300,28 +1315,32 @@
 
       showToast('กำลังประมวลผลรูปภาพ...', 'info');
       try {
-        pendingUploadDataUrls = [];
+        const items = [];
         for (const file of files) {
           const compressed = await compressImageFile(file);
-          pendingUploadDataUrls.push({
+          items.push({
             dataUrl: compressed,
-            defaultName: file.name.replace(/\.[^/.]+$/, '') || 'ภาพเลกเชอร์'
+            defaultName: (file.name || '').replace(/\.[^/.]+$/, '') || 'ภาพเลกเชอร์'
           });
         }
-
-        selectedPresetTags = [];
-        document.querySelectorAll('.preset-tag').forEach(btn => {
-          btn.className = 'preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700';
-        });
-
-        document.getElementById('pendingPhotosCount').textContent = pendingUploadDataUrls.length;
-        document.getElementById('pendingPhotoPreview').src = pendingUploadDataUrls[0].dataUrl;
-        document.getElementById('photoTitleInput').value = pendingUploadDataUrls.length === 1 ? pendingUploadDataUrls[0].defaultName : '';
-        document.getElementById('photoCustomTagsInput').value = '';
-        document.getElementById('photoUploadModal').classList.remove('hidden');
+        openPhotoDetailsDialog(items);
       } catch (err) {
-        showToast('ไม่สามารถอ่านไฟล์รูปภาพได้ กรุณาลองใหม่', 'error');
+        showToast('ไม่สามารถอ่านไฟล์รูปภาพได้ กรุณาตรวจสอบสิทธิ์เข้าถึงรูปภาพของแอป', 'error');
       }
+    }
+
+    function openPhotoDetailsDialog(items) {
+      pendingUploadDataUrls = items;
+      selectedPresetTags = [];
+      document.querySelectorAll('.preset-tag').forEach(btn => {
+        btn.className = 'preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700';
+      });
+
+      document.getElementById('pendingPhotosCount').textContent = pendingUploadDataUrls.length;
+      document.getElementById('pendingPhotoPreview').src = pendingUploadDataUrls[0].dataUrl;
+      document.getElementById('photoTitleInput').value = pendingUploadDataUrls.length === 1 ? pendingUploadDataUrls[0].defaultName : '';
+      document.getElementById('photoCustomTagsInput').value = '';
+      document.getElementById('photoUploadModal').classList.remove('hidden');
     }
 
     function closePhotoUploadModal() {
@@ -1355,10 +1374,11 @@
         .filter(Boolean);
 
       const allTags = Array.from(new Set([...selectedPresetTags, ...customTags]));
+      const count = pendingUploadDataUrls.length;
 
       pendingUploadDataUrls.forEach((item, idx) => {
         const title = baseTitle
-          ? (pendingUploadDataUrls.length > 1 ? `${baseTitle} (${idx + 1})` : baseTitle)
+          ? (count > 1 ? `${baseTitle} (${idx + 1})` : baseTitle)
           : item.defaultName;
 
         subj.photos.unshift({
@@ -1374,7 +1394,7 @@
       closePhotoUploadModal();
       renderSubjectHeader();
       renderPhotos();
-      showToast(`บันทึกรูปภาพเรียบร้อย (${pendingUploadDataUrls.length} รูป)`, 'success');
+      showToast(`บันทึกรูปภาพเรียบร้อย (${count} รูป)`, 'success');
     }
 
     function renderPhotos() {
@@ -1384,7 +1404,6 @@
       const photos = subj.photos || [];
       const searchQuery = (document.getElementById('photoSearchInput').value || '').trim().toLowerCase();
 
-      // Build Tag Filter Chips
       const allTags = Array.from(new Set(photos.flatMap(p => p.tags || [])));
       const filterContainer = document.getElementById('photoTagFilters');
       filterContainer.innerHTML = [
@@ -1484,10 +1503,7 @@
 
     function adjustZoom(delta) {
       zoomScale = Math.min(4, Math.max(1, zoomScale + delta));
-      if (zoomScale === 1) {
-        panX = 0;
-        panY = 0;
-      }
+      if (zoomScale === 1) { panX = 0; panY = 0; }
       applyZoomTransform();
     }
 
@@ -1498,7 +1514,6 @@
       applyZoomTransform();
     }
 
-    // Touch Gestures for Lightbox
     (() => {
       const vp = document.getElementById('lightboxViewport');
       let initialDistance = 0;
@@ -1518,10 +1533,7 @@
           const now = Date.now();
           if (now - lastTap < 280) {
             if (zoomScale > 1) resetZoom();
-            else {
-              zoomScale = 2.5;
-              applyZoomTransform();
-            }
+            else { zoomScale = 2.5; applyZoomTransform(); }
           }
           lastTap = now;
           startX = e.touches[0].clientX - panX;
@@ -1586,16 +1598,13 @@
           a.download = `${photo.title || 'lecture'}.jpg`;
           a.click();
         }
-      } catch (e) {
-        // User cancelled share
-      }
+      } catch (e) {}
     }
 
     // ==================== NOTES, TASKS & LINKS ====================
     function renderNotesAndLinks() {
       const subj = getCurrentSubject();
       if (!subj) return;
-
       document.getElementById('subjectNotesTextarea').value = subj.notes || '';
       renderTasks();
       renderLinks();
@@ -1755,7 +1764,7 @@
       renderLinks();
     }
 
-    // ==================== GEMINI AI TUTOR (gemini-3.8-flash) ====================
+    // ==================== GEMINI AI TUTOR ====================
     function getSavedApiKey() {
       return (localStorage.getItem(STORAGE_KEY_API) || '').trim();
     }
@@ -1861,17 +1870,13 @@
 
     function formatMarkdownToHtml(text) {
       let html = escapeHtml(text);
-      // Headings
       html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
       html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
       html = html.replace(/^# (.+)$/gm, '<h2>$1</h2>');
-      // Bold & inline code
       html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
       html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-      // Bullet points
       html = html.replace(/^\s*[-*•]\s+(.+)$/gm, '<li>$1</li>');
       html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
-      // Paragraphs & line breaks
       html = html
         .split(/\n{2,}/)
         .map(block => {
