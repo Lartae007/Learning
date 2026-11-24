@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0A2458" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="StudyHub" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>StudyHub - ศูนย์รวมข้อมูลการเรียนและผู้ช่วยติว AI</title>
+  <title>StudyHub - ผู้ช่วยติวสอบแบบ 1 คลิก</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,15 +17,9 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Prompt', 'sans-serif'],
-          },
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
           colors: {
-            navy: {
-              900: '#0A2458',
-              800: '#103173',
-              700: '#184296',
-            }
+            navy: { 900: '#0A2458', 800: '#103173' }
           }
         }
       }
@@ -39,12 +31,7 @@
       --sat: env(safe-area-inset-top, 0px);
       --sab: env(safe-area-inset-bottom, 0px);
     }
-
-    * {
-      -webkit-tap-highlight-color: transparent;
-      box-sizing: border-box;
-    }
-
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
     html, body {
       font-family: 'Prompt', sans-serif;
       background-color: #F4F6FB;
@@ -54,62 +41,30 @@
       padding: 0;
       min-height: 100dvh;
     }
-
-    input, textarea, select {
-      font-size: 16px !important;
-    }
-
-    .safe-top {
-      padding-top: max(12px, var(--sat));
-    }
-
-    .safe-bottom {
-      padding-bottom: max(12px, var(--sab));
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    input, textarea, select { font-size: 16px !important; }
+    .safe-top { padding-top: max(12px, var(--sat)); }
+    .safe-bottom { padding-bottom: max(16px, var(--sab)); }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    .animate-fade-in {
-      animation: fadeIn 0.22s ease-out forwards;
-    }
+    .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
 
     .ai-markdown h1, .ai-markdown h2, .ai-markdown h3 {
       font-weight: 600;
       color: #0A2458;
-      margin-top: 1rem;
-      margin-bottom: 0.4rem;
+      margin-top: 0.9rem;
+      margin-bottom: 0.35rem;
     }
-    .ai-markdown h2 { font-size: 1.1rem; }
-    .ai-markdown h3 { font-size: 1rem; }
-    .ai-markdown p {
-      margin-bottom: 0.65rem;
-      line-height: 1.65;
-    }
-    .ai-markdown ul, .ai-markdown ol {
-      padding-left: 1.25rem;
-      margin-bottom: 0.75rem;
-    }
+    .ai-markdown h2 { font-size: 1.05rem; }
+    .ai-markdown h3 { font-size: 0.98rem; }
+    .ai-markdown p { margin-bottom: 0.6rem; line-height: 1.65; }
+    .ai-markdown ul, .ai-markdown ol { padding-left: 1.25rem; margin-bottom: 0.7rem; }
     .ai-markdown ul { list-style-type: disc; }
     .ai-markdown ol { list-style-type: decimal; }
-    .ai-markdown li {
-      margin-bottom: 0.35rem;
-      line-height: 1.6;
-    }
-    .ai-markdown strong {
-      color: #0F172A;
-      font-weight: 600;
-    }
+    .ai-markdown li { margin-bottom: 0.3rem; line-height: 1.6; }
+    .ai-markdown strong { color: #0F172A; font-weight: 600; }
     .ai-markdown code {
       background: #EEF2FF;
       color: #3730A3;
@@ -121,11 +76,11 @@
 </head>
 <body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
 
-  <!-- Top App Bar -->
+  <!-- Top Bar -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 safe-top">
-    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
-      <button onclick="goHome()" class="flex items-center gap-2.5 text-left focus:outline-none group">
-        <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+      <button onclick="goHome()" class="flex items-center gap-2.5 text-left focus:outline-none">
+        <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center shadow-xs">
           <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 3L2 8l10 5 10-5-10-5z" fill="currentColor" stroke="none"/>
             <path d="M5 10.5V14c0 3.5 3.1 6.3 7 7 3.9-.7 7-3.5 7-7v-3.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -135,410 +90,182 @@
         <span class="font-bold text-lg tracking-tight text-slate-900">StudyHub</span>
       </button>
 
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button id="installAppBtn" onclick="openInstallModal()" title="ติดตั้งเป็นแอปมือถือ"
-          class="h-9 px-2.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 transition flex items-center justify-center text-slate-700 text-xs font-medium gap-1">
-          <span>📲</span>
-          <span class="hidden sm:inline">ติดตั้งแอป</span>
-        </button>
-
+      <div class="flex items-center gap-1.5">
         <button onclick="openAiSettingsModal()"
-          class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1.5 text-xs font-medium text-slate-700 shadow-2xs">
+          class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1.5 text-xs font-medium text-slate-700">
           <span id="aiStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-          <span>⚙️ ตั้งค่า AI</span>
+          <span>ตั้งค่า AI</span>
         </button>
 
-        <button id="headerBackupBtn" onclick="openBackupModal()" title="สำรอง / กู้คืนข้อมูล"
-          class="h-9 px-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1 text-xs font-medium text-slate-700">
-          <span>💾</span>
-          <span class="hidden md:inline">สำรองข้อมูล</span>
+        <button id="headerBackupBtn" onclick="openBackupModal()"
+          class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1 text-xs font-medium text-slate-700">
+          <span>สำรองข้อมูล</span>
         </button>
 
         <button id="headerBackBtn" onclick="goHome()"
-          class="hidden h-9 px-3 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 transition items-center gap-1 text-xs font-medium text-slate-700">
-          <span>← กลับหน้าแรก</span>
+          class="hidden h-9 px-3.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 transition items-center gap-1 text-xs font-semibold text-slate-800">
+          <span>← กลับ</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <main class="max-w-5xl mx-auto px-4 pt-5 pb-28">
+  <main class="max-w-3xl mx-auto px-4 pt-5 pb-20">
 
-    <!-- ==================== VIEW 1: HOME DASHBOARD ==================== -->
+    <!-- ==================== VIEW 1: HOME (CLEAN SUBJECT LIST) ==================== -->
     <section id="homeView" class="animate-fade-in">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div class="flex items-center justify-between gap-3 mb-5">
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold text-slate-900">รายวิชาของฉัน</h1>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">แตะที่วิชาเรียนเพื่อเก็บรูปกระดาน โน้ตสรุป และให้ AI ช่วยติวสอบ</p>
+          <h1 class="text-xl font-bold text-slate-900">วิชาเรียนของฉัน</h1>
+          <p class="text-xs text-slate-500 mt-0.5">แตะที่วิชาเพื่อเก็บโน้ต สรุปโพย และทำควิซก่อนสอบ</p>
         </div>
         <button onclick="openSubjectModal()"
-          class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-navy-900 hover:bg-navy-800 active:scale-[0.98] text-white font-semibold text-sm shadow-md shadow-navy-900/15 flex items-center justify-center gap-2 transition">
-          <span class="text-lg leading-none">+</span>
-          <span>เพิ่มวิชาเรียน</span>
+          class="px-4 py-2.5 rounded-2xl bg-navy-900 hover:bg-navy-800 active:scale-95 text-white font-semibold text-sm shadow-sm flex items-center gap-1.5 shrink-0 transition">
+          <span class="text-base leading-none">+</span>
+          <span>เพิ่มวิชา</span>
         </button>
       </div>
 
-      <div id="emptySubjectsState" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-10 sm:p-14 text-center my-4">
-        <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mx-auto mb-4">
-          🎓
-        </div>
-        <h2 class="text-lg font-semibold text-slate-800">ยังไม่มีวิชาเรียนในคลัง</h2>
-        <p class="text-sm text-slate-500 max-w-md mx-auto mt-1.5 mb-6">
-          เริ่มต้นสร้างปุ่มวิชาเรียนของคุณ เพื่อเก็บรูปถ่ายกระดาน สไลด์ ลิงก์ติว และให้ AI ช่วยสรุปแนวข้อสอบ
+      <!-- Empty State -->
+      <div id="emptySubjectsState" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-10 text-center my-4">
+        <div class="text-4xl mb-3">🎓</div>
+        <h2 class="text-base font-bold text-slate-800">ยังไม่มีวิชาเรียน</h2>
+        <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1 mb-5">
+          กดเพิ่มวิชาเรียนของคุณ เพื่อโยนเลกเชอร์เก็บไว้ให้ AI ช่วยสรุปโพยและออกข้อสอบให้
         </p>
         <button onclick="openSubjectModal()"
-          class="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-sm shadow-md shadow-indigo-600/20 inline-flex items-center gap-2 transition">
-          <span class="text-lg leading-none">+</span>
-          <span>เพิ่มวิชาเรียนแรกของคุณ</span>
+          class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition">
+          + เพิ่มวิชาเรียนแรก
         </button>
       </div>
 
-      <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <!-- Big Subject Buttons -->
+      <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
     </section>
 
-    <!-- ==================== VIEW 2: SUBJECT WORKSPACE ==================== -->
-    <section id="subjectView" class="hidden animate-fade-in">
-      <div id="subjectBanner" class="rounded-3xl p-5 sm:p-6 mb-5 border shadow-xs relative overflow-hidden">
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex items-center gap-3.5">
-            <div id="subjectBannerIcon" class="w-14 h-14 rounded-2xl bg-white/90 shadow-xs flex items-center justify-center text-3xl shrink-0">
-              📚
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="subjectBannerCode" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/80 text-slate-700"></span>
-              </div>
-              <h1 id="subjectBannerTitle" class="text-xl sm:text-2xl font-bold text-slate-900 mt-1"></h1>
-              <p id="subjectBannerStats" class="text-xs text-slate-600 mt-1"></p>
-            </div>
+    <!-- ==================== VIEW 2: ALL-IN-ONE SUBJECT HELPER ==================== -->
+    <section id="subjectView" class="hidden animate-fade-in space-y-4">
+
+      <!-- Subject Header -->
+      <div id="subjectBanner" class="rounded-3xl p-4 sm:p-5 border-2 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="subjectBannerIcon" class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">📚</div>
+          <div class="min-w-0">
+            <h1 id="subjectBannerTitle" class="text-lg sm:text-xl font-bold text-slate-900 truncate"></h1>
+            <p id="subjectBannerSub" class="text-xs text-slate-600 truncate mt-0.5"></p>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="openEditCurrentSubject()" title="แก้ไขข้อมูลวิชา"
-              class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center text-sm shadow-2xs transition">
-              ✏️
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="openEditCurrentSubject()" title="แก้ไขชื่อวิชา"
+            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center text-sm">✏️</button>
+          <button onclick="deleteCurrentSubject()" title="ลบวิชานี้"
+            class="w-9 h-9 rounded-xl bg-white/80 hover:bg-rose-50 text-rose-600 flex items-center justify-center text-sm">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Period Filter Pills -->
+      <div class="bg-white p-1.5 rounded-2xl border border-slate-200/80 flex gap-1.5 shadow-2xs">
+        <button onclick="setPeriodFilter('ALL')" data-period="ALL"
+          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">ทั้งหมด</button>
+        <button onclick="setPeriodFilter('midterm')" data-period="midterm"
+          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📘 กลางภาค</button>
+        <button onclick="setPeriodFilter('final')" data-period="final"
+          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📕 ปลายภาค</button>
+      </div>
+
+      <!-- 1. QUICK DUMP BOX (Zero-friction note & link saver) -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
+        <textarea id="quickDumpInput" rows="3"
+          placeholder="วางเนื้อหาจากสไลด์ จดสูตรสั้นๆ หรือแปะลิงก์ชีทเรียนตรงนี้เลย..."
+          class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
+
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- Period Selector for new note -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button type="button" onclick="setNewNotePeriod('midterm')" id="newPeriodMidBtn"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition">📘 กลางภาค</button>
+            <button type="button" onclick="setNewNotePeriod('final')" id="newPeriodFinBtn"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition">📕 ปลายภาค</button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-1 sm:flex-initial justify-end">
+            <button type="button" onclick="saveQuickDump(false)"
+              class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold transition">
+              + เก็บไว้
             </button>
-            <button onclick="deleteCurrentSubject()" title="ลบวิชานี้"
-              class="w-9 h-9 rounded-xl bg-white/80 hover:bg-rose-50 text-rose-600 flex items-center justify-center text-sm shadow-2xs transition">
-              🗑️
+            <button type="button" onclick="saveQuickDump(true)"
+              class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold shadow-xs transition">
+              ✨ เก็บและสรุปเลย
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Desktop Tabs -->
-      <div class="hidden sm:flex bg-white p-1.5 rounded-2xl border border-slate-200/80 mb-5 gap-1.5 shadow-2xs">
-        <button onclick="switchTab('photos')" data-tab="photos"
-          class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
-          <span>📸</span>
-          <span>คลังภาพเลกเชอร์ & กระดาน</span>
+      <!-- 2. ONE-TAP EXAM HELPER BAR -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="runExamHelper('cram')"
+          class="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-600 to-navy-900 hover:opacity-95 active:scale-[0.98] text-white text-left shadow-sm transition">
+          <div class="text-lg mb-0.5">⚡</div>
+          <div class="font-bold text-xs sm:text-sm">สรุปโพยรวมก่อนสอบ</div>
+          <div id="cramBtnSub" class="text-[11px] text-indigo-200 mt-0.5">สรุปเนื้อหาทั้งหมดให้อ่านไว</div>
         </button>
-        <button onclick="switchTab('notes')" data-tab="notes"
-          class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
-          <span>📝</span>
-          <span>โน้ต & ลิงก์ติว</span>
-        </button>
-        <button onclick="switchTab('ai')" data-tab="ai"
-          class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
-          <span>✨</span>
-          <span>ผู้ช่วยติว AI</span>
+
+        <button onclick="runExamHelper('quiz')"
+          class="p-3.5 rounded-2xl bg-white hover:bg-indigo-50/50 active:scale-[0.98] border-2 border-indigo-200 text-slate-900 text-left shadow-2xs transition">
+          <div class="text-lg mb-0.5">🎯</div>
+          <div class="font-bold text-xs sm:text-sm text-indigo-950">ควิซทดสอบ 5 ข้อ</div>
+          <div id="quizBtnSub" class="text-[11px] text-slate-500 mt-0.5">กดเลือกคำตอบเช็กความแม่น</div>
         </button>
       </div>
 
-      <!-- ========== TAB 1: PHOTOS & WHITEBOARD GALLERY ========== -->
-      <div id="tab-photos" class="tab-panel space-y-4">
-        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs">
-          <div class="flex flex-col sm:flex-row gap-2.5">
-            <!-- In-App Camera Button (Works reliably in Android WebView & Browsers) -->
-            <button type="button" onclick="openInAppCamera()"
-              class="flex-1 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-sm transition">
-              <span>📷</span>
-              <span>ถ่ายรูปกระดาน</span>
+      <!-- 3. AI HELPER RESULT PANEL (Hidden until triggered) -->
+      <div id="aiHelperPanel" class="hidden bg-white rounded-3xl p-5 border-2 border-indigo-200 shadow-sm space-y-3 animate-fade-in">
+        <div class="flex items-center justify-between gap-2">
+          <h2 id="aiHelperTitle" class="font-bold text-sm sm:text-base text-navy-900">✨ ผู้ช่วยติวสอบ AI</h2>
+          <div class="flex items-center gap-1.5">
+            <button id="saveAiSummaryBtn" onclick="saveAiCramToNotes()"
+              class="hidden px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
+              + เก็บโพยนี้ไว้
             </button>
-
-            <!-- Direct-Tap File Input Overlay (Never hidden with display:none so WebView allows tap) -->
-            <div class="relative flex-1 rounded-2xl bg-slate-100 hover:bg-slate-200/80 active:scale-[0.99] text-slate-800 font-medium text-sm flex items-center justify-center gap-2 py-3 px-4 transition overflow-hidden">
-              <span>🖼️</span>
-              <span>เลือกรูปจากอัลบั้ม / ไฟล์</span>
-              <input id="galleryFileInput" type="file" accept="image/*" multiple onchange="handlePhotoFiles(event)"
-                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-            </div>
-          </div>
-
-          <!-- Search & Tag Filter -->
-          <div class="mt-4 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row gap-2.5">
-            <div class="relative flex-1">
-              <input id="photoSearchInput" type="text" oninput="renderPhotos()" placeholder="ค้นหาชื่อรูปหรือแท็ก..."
-                class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
-              <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
-            </div>
-            <div id="photoTagFilters" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
+            <button onclick="closeAiHelperPanel()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs">✕</button>
           </div>
         </div>
 
-        <div id="photosEmpty" class="hidden bg-white rounded-3xl p-10 text-center border border-dashed border-slate-300">
-          <div class="text-4xl mb-2">📸</div>
-          <p class="font-medium text-slate-700">ยังไม่มีรูปกระดานหรือสไลด์ในวิชานี้</p>
-          <p class="text-xs text-slate-500 mt-1">กดปุ่ม "ถ่ายรูปกระดาน" หรือ "เลือกรูปจากอัลบั้ม" ด้านบนได้เลย</p>
+        <!-- Loading State -->
+        <div id="aiHelperLoading" class="hidden py-8 text-center">
+          <div class="w-9 h-9 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-2.5"></div>
+          <p class="text-xs font-semibold text-indigo-700">กำลังอ่านเนื้อหาและเตรียมข้อมูลให้คุณ...</p>
         </div>
 
-        <div id="photosGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
+        <!-- Cram Sheet Markdown Output -->
+        <div id="aiCramOutput" class="hidden ai-markdown text-sm text-slate-700 bg-slate-50 rounded-2xl p-4 border border-slate-100"></div>
+
+        <!-- Interactive Quiz Output -->
+        <div id="aiQuizOutput" class="hidden space-y-4"></div>
       </div>
 
-      <!-- ========== TAB 2: NOTES, LINKS & CHECKLIST ========== -->
-      <div id="tab-notes" class="tab-panel hidden space-y-5">
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2">
-              <span>📒</span>
-              <span>โน้ตสรุปประจำวิชา</span>
-            </h2>
-            <div class="flex items-center gap-2">
-              <span id="noteSaveStatus" class="text-xs text-emerald-600 font-medium opacity-0 transition-opacity">บันทึกแล้ว ✓</span>
-              <button onclick="shareSubjectNotes()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 transition">
-                📤 แชร์โน้ต
-              </button>
-            </div>
-          </div>
-          <textarea id="subjectNotesTextarea" rows="7" oninput="handleNoteInput()"
-            placeholder="จดสรุปเนื้อหาสำคัญ สูตรคำนวณ หรือข้อความที่บันทึกมาจากผู้ช่วย AI..."
-            class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
+      <!-- 4. SAVED NOTES & LINKS STREAM -->
+      <div class="pt-1">
+        <div class="flex items-center justify-between mb-2.5 px-1">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">เนื้อหาและลิงก์ที่เก็บไว้</h2>
+          <span id="notesCountLabel" class="text-xs font-medium text-slate-500">0 รายการ</span>
         </div>
 
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2">
-              <span>✅</span>
-              <span>เช็กลิสต์อ่านสอบ / งานที่ต้องส่ง</span>
-            </h2>
-            <span id="taskProgressText" class="text-xs font-semibold text-indigo-600">0/0</span>
-          </div>
-          <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden mb-4">
-            <div id="taskProgressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
-          </div>
-
-          <form onsubmit="addTask(event)" class="flex gap-2 mb-3">
-            <input id="newTaskInput" type="text" placeholder="เช่น อ่านบทที่ 1-4, ส่งรายงานกลุ่ม..."
-              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
-            <button type="submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shrink-0 transition">
-              เพิ่ม
-            </button>
-          </form>
-
-          <div id="tasksList" class="space-y-2"></div>
+        <div id="notesEmptyState" class="hidden bg-white rounded-3xl p-8 text-center border border-dashed border-slate-300">
+          <p class="text-sm font-medium text-slate-600">ยังไม่มีเนื้อหาในหมวดนี้</p>
+          <p class="text-xs text-slate-400 mt-1">พิมพ์หรือวางเนื้อหาในกล่องด้านบนแล้วกด "+ เก็บไว้" ได้เลย</p>
         </div>
 
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
-          <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2 mb-3">
-            <span>🔗</span>
-            <span>รวมลิงก์คลิปติว / ชีทเรียน / สไลด์</span>
-          </h2>
-
-          <form onsubmit="addLink(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-4">
-            <input id="newLinkTitle" type="text" placeholder="ชื่อลิงก์ เช่น คลิปติว Midterm"
-              class="sm:col-span-4 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
-            <input id="newLinkUrl" type="url" placeholder="วางลิงก์ https://..."
-              class="sm:col-span-5 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
-            <select id="newLinkCategory"
-              class="sm:col-span-2 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="วิดีโอติว">วิดีโอติว</option>
-              <option value="ชีท/สไลด์">ชีท/สไลด์</option>
-              <option value="แบบฝึกหัด">แบบฝึกหัด</option>
-              <option value="อื่นๆ">อื่นๆ</option>
-            </select>
-            <button type="submit" class="sm:col-span-1 py-2.5 px-3 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-sm font-medium transition">
-              +
-            </button>
-          </form>
-
-          <div id="linksList" class="space-y-2"></div>
-        </div>
-      </div>
-
-      <!-- ========== TAB 3: AI STUDY TUTOR ========== -->
-      <div id="tab-ai" class="tab-panel hidden space-y-4">
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-base text-slate-900 flex items-center gap-2">
-              <span>✨</span>
-              <span>เลือกโหมดผู้ช่วยติว AI</span>
-            </h2>
-            <span id="activeModelBadge" class="text-[11px] px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium">
-              gemini-3.8-flash
-            </span>
-          </div>
-
-          <div class="space-y-2.5">
-            <label class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/40 cursor-pointer transition ai-mode-card">
-              <input type="radio" name="aiMode" value="summary" checked onchange="updateAiModeCards()" class="mt-1 accent-indigo-600 w-4 h-4" />
-              <div>
-                <div class="font-semibold text-sm text-slate-900">สรุปเนื้อหาแบบกระชับ เข้าใจง่าย</div>
-                <div class="text-xs text-slate-500 mt-0.5">แยกประเด็นสำคัญเป็นข้อๆ สำหรับอ่านทบทวนไวๆ</div>
-              </div>
-            </label>
-
-            <label class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 cursor-pointer transition ai-mode-card">
-              <input type="radio" name="aiMode" value="quiz" onchange="updateAiModeCards()" class="mt-1 accent-indigo-600 w-4 h-4" />
-              <div>
-                <div class="font-semibold text-sm text-slate-900">สร้างแนวข้อสอบ 5 ข้อ พร้อมเฉลยละเอียด</div>
-                <div class="text-xs text-slate-500 mt-0.5">ฝึกทำโจทย์ปรนัย/อัตนัยเพื่อทดสอบความเข้าใจ</div>
-              </div>
-            </label>
-
-            <label class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 cursor-pointer transition ai-mode-card">
-              <input type="radio" name="aiMode" value="explain" onchange="updateAiModeCards()" class="mt-1 accent-indigo-600 w-4 h-4" />
-              <div>
-                <div class="font-semibold text-sm text-slate-900">อธิบายเจาะลึกให้เข้าใจเหมือนมีรุ่นพี่ติว</div>
-                <div class="text-xs text-slate-500 mt-0.5">ยกตัวอย่างประกอบให้เห็นภาพชัดเจน</div>
-              </div>
-            </label>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-              แนบรูปกระดาน/สไลด์จากคลังของวิชานี้ (ถ้ามี)
-            </label>
-            <select id="aiPhotoSelect" onchange="handleAiPhotoSelect()"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-indigo-500">
-              <option value="">-- ไม่แนบรูปภาพ --</option>
-            </select>
-
-            <div id="aiPhotoPreviewBox" class="hidden mt-2.5 p-2.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <img id="aiPhotoPreviewImg" src="" alt="Preview" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-white" />
-                <div class="min-w-0">
-                  <div class="text-[11px] font-medium text-indigo-600">รูปภาพที่จะส่งให้ AI วิเคราะห์:</div>
-                  <div id="aiPhotoPreviewTitle" class="text-xs font-semibold text-slate-800 truncate mt-0.5"></div>
-                </div>
-              </div>
-              <button type="button" onclick="clearAiSelectedPhoto()"
-                class="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 flex items-center justify-center shrink-0 transition">
-                ✕
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-              หัวข้อที่เรียน หรือวางเนื้อหาสไลด์/เลกเชอร์
-            </label>
-            <textarea id="aiPromptInput" rows="3"
-              placeholder="พิมพ์ชื่อเรื่อง เช่น 'Freytag's Pyramid คืออะไร' หรือวางเนื้อหาที่จดไว้..."
-              class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
-          </div>
-
-          <button id="runAiBtn" onclick="runAiTutor()"
-            class="w-full py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition">
-            <span>✨</span>
-            <span>ให้ AI ช่วยสรุป / สร้างแนวข้อสอบ</span>
-          </button>
-        </div>
-
-        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold text-base text-slate-900">ผลลัพธ์การติวจาก AI</h3>
-            <div id="aiResultActions" class="hidden flex items-center gap-1.5">
-              <button onclick="saveAiResultToNotes()"
-                class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
-                + บันทึกลงโน้ต
-              </button>
-              <button onclick="copyAiResult()"
-                class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition">
-                คัดลอก
-              </button>
-              <button onclick="shareAiResult()"
-                class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition">
-                แชร์
-              </button>
-            </div>
-          </div>
-
-          <div id="aiOutputPlaceholder" class="py-10 text-center">
-            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto mb-3">
-              💬
-            </div>
-            <p class="font-medium text-sm text-slate-700">พร้อมช่วยคุณติวสอบเสมอ</p>
-            <p class="text-xs text-slate-400 max-w-xs mx-auto mt-1">
-              เลือกภาพกระดานหรือพิมพ์หัวข้อด้านบน แล้วกดปุ่มเพื่อให้ AI ช่วยสรุปหรือออกแนวข้อสอบได้เลย
-            </p>
-          </div>
-
-          <div id="aiOutputLoading" class="hidden py-10 text-center">
-            <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-3"></div>
-            <p class="font-medium text-sm text-indigo-700">AI กำลังอ่านเนื้อหาและเตรียมสรุปให้คุณ...</p>
-            <p class="text-xs text-slate-400 mt-1">อาจใช้เวลา 3-10 วินาทีหากมีรูปภาพประกอบ</p>
-          </div>
-
-          <div id="aiOutputContent" class="hidden ai-markdown text-sm text-slate-700 bg-slate-50/70 rounded-2xl p-4 border border-slate-100"></div>
-        </div>
+        <div id="notesList" class="space-y-2.5"></div>
       </div>
     </section>
   </main>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav id="mobileBottomNav" class="hidden sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 safe-bottom">
-    <div class="grid grid-cols-3 h-14">
-      <button onclick="switchTab('photos')" data-tab="photos"
-        class="mobile-tab-btn flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition">
-        <span class="text-base">📸</span>
-        <span>คลังภาพ</span>
-      </button>
-      <button onclick="switchTab('notes')" data-tab="notes"
-        class="mobile-tab-btn flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition">
-        <span class="text-base">📝</span>
-        <span>โน้ต & ลิงก์</span>
-      </button>
-      <button onclick="switchTab('ai')" data-tab="ai"
-        class="mobile-tab-btn flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition">
-        <span class="text-base">✨</span>
-        <span>ผู้ช่วย AI</span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- ==================== MODAL: IN-APP LIVE CAMERA ==================== -->
-  <div id="cameraModal" class="hidden fixed inset-0 z-50 bg-black flex flex-col select-none">
-    <div class="flex items-center justify-between px-4 py-3 text-white bg-black/70 safe-top z-10">
-      <div class="font-semibold text-sm">📷 ถ่ายรูปกระดาน / สไลด์</div>
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="switchCameraFacing()" class="px-3 py-1.5 rounded-xl bg-white/15 text-xs font-medium">
-          🔄 สลับกล้อง
-        </button>
-        <button type="button" onclick="closeInAppCamera()" class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-base">
-          ✕
-        </button>
-      </div>
-    </div>
-
-    <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
-      <video id="cameraVideoPreview" autoplay playsinline muted class="w-full h-full object-contain"></video>
-      <div id="cameraErrorOverlay" class="hidden absolute inset-0 bg-slate-900/95 p-6 flex flex-col items-center justify-center text-center text-white">
-        <div class="text-4xl mb-3">⚠️</div>
-        <h4 class="font-bold text-base mb-1.5">ไม่สามารถเปิดกล้องในแอปได้</h4>
-        <p id="cameraErrorText" class="text-xs text-slate-300 max-w-xs leading-relaxed mb-5">
-          กรุณาไปที่ การตั้งค่ามือถือ → แอป → StudyHub → การอนุญาต (Permissions) → เปิดสิทธิ์ "กล้อง" และ "รูปภาพ"
-        </p>
-        <div class="relative px-5 py-3 rounded-2xl bg-indigo-600 text-white font-semibold text-xs overflow-hidden">
-          <span>เลือกรูปจากอัลบั้มแทน</span>
-          <input type="file" accept="image/*" onchange="closeInAppCamera(); handlePhotoFiles(event);"
-            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-        </div>
-      </div>
-    </div>
-
-    <div class="py-5 px-4 bg-black/80 flex items-center justify-center safe-bottom z-10">
-      <button type="button" onclick="captureCameraFrame()"
-        class="w-16 h-16 rounded-full bg-white border-4 border-indigo-400 active:scale-90 transition shadow-lg flex items-center justify-center">
-        <span class="w-12 h-12 rounded-full bg-white border border-slate-300"></span>
-      </button>
-    </div>
-  </div>
-
   <!-- ==================== MODAL: ADD / EDIT SUBJECT ==================== -->
   <div id="subjectModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in max-h-[90dvh] overflow-y-auto">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
       <div class="flex items-center justify-between mb-4">
-        <h3 id="subjectModalTitle" class="text-lg font-bold text-slate-900">เพิ่มวิชาเรียนใหม่</h3>
+        <h3 id="subjectModalTitle" class="text-lg font-bold text-slate-900">เพิ่มวิชาเรียน</h3>
         <button onclick="closeSubjectModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
       </div>
 
@@ -546,214 +273,93 @@
         <input type="hidden" id="editSubjectId" value="" />
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อวิชาเรียน *</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อวิชา *</label>
           <input id="subjectNameInput" type="text" required placeholder="เช่น วรรณคดีและภาพยนตร์, Calculus I"
             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสวิชา / วัน-เวลาเรียน (ไม่บังคับ)</label>
-          <input id="subjectCodeInput" type="text" placeholder="เช่น CS101 • จันทร์ 09:00-12:00"
+          <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสวิชา / ตารางเรียน (ไม่บังคับ)</label>
+          <input id="subjectCodeInput" type="text" placeholder="เช่น CS101 • จันทร์เช้า"
             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1.5">เลือกไอคอนวิชา</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">ไอคอน</label>
           <div id="iconPickerGrid" class="grid grid-cols-6 gap-2"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1.5">เลือกธีมสีการ์ด</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">สีการ์ด</label>
           <div id="themePickerGrid" class="grid grid-cols-4 gap-2"></div>
         </div>
 
-        <div class="pt-2 flex gap-2">
-          <button type="button" onclick="closeSubjectModal()" class="flex-1 py-3 rounded-2xl bg-slate-100 text-slate-700 font-semibold text-sm">
-            ยกเลิก
-          </button>
-          <button type="submit" class="flex-1 py-3 rounded-2xl bg-navy-900 text-white font-semibold text-sm shadow-md">
-            บันทึกวิชาเรียน
-          </button>
-        </div>
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-navy-900 text-white font-semibold text-sm shadow-md">
+          บันทึกวิชาเรียน
+        </button>
       </form>
     </div>
   </div>
 
-  <!-- ==================== MODAL: PHOTO DETAILS & TAGS ==================== -->
-  <div id="photoUploadModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in max-h-[90dvh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">บันทึกรูปเลกเชอร์ (<span id="pendingPhotosCount">1</span> รูป)</h3>
-        <button onclick="closePhotoUploadModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
-      </div>
-
-      <div class="mb-4 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 aspect-video flex items-center justify-center">
-        <img id="pendingPhotoPreview" src="" alt="Preview" class="max-h-52 w-full object-contain" />
-      </div>
-
-      <div class="space-y-3.5">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อหัวข้อ / คำอธิบายภาพ</label>
-          <input id="photoTitleInput" type="text" placeholder="เช่น พีระมิด (Freytag's Pyramid), สูตรบทที่ 3"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1.5">ติดแท็กหมวดหมู่</label>
-          <div class="flex flex-wrap gap-1.5 mb-2" id="quickTagChips">
-            <button type="button" onclick="togglePresetTag('มิดเทอม')" class="preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700">#มิดเทอม</button>
-            <button type="button" onclick="togglePresetTag('ไฟนอล')" class="preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700">#ไฟนอล</button>
-            <button type="button" onclick="togglePresetTag('สำคัญ')" class="preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700">#สำคัญ</button>
-            <button type="button" onclick="togglePresetTag('สูตร')" class="preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700">#สูตร</button>
-            <button type="button" onclick="togglePresetTag('กระดาน')" class="preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700">#กระดาน</button>
-          </div>
-          <input id="photoCustomTagsInput" type="text" placeholder="พิมพ์แท็กเพิ่มเอง คั่นด้วยเครื่องหมายจุลภาค (,)"
-            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-indigo-500" />
-        </div>
-
-        <button onclick="confirmSavePhotos()" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md transition">
-          บันทึกรูปภาพลงคลัง
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: AI SETTINGS (API KEY & MODEL) ==================== -->
+  <!-- ==================== MODAL: AI SETTINGS ==================== -->
   <div id="aiSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in max-h-[90dvh] overflow-y-auto">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">⚙️ ตั้งค่าผู้ช่วยติว AI (Gemini)</h3>
+        <h3 class="text-lg font-bold text-slate-900">⚙️ ตั้งค่า AI (Gemini)</h3>
         <button onclick="closeAiSettingsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
       </div>
-
-      <p class="text-xs text-slate-500 leading-relaxed mb-4">
-        กรอก <strong>Google Gemini API Key</strong> ของคุณเอง (ฟรีจาก Google AI Studio) รหัสจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น ไม่ส่งออกไปที่อื่น
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        ใส่ <strong>Gemini API Key</strong> ฟรีจาก Google AI Studio (เก็บไว้ในเครื่องของคุณเท่านั้น)
       </p>
-
-      <div class="space-y-3.5">
+      <div class="space-y-3">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key *</label>
           <input id="geminiApiKeyInput" type="password" placeholder="AIzaSy..."
             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
           <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
             class="inline-block text-xs text-indigo-600 font-medium mt-1.5 hover:underline">
-            ↗ กดที่นี่เพื่อสร้าง API Key ฟรี (Google AI Studio)
+            ↗ กดรับ API Key ฟรีที่นี่
           </a>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">รุ่นโมเดล AI (Model)</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">รุ่นโมเดล AI</label>
           <input id="geminiModelInput" type="text" value="gemini-3.8-flash"
-            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-indigo-500" />
-          <p class="text-[11px] text-slate-400 mt-1">ค่าเริ่มต้นคือ <code class="text-indigo-600">gemini-3.8-flash</code></p>
+            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs" />
         </div>
-
         <div class="flex gap-2 pt-2">
-          <button type="button" onclick="clearGeminiApiKey()" class="px-4 py-3 rounded-2xl bg-rose-50 text-rose-600 font-semibold text-xs">
-            ล้างคีย์
-          </button>
-          <button type="button" onclick="saveGeminiSettings()" class="flex-1 py-3 rounded-2xl bg-navy-900 text-white font-semibold text-sm shadow-md">
-            บันทึกการตั้งค่า
-          </button>
+          <button type="button" onclick="clearGeminiApiKey()" class="px-4 py-3 rounded-2xl bg-rose-50 text-rose-600 font-semibold text-xs">ล้างคีย์</button>
+          <button type="button" onclick="saveGeminiSettings()" class="flex-1 py-3 rounded-2xl bg-navy-900 text-white font-semibold text-sm">บันทึก</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL: BACKUP & RESTORE ==================== -->
+  <!-- ==================== MODAL: SIMPLE CLIPBOARD BACKUP ==================== -->
   <div id="backupModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">💾 สำรอง & กู้คืนข้อมูลการเรียน</h3>
+        <h3 class="text-lg font-bold text-slate-900">💾 สำรอง & ย้ายข้อมูล</h3>
         <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
       </div>
-      <p class="text-xs text-slate-500 leading-relaxed mb-4">
-        ข้อมูลรูปภาพและโน้ตทั้งหมดถูกเก็บในเครื่องของคุณ สามารถดาวน์โหลดไฟล์ <code class="text-indigo-600">.json</code> เก็บไว้เพื่อย้ายไปเปิดบนเครื่องอื่นได้
-      </p>
-      <div class="space-y-2.5">
-        <button onclick="exportBackupJson()" class="w-full py-3.5 px-4 rounded-2xl bg-navy-900 text-white font-semibold text-sm flex items-center justify-center gap-2">
-          <span>⬇️</span>
-          <span>ดาวน์โหลดไฟล์สำรองข้อมูล (.json)</span>
+      <div class="space-y-3">
+        <button onclick="copyBackupToClipboard()" class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 text-white font-semibold text-sm">
+          📋 คัดลอกโค้ดข้อมูลทั้งหมด (เก็บไว้ในแชต/โน้ต)
         </button>
-
-        <div class="relative w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm flex items-center justify-center gap-2 overflow-hidden">
-          <span>⬆️</span>
-          <span>นำเข้าข้อมูลจากไฟล์ (.json)</span>
-          <input type="file" accept=".json,application/json" onchange="importBackupJson(event)"
-            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+        <div class="pt-2 border-t border-slate-100">
+          <textarea id="restoreCodeInput" rows="3" placeholder="วางโค้ดสำรองข้อมูลตรงนี้เพื่อกู้คืน..."
+            class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs"></textarea>
+          <button onclick="restoreFromClipboardText()" class="mt-2 w-full py-3 rounded-2xl bg-navy-900 text-white font-semibold text-sm">
+            📥 กู้คืนข้อมูล
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL: INSTALL PWA / APP GUIDE ==================== -->
-  <div id="installModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">📲 ติดตั้ง StudyHub เป็นแอปมือถือ</h3>
-        <button onclick="closeInstallModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
-      </div>
-
-      <div id="nativeInstallPromptArea" class="hidden mb-4">
-        <button onclick="triggerNativeInstall()" class="w-full py-3.5 rounded-2xl bg-indigo-600 text-white font-semibold text-sm shadow-md">
-          ติดตั้งแอปลงหน้าจอโฮมทันที
-        </button>
-      </div>
-
-      <div class="space-y-3 text-xs text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-        <div>
-          <div class="font-bold text-slate-800 mb-0.5">🤖 Android (Chrome):</div>
-          <p>แตะที่จุด 3 จุดมุมขวาบน → เลือก <strong>"เพิ่มลงในหน้าจอหลัก (Add to Home screen)"</strong> หรือ <strong>"ติดตั้งแอป"</strong></p>
-        </div>
-        <div class="border-t border-slate-200 pt-2.5">
-          <div class="font-bold text-slate-800 mb-0.5">🍎 iPhone / iPad (Safari):</div>
-          <p>แตะปุ่ม <strong>แชร์ (Share)</strong> ด้านล่าง → เลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== FULLSCREEN LIGHTBOX ==================== -->
-  <div id="lightboxModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col select-none">
-    <div class="flex items-center justify-between px-4 py-3 text-white bg-black/60 backdrop-blur-xs safe-top z-10">
-      <div class="min-w-0 pr-2">
-        <div id="lightboxTitle" class="font-semibold text-sm truncate"></div>
-        <div id="lightboxCounter" class="text-[11px] text-slate-400"></div>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <button onclick="shareLightboxPhoto()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-medium">
-          📤 แชร์
-        </button>
-        <button onclick="deleteLightboxPhoto()" class="px-2.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 text-xs font-medium">
-          🗑️
-        </button>
-        <button onclick="closeLightbox()" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-base">
-          ✕
-        </button>
-      </div>
-    </div>
-
-    <div id="lightboxViewport" class="flex-1 relative overflow-hidden flex items-center justify-center touch-none">
-      <img id="lightboxImg" src="" alt="Lecture"
-        class="max-w-full max-h-full object-contain transition-transform duration-75 origin-center will-change-transform" />
-    </div>
-
-    <div class="px-4 py-3 bg-black/60 backdrop-blur-xs flex items-center justify-between text-white safe-bottom z-10">
-      <button onclick="prevLightboxPhoto()" class="px-4 py-2 rounded-xl bg-white/15 text-xs font-medium">← ก่อนหน้า</button>
-      <div class="flex items-center gap-2">
-        <button onclick="adjustZoom(-0.5)" class="w-9 h-9 rounded-xl bg-white/15 font-bold">-</button>
-        <button onclick="resetZoom()" id="zoomLevelLabel" class="px-3 py-2 rounded-xl bg-white/15 text-xs font-medium">100%</button>
-        <button onclick="adjustZoom(0.5)" class="w-9 h-9 rounded-xl bg-white/15 font-bold">+</button>
-      </div>
-      <button onclick="nextLightboxPhoto()" class="px-4 py-2 rounded-xl bg-white/15 text-xs font-medium">ถัดไป →</button>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div id="toastContainer" class="fixed bottom-16 sm:bottom-6 inset-x-4 sm:inset-x-auto sm:right-6 sm:max-w-sm z-50 pointer-events-none flex flex-col gap-2"></div>
+  <!-- Toast -->
+  <div id="toastContainer" class="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 sm:max-w-sm z-50 pointer-events-none flex flex-col gap-2"></div>
 
   <script>
-    // ==================== CONSTANTS & THEMES ====================
     const STORAGE_KEY_API = 'studyhub_gemini_api_key';
     const STORAGE_KEY_MODEL = 'studyhub_gemini_model';
     const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
@@ -763,57 +369,66 @@
 
     const SUBJECT_ICONS = ['📚', '💻', '🧪', '📐', '🏛️', '🎨', '🩺', '⚖️', '📈', '🌐', '🎬', '🧠'];
     const SUBJECT_THEMES = [
-      { id: 'indigo', name: 'คราม', card: 'bg-indigo-50/90 border-indigo-200/80 hover:border-indigo-400', badge: 'bg-indigo-100 text-indigo-800', dot: '#4F46E5' },
-      { id: 'sky', name: 'ฟ้าสดใส', card: 'bg-sky-50/90 border-sky-200/80 hover:border-sky-400', badge: 'bg-sky-100 text-sky-800', dot: '#0284C7' },
-      { id: 'emerald', name: 'เขียวมิ้นท์', card: 'bg-emerald-50/90 border-emerald-200/80 hover:border-emerald-400', badge: 'bg-emerald-100 text-emerald-800', dot: '#059669' },
-      { id: 'amber', name: 'เหลืองอำพัน', card: 'bg-amber-50/90 border-amber-200/80 hover:border-amber-400', badge: 'bg-amber-100 text-amber-800', dot: '#D97706' },
-      { id: 'rose', name: 'ชมพูกุหลาบ', card: 'bg-rose-50/90 border-rose-200/80 hover:border-rose-400', badge: 'bg-rose-100 text-rose-800', dot: '#E11D48' },
-      { id: 'violet', name: 'ม่วงลาเวนเดอร์', card: 'bg-violet-50/90 border-violet-200/80 hover:border-violet-400', badge: 'bg-violet-100 text-violet-800', dot: '#7C3AED' },
-      { id: 'teal', name: 'เขียวน้ำทะเล', card: 'bg-teal-50/90 border-teal-200/80 hover:border-teal-400', badge: 'bg-teal-100 text-teal-800', dot: '#0D9488' },
-      { id: 'slate', name: 'เทามินิมอล', card: 'bg-slate-100/90 border-slate-200/90 hover:border-slate-400', badge: 'bg-slate-200 text-slate-800', dot: '#475569' }
+      { id: 'indigo', name: 'คราม', card: 'bg-indigo-50/90 border-indigo-200 hover:border-indigo-400', dot: '#4F46E5' },
+      { id: 'sky', name: 'ฟ้า', card: 'bg-sky-50/90 border-sky-200 hover:border-sky-400', dot: '#0284C7' },
+      { id: 'emerald', name: 'เขียว', card: 'bg-emerald-50/90 border-emerald-200 hover:border-emerald-400', dot: '#059669' },
+      { id: 'amber', name: 'เหลือง', card: 'bg-amber-50/90 border-amber-200 hover:border-amber-400', dot: '#D97706' },
+      { id: 'rose', name: 'ชมพู', card: 'bg-rose-50/90 border-rose-200 hover:border-rose-400', dot: '#E11D48' },
+      { id: 'violet', name: 'ม่วง', card: 'bg-violet-50/90 border-violet-200 hover:border-violet-400', dot: '#7C3AED' },
+      { id: 'teal', name: 'มิ้นท์', card: 'bg-teal-50/90 border-teal-200 hover:border-teal-400', dot: '#0D9488' },
+      { id: 'slate', name: 'เทา', card: 'bg-slate-100/90 border-slate-200 hover:border-slate-400', dot: '#475569' }
     ];
 
-    // ==================== STATE ====================
     let subjects = [];
     let currentSubjectId = null;
-    let currentTab = 'photos';
-    let selectedTagFilter = 'ALL';
+    let activePeriodFilter = 'ALL'; // 'ALL' | 'midterm' | 'final'
+    let newNotePeriod = 'midterm';
     let selectedFormIcon = '📚';
     let selectedFormTheme = 'indigo';
-    let pendingUploadDataUrls = [];
-    let selectedPresetTags = [];
-    let lastAiResultMarkdown = '';
-    let noteSaveTimer = null;
-    let deferredInstallPrompt = null;
+    let lastAiCramText = '';
+    let currentQuizData = [];
 
-    // Camera State
-    let activeCameraStream = null;
-    let cameraFacingMode = 'environment';
-
-    // Lightbox State
-    let lightboxPhotos = [];
-    let lightboxIndex = 0;
-    let zoomScale = 1;
-    let panX = 0;
-    let panY = 0;
-
-    // ==================== INDEXEDDB STORAGE LAYER ====================
+    // ==================== DATABASE (WITH SEAMLESS MIGRATION) ====================
     function openDatabase() {
       return new Promise((resolve, reject) => {
-        if (!window.indexedDB) {
-          reject(new Error('IndexedDB not supported'));
-          return;
-        }
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = (e) => {
+        if (!window.indexedDB) return reject(new Error('No IndexedDB'));
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains(STORE_NAME)) {
             db.createObjectStore(STORE_NAME, { keyPath: 'id' });
           }
         };
-        request.onsuccess = (e) => resolve(e.target.result);
-        request.onerror = (e) => reject(e.target.error);
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = (e) => reject(e.target.error);
       });
+    }
+
+    function normalizeSubject(s) {
+      s.items = Array.isArray(s.items) ? s.items : [];
+      // Migrate older structures seamlessly
+      if (Array.isArray(s.lectures) && s.lectures.length > 0 && s.items.length === 0) {
+        s.lectures.forEach(l => {
+          const text = [l.title, l.content, l.url].filter(Boolean).join('\n');
+          if (text) {
+            s.items.push({
+              id: l.id || ('item_' + Date.now() + Math.random()),
+              period: l.period || 'midterm',
+              text,
+              createdAt: l.createdAt || Date.now()
+            });
+          }
+        });
+      }
+      if (s.notes && s.notes.trim() && s.items.length === 0) {
+        s.items.push({
+          id: 'item_' + Date.now(),
+          period: 'midterm',
+          text: s.notes.trim(),
+          createdAt: Date.now()
+        });
+      }
+      return s;
     }
 
     async function loadAllSubjects() {
@@ -821,18 +436,17 @@
         const db = await openDatabase();
         return await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readonly');
-          const store = tx.objectStore(STORE_NAME);
-          const req = store.getAll();
+          const req = tx.objectStore(STORE_NAME).getAll();
           req.onsuccess = () => {
-            const list = req.result || [];
+            const list = (req.result || []).map(normalizeSubject);
             list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             resolve(list);
           };
           req.onerror = () => reject(req.error);
         });
-      } catch (err) {
+      } catch {
         try {
-          return JSON.parse(localStorage.getItem('studyhub_fallback_subjects') || '[]');
+          return JSON.parse(localStorage.getItem('studyhub_fallback_subjects') || '[]').map(normalizeSubject);
         } catch {
           return [];
         }
@@ -844,12 +458,11 @@
         const db = await openDatabase();
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          store.put(subject);
+          tx.objectStore(STORE_NAME).put(subject);
           tx.oncomplete = () => resolve();
           tx.onerror = () => reject(tx.error);
         });
-      } catch (err) {
+      } catch {
         localStorage.setItem('studyhub_fallback_subjects', JSON.stringify(subjects));
       }
     }
@@ -859,53 +472,29 @@
         const db = await openDatabase();
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          store.delete(id);
+          tx.objectStore(STORE_NAME).delete(id);
           tx.oncomplete = () => resolve();
           tx.onerror = () => reject(tx.error);
         });
-      } catch (err) {
+      } catch {
         localStorage.setItem('studyhub_fallback_subjects', JSON.stringify(subjects));
       }
     }
 
-    // ==================== INITIALIZATION ====================
+    // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', async () => {
       renderFormPickers();
       updateAiStatusIndicator();
-
-      if (navigator.storage && navigator.storage.persist) {
-        navigator.storage.persist().catch(() => {});
-      }
-
       subjects = await loadAllSubjects();
       renderSubjectsGrid();
 
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        document.getElementById('nativeInstallPromptArea').classList.remove('hidden');
-      });
-
       window.addEventListener('popstate', () => {
-        if (!document.getElementById('cameraModal').classList.contains('hidden')) {
-          closeInAppCamera();
-          return;
-        }
-        if (!document.getElementById('lightboxModal').classList.contains('hidden')) {
-          closeLightbox(true);
-          return;
-        }
-        if (currentSubjectId) {
-          goHome(true);
-        }
+        if (currentSubjectId) goHome(true);
       });
     });
 
-    // ==================== HELPERS ====================
     function escapeHtml(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
+      return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -913,26 +502,22 @@
         .replace(/'/g, '&#39;');
     }
 
-    function showToast(message, type = 'info') {
+    function showToast(msg, type = 'info') {
       const container = document.getElementById('toastContainer');
       const el = document.createElement('div');
-      const colors = {
-        info: 'bg-slate-900 text-white',
-        success: 'bg-emerald-600 text-white',
-        error: 'bg-rose-600 text-white'
-      };
-      el.className = `${colors[type] || colors.info} pointer-events-auto px-4 py-3.5 rounded-2xl shadow-xl text-xs sm:text-sm font-medium flex items-start gap-2.5 animate-fade-in`;
-      el.innerHTML = `<span class="w-2 h-2 rounded-full bg-white/80 mt-1.5 shrink-0"></span><div class="leading-relaxed break-words">${escapeHtml(message)}</div>`;
+      const bg = type === 'error' ? 'bg-rose-600' : type === 'success' ? 'bg-emerald-600' : 'bg-slate-900';
+      el.className = `${bg} text-white pointer-events-auto px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-medium animate-fade-in`;
+      el.textContent = msg;
       container.appendChild(el);
       setTimeout(() => {
         el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s';
-        setTimeout(() => el.remove(), 260);
-      }, 4500);
+        el.style.transition = 'opacity 0.2s';
+        setTimeout(() => el.remove(), 220);
+      }, 3800);
     }
 
-    function getThemeObj(themeId) {
-      return SUBJECT_THEMES.find(t => t.id === themeId) || SUBJECT_THEMES[0];
+    function getThemeObj(id) {
+      return SUBJECT_THEMES.find(t => t.id === id) || SUBJECT_THEMES[0];
     }
 
     function getCurrentSubject() {
@@ -940,16 +525,15 @@
     }
 
     // ==================== NAVIGATION ====================
-    function goHome(fromPopState = false) {
+    function goHome(fromPop = false) {
       currentSubjectId = null;
       document.getElementById('subjectView').classList.add('hidden');
       document.getElementById('homeView').classList.remove('hidden');
       document.getElementById('headerBackBtn').classList.add('hidden');
       document.getElementById('headerBackBtn').classList.remove('flex');
       document.getElementById('headerBackupBtn').classList.remove('hidden');
-      document.getElementById('mobileBottomNav').classList.add('hidden');
       renderSubjectsGrid();
-      if (!fromPopState && window.history.state?.view === 'subject') {
+      if (!fromPop && window.history.state?.view === 'subject') {
         window.history.back();
       }
     }
@@ -959,55 +543,21 @@
       if (!subj) return;
 
       currentSubjectId = id;
-      selectedTagFilter = 'ALL';
-      lastAiResultMarkdown = '';
-
       document.getElementById('homeView').classList.add('hidden');
       document.getElementById('subjectView').classList.remove('hidden');
       document.getElementById('headerBackupBtn').classList.add('hidden');
       document.getElementById('headerBackBtn').classList.remove('hidden');
       document.getElementById('headerBackBtn').classList.add('flex');
-      document.getElementById('mobileBottomNav').classList.remove('hidden');
+      document.getElementById('quickDumpInput').value = '';
+      closeAiHelperPanel();
 
       renderSubjectHeader();
-      switchTab('photos');
-
-      document.getElementById('aiOutputPlaceholder').classList.remove('hidden');
-      document.getElementById('aiOutputLoading').classList.add('hidden');
-      document.getElementById('aiOutputContent').classList.add('hidden');
-      document.getElementById('aiResultActions').classList.add('hidden');
-      document.getElementById('aiPromptInput').value = '';
-      clearAiSelectedPhoto();
-
+      setPeriodFilter('ALL');
       window.history.pushState({ view: 'subject', id }, '', '#subject-' + id);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function switchTab(tabName) {
-      currentTab = tabName;
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
-      document.getElementById('tab-' + tabName).classList.remove('hidden');
-
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        const active = btn.dataset.tab === tabName;
-        btn.className = active
-          ? 'tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold bg-navy-900 text-white shadow-xs transition flex items-center justify-center gap-2'
-          : 'tab-btn flex-1 py-2.5 px-4 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-2';
-      });
-
-      document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
-        const active = btn.dataset.tab === tabName;
-        btn.className = active
-          ? 'mobile-tab-btn flex flex-col items-center justify-center gap-0.5 text-xs font-bold text-indigo-600 transition'
-          : 'mobile-tab-btn flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-500 transition';
-      });
-
-      if (tabName === 'photos') renderPhotos();
-      if (tabName === 'notes') renderNotesAndLinks();
-      if (tabName === 'ai') populateAiPhotoDropdown();
-    }
-
-    // ==================== HOME SUBJECTS GRID & MODAL ====================
+    // ==================== HOME GRID & SUBJECT MODAL ====================
     function renderSubjectsGrid() {
       const grid = document.getElementById('subjectsGrid');
       const empty = document.getElementById('emptySubjectsState');
@@ -1019,31 +569,24 @@
       }
 
       empty.classList.add('hidden');
-      grid.innerHTML = subjects.map(subj => {
-        const theme = getThemeObj(subj.theme);
-        const photoCount = (subj.photos || []).length;
-        const linkCount = (subj.links || []).length;
-        const pendingTasks = (subj.tasks || []).filter(t => !t.done).length;
-
+      grid.innerHTML = subjects.map(s => {
+        const theme = getThemeObj(s.theme);
+        const count = (s.items || []).length;
         return `
-          <button onclick="openSubject('${escapeHtml(subj.id)}')"
-            class="text-left p-5 rounded-3xl border-2 ${theme.card} shadow-2xs active:scale-[0.98] transition-all flex flex-col justify-between min-h-[156px] group">
-            <div>
-              <div class="flex items-start justify-between gap-2">
-                <div class="w-12 h-12 rounded-2xl bg-white/90 shadow-2xs flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                  ${escapeHtml(subj.icon || '📚')}
-                </div>
-                ${subj.code ? `<span class="text-[11px] font-medium px-2.5 py-1 rounded-full ${theme.badge} truncate max-w-[150px]">${escapeHtml(subj.code)}</span>` : ''}
+          <button onclick="openSubject('${escapeHtml(s.id)}')"
+            class="text-left p-5 rounded-3xl border-2 ${theme.card} active:scale-[0.98] transition flex flex-col justify-between min-h-[132px]">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
+                ${escapeHtml(s.icon || '📚')}
               </div>
-              <h2 class="text-lg font-bold text-slate-900 mt-3.5 line-clamp-2 leading-snug">
-                ${escapeHtml(subj.name)}
-              </h2>
+              <div class="min-w-0">
+                <h2 class="text-base sm:text-lg font-bold text-slate-900 line-clamp-1">${escapeHtml(s.name)}</h2>
+                <p class="text-xs text-slate-500 truncate mt-0.5">${escapeHtml(s.code || `เก็บไว้ ${count} รายการ`)}</p>
+              </div>
             </div>
-
-            <div class="flex items-center gap-3 mt-4 pt-3 border-t border-black/5 text-xs font-medium text-slate-600">
-              <span>📸 ${photoCount} รูป</span>
-              <span>🔗 ${linkCount} ลิงก์</span>
-              <span>✅ ค้าง ${pendingTasks}</span>
+            <div class="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs font-medium text-slate-600">
+              <span>📝 ${count} เนื้อหา</span>
+              <span class="text-indigo-700 font-semibold">เปิดติวสอบ →</span>
             </div>
           </button>
         `;
@@ -1051,45 +594,33 @@
     }
 
     function renderFormPickers() {
-      const iconGrid = document.getElementById('iconPickerGrid');
-      iconGrid.innerHTML = SUBJECT_ICONS.map(ic => `
-        <button type="button" onclick="selectFormIcon('${ic}')"
-          class="icon-opt h-11 rounded-xl border text-xl flex items-center justify-center transition ${ic === selectedFormIcon ? 'border-indigo-600 bg-indigo-50 scale-105' : 'border-slate-200 bg-slate-50'}">
+      document.getElementById('iconPickerGrid').innerHTML = SUBJECT_ICONS.map(ic => `
+        <button type="button" onclick="selectedFormIcon='${ic}';renderFormPickers()"
+          class="h-10 rounded-xl border text-lg flex items-center justify-center ${ic === selectedFormIcon ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 bg-slate-50'}">
           ${ic}
         </button>
       `).join('');
 
-      const themeGrid = document.getElementById('themePickerGrid');
-      themeGrid.innerHTML = SUBJECT_THEMES.map(th => `
-        <button type="button" onclick="selectFormTheme('${th.id}')"
-          class="theme-opt py-2 px-2.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition ${th.id === selectedFormTheme ? 'border-indigo-600 bg-indigo-50 text-indigo-900 font-semibold' : 'border-slate-200 bg-white text-slate-600'}">
+      document.getElementById('themePickerGrid').innerHTML = SUBJECT_THEMES.map(th => `
+        <button type="button" onclick="selectedFormTheme='${th.id}';renderFormPickers()"
+          class="py-2 px-2 rounded-xl border text-xs font-medium flex items-center gap-1.5 ${th.id === selectedFormTheme ? 'border-indigo-600 bg-indigo-50 text-indigo-900 font-semibold' : 'border-slate-200 bg-white text-slate-600'}">
           <span class="w-3 h-3 rounded-full shrink-0" style="background:${th.dot}"></span>
           <span class="truncate">${th.name}</span>
         </button>
       `).join('');
     }
 
-    function selectFormIcon(ic) {
-      selectedFormIcon = ic;
-      renderFormPickers();
-    }
-
-    function selectFormTheme(thId) {
-      selectedFormTheme = thId;
-      renderFormPickers();
-    }
-
-    function openSubjectModal(subjToEdit = null) {
+    function openSubjectModal(subj = null) {
       document.getElementById('subjectModal').classList.remove('hidden');
-      if (subjToEdit) {
-        document.getElementById('subjectModalTitle').textContent = 'แก้ไขข้อมูลวิชาเรียน';
-        document.getElementById('editSubjectId').value = subjToEdit.id;
-        document.getElementById('subjectNameInput').value = subjToEdit.name;
-        document.getElementById('subjectCodeInput').value = subjToEdit.code || '';
-        selectedFormIcon = subjToEdit.icon || '📚';
-        selectedFormTheme = subjToEdit.theme || 'indigo';
+      if (subj) {
+        document.getElementById('subjectModalTitle').textContent = 'แก้ไขวิชาเรียน';
+        document.getElementById('editSubjectId').value = subj.id;
+        document.getElementById('subjectNameInput').value = subj.name;
+        document.getElementById('subjectCodeInput').value = subj.code || '';
+        selectedFormIcon = subj.icon || '📚';
+        selectedFormTheme = subj.theme || 'indigo';
       } else {
-        document.getElementById('subjectModalTitle').textContent = 'เพิ่มวิชาเรียนใหม่';
+        document.getElementById('subjectModalTitle').textContent = 'เพิ่มวิชาเรียน';
         document.getElementById('editSubjectId').value = '';
         document.getElementById('subjectNameInput').value = '';
         document.getElementById('subjectCodeInput').value = '';
@@ -1108,59 +639,42 @@
       const name = document.getElementById('subjectNameInput').value.trim();
       const code = document.getElementById('subjectCodeInput').value.trim();
       const editId = document.getElementById('editSubjectId').value;
-
       if (!name) return;
 
       if (editId) {
         const idx = subjects.findIndex(s => s.id === editId);
         if (idx !== -1) {
-          subjects[idx].name = name;
-          subjects[idx].code = code;
-          subjects[idx].icon = selectedFormIcon;
-          subjects[idx].theme = selectedFormTheme;
+          subjects[idx] = { ...subjects[idx], name, code, icon: selectedFormIcon, theme: selectedFormTheme };
           await saveSubjectToDB(subjects[idx]);
           if (currentSubjectId === editId) renderSubjectHeader();
-          showToast('อัปเดตข้อมูลวิชาเรียนแล้ว', 'success');
         }
       } else {
-        const newSubject = {
+        const newSubj = {
           id: 'subj_' + Date.now(),
           name,
           code,
           icon: selectedFormIcon,
           theme: selectedFormTheme,
           createdAt: Date.now(),
-          photos: [],
-          links: [],
-          tasks: [],
-          notes: ''
+          items: []
         };
-        subjects.unshift(newSubject);
-        await saveSubjectToDB(newSubject);
-        showToast('เพิ่มวิชา "' + name + '" เรียบร้อย', 'success');
+        subjects.unshift(newSubj);
+        await saveSubjectToDB(newSubj);
       }
 
       closeSubjectModal();
       renderSubjectsGrid();
+      showToast('บันทึกวิชาเรียบร้อย', 'success');
     }
 
     function renderSubjectHeader() {
       const subj = getCurrentSubject();
       if (!subj) return;
       const theme = getThemeObj(subj.theme);
-      const banner = document.getElementById('subjectBanner');
-      banner.className = `rounded-3xl p-5 sm:p-6 mb-5 border-2 ${theme.card} shadow-2xs relative overflow-hidden`;
+      document.getElementById('subjectBanner').className = `rounded-3xl p-4 sm:p-5 border-2 ${theme.card} flex items-center justify-between gap-3`;
       document.getElementById('subjectBannerIcon').textContent = subj.icon || '📚';
-      const codeEl = document.getElementById('subjectBannerCode');
-      if (subj.code) {
-        codeEl.textContent = subj.code;
-        codeEl.classList.remove('hidden');
-      } else {
-        codeEl.classList.add('hidden');
-      }
       document.getElementById('subjectBannerTitle').textContent = subj.name;
-      document.getElementById('subjectBannerStats').textContent =
-        `รูปเลกเชอร์ ${(subj.photos || []).length} รูป • ลิงก์ ${(subj.links || []).length} รายการ • งานค้าง ${(subj.tasks || []).filter(t => !t.done).length} รายการ`;
+      document.getElementById('subjectBannerSub').textContent = subj.code || `เก็บเนื้อหาไว้ ${(subj.items || []).length} รายการ`;
     }
 
     function openEditCurrentSubject() {
@@ -1170,601 +684,155 @@
 
     async function deleteCurrentSubject() {
       const subj = getCurrentSubject();
-      if (!subj) return;
-      if (!confirm(`ต้องการลบวิชา "${subj.name}" และรูปภาพทั้งหมดในวิชานี้ใช่หรือไม่?`)) return;
-
+      if (!subj || !confirm(`ลบวิชา "${subj.name}" ใช่หรือไม่?`)) return;
       subjects = subjects.filter(s => s.id !== subj.id);
       await deleteSubjectFromDB(subj.id);
-      showToast('ลบวิชาเรียนเรียบร้อย', 'info');
+      showToast('ลบวิชาเรียบร้อย', 'info');
       goHome();
     }
 
-    // ==================== IN-APP LIVE CAMERA ====================
-    async function openInAppCamera() {
-      const modal = document.getElementById('cameraModal');
-      const video = document.getElementById('cameraVideoPreview');
-      const errOverlay = document.getElementById('cameraErrorOverlay');
+    // ==================== QUICK DUMP & NOTES STREAM ====================
+    function setPeriodFilter(period) {
+      activePeriodFilter = period;
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        const active = btn.dataset.period === period;
+        btn.className = active
+          ? 'period-btn flex-1 py-2 rounded-xl text-xs font-semibold bg-navy-900 text-white transition'
+          : 'period-btn flex-1 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition';
+      });
 
-      modal.classList.remove('hidden');
-      errOverlay.classList.add('hidden');
+      if (period === 'midterm' || period === 'final') {
+        setNewNotePeriod(period);
+      }
 
-      await startCameraStream();
+      const periodLabel = period === 'midterm' ? 'กลางภาค' : period === 'final' ? 'ปลายภาค' : 'ทั้งหมด';
+      document.getElementById('cramBtnSub').textContent = `สรุปเนื้อหา${periodLabel}ให้อ่านไว`;
+      document.getElementById('quizBtnSub').textContent = `สุ่มข้อสอบจากเนื้อหา${periodLabel}`;
+
+      renderNotesList();
     }
 
-    async function startCameraStream() {
-      const video = document.getElementById('cameraVideoPreview');
-      const errOverlay = document.getElementById('cameraErrorOverlay');
-      const errText = document.getElementById('cameraErrorText');
-
-      stopCameraStream();
-
-      try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้องในแอป');
-        }
-        activeCameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: cameraFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-          audio: false
-        });
-        video.srcObject = activeCameraStream;
-        await video.play();
-      } catch (err) {
-        errText.textContent = 'ไม่สามารถเข้าถึงกล้องได้ กรุณาเปิดสิทธิ์ "กล้อง" ในการตั้งค่าแอปมือถือ หรือกดปุ่มด้านล่างเพื่อเลือกรูปแทน';
-        errOverlay.classList.remove('hidden');
+    function setNewNotePeriod(period) {
+      newNotePeriod = period;
+      const midBtn = document.getElementById('newPeriodMidBtn');
+      const finBtn = document.getElementById('newPeriodFinBtn');
+      if (period === 'midterm') {
+        midBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition';
+        finBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition';
+      } else {
+        finBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-rose-700 shadow-2xs transition';
+        midBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition';
       }
     }
 
-    function stopCameraStream() {
-      if (activeCameraStream) {
-        activeCameraStream.getTracks().forEach(track => track.stop());
-        activeCameraStream = null;
-      }
-    }
+    async function saveQuickDump(alsoSummarize = false) {
+      const subj = getCurrentSubject();
+      const input = document.getElementById('quickDumpInput');
+      const text = input.value.trim();
 
-    async function switchCameraFacing() {
-      cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
-      await startCameraStream();
-    }
-
-    function closeInAppCamera() {
-      stopCameraStream();
-      document.getElementById('cameraModal').classList.add('hidden');
-    }
-
-    function captureCameraFrame() {
-      const video = document.getElementById('cameraVideoPreview');
-      if (!video || !video.videoWidth) {
-        showToast('กล้องยังไม่พร้อม กรุณารอสักครู่', 'info');
+      if (!subj) return;
+      if (!text) {
+        showToast('พิมพ์หรือวางเนื้อหาก่อนกดนะครับ', 'info');
         return;
       }
 
-      const maxDim = 1600;
-      let width = video.videoWidth;
-      let height = video.videoHeight;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        } else {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
+      const newItem = {
+        id: 'item_' + Date.now(),
+        period: newNotePeriod,
+        text,
+        createdAt: Date.now()
+      };
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, width, height);
-
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      closeInAppCamera();
-
-      const timeLabel = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-      openPhotoDetailsDialog([{
-        dataUrl,
-        defaultName: `ภาพกระดาน ${timeLabel}`
-      }]);
-    }
-
-    // ==================== PHOTOS & LOW-MEMORY IMAGE COMPRESSION ====================
-    function compressImageFile(file, maxDim = 1600, quality = 0.82) {
-      return new Promise((resolve, reject) => {
-        const objectUrl = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => {
-          try {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxDim || height > maxDim) {
-              if (width > height) {
-                height = Math.round((height * maxDim) / width);
-                width = maxDim;
-              } else {
-                width = Math.round((width * maxDim) / height);
-                height = maxDim;
-              }
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const result = canvas.toDataURL('image/jpeg', quality);
-            URL.revokeObjectURL(objectUrl);
-            resolve(result);
-          } catch (e) {
-            URL.revokeObjectURL(objectUrl);
-            reject(e);
-          }
-        };
-        img.onerror = (err) => {
-          URL.revokeObjectURL(objectUrl);
-          reject(err);
-        };
-        img.src = objectUrl;
-      });
-    }
-
-    async function handlePhotoFiles(event) {
-      const files = Array.from(event.target.files || []);
-      event.target.value = '';
-      if (files.length === 0) return;
-
-      showToast('กำลังประมวลผลรูปภาพ...', 'info');
-      try {
-        const items = [];
-        for (const file of files) {
-          const compressed = await compressImageFile(file);
-          items.push({
-            dataUrl: compressed,
-            defaultName: (file.name || '').replace(/\.[^/.]+$/, '') || 'ภาพเลกเชอร์'
-          });
-        }
-        openPhotoDetailsDialog(items);
-      } catch (err) {
-        showToast('ไม่สามารถอ่านไฟล์รูปภาพได้ กรุณาตรวจสอบสิทธิ์เข้าถึงรูปภาพของแอป', 'error');
-      }
-    }
-
-    function openPhotoDetailsDialog(items) {
-      pendingUploadDataUrls = items;
-      selectedPresetTags = [];
-      document.querySelectorAll('.preset-tag').forEach(btn => {
-        btn.className = 'preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700';
-      });
-
-      document.getElementById('pendingPhotosCount').textContent = pendingUploadDataUrls.length;
-      document.getElementById('pendingPhotoPreview').src = pendingUploadDataUrls[0].dataUrl;
-      document.getElementById('photoTitleInput').value = pendingUploadDataUrls.length === 1 ? pendingUploadDataUrls[0].defaultName : '';
-      document.getElementById('photoCustomTagsInput').value = '';
-      document.getElementById('photoUploadModal').classList.remove('hidden');
-    }
-
-    function closePhotoUploadModal() {
-      document.getElementById('photoUploadModal').classList.add('hidden');
-      pendingUploadDataUrls = [];
-    }
-
-    function togglePresetTag(tag) {
-      const idx = selectedPresetTags.indexOf(tag);
-      if (idx === -1) selectedPresetTags.push(tag);
-      else selectedPresetTags.splice(idx, 1);
-
-      document.querySelectorAll('.preset-tag').forEach(btn => {
-        const t = btn.textContent.replace('#', '');
-        const active = selectedPresetTags.includes(t);
-        btn.className = active
-          ? 'preset-tag px-2.5 py-1 rounded-full text-xs border border-indigo-600 bg-indigo-600 text-white font-medium'
-          : 'preset-tag px-2.5 py-1 rounded-full text-xs border border-slate-200 bg-slate-50 text-slate-700';
-      });
-    }
-
-    async function confirmSavePhotos() {
-      const subj = getCurrentSubject();
-      if (!subj || pendingUploadDataUrls.length === 0) return;
-
-      const baseTitle = document.getElementById('photoTitleInput').value.trim();
-      const customRaw = document.getElementById('photoCustomTagsInput').value;
-      const customTags = customRaw
-        .split(',')
-        .map(t => t.trim().replace(/^#/, ''))
-        .filter(Boolean);
-
-      const allTags = Array.from(new Set([...selectedPresetTags, ...customTags]));
-      const count = pendingUploadDataUrls.length;
-
-      pendingUploadDataUrls.forEach((item, idx) => {
-        const title = baseTitle
-          ? (count > 1 ? `${baseTitle} (${idx + 1})` : baseTitle)
-          : item.defaultName;
-
-        subj.photos.unshift({
-          id: 'photo_' + Date.now() + '_' + idx,
-          title,
-          tags: allTags,
-          dataUrl: item.dataUrl,
-          createdAt: Date.now()
-        });
-      });
+      subj.items = subj.items || [];
+      subj.items.unshift(newItem);
+      input.value = '';
 
       await saveSubjectToDB(subj);
-      closePhotoUploadModal();
       renderSubjectHeader();
-      renderPhotos();
-      showToast(`บันทึกรูปภาพเรียบร้อย (${count} รูป)`, 'success');
+      renderNotesList();
+      showToast('เก็บเนื้อหาเรียบร้อย', 'success');
+
+      if (alsoSummarize) {
+        summarizeSingleNote(newItem.id);
+      }
     }
 
-    function renderPhotos() {
+    function extractUrls(text) {
+      const matches = text.match(/https?:\/\/[^\s]+/g);
+      return matches ? Array.from(new Set(matches)) : [];
+    }
+
+    function renderNotesList() {
       const subj = getCurrentSubject();
       if (!subj) return;
 
-      const photos = subj.photos || [];
-      const searchQuery = (document.getElementById('photoSearchInput').value || '').trim().toLowerCase();
+      const filtered = (subj.items || []).filter(item =>
+        activePeriodFilter === 'ALL' || item.period === activePeriodFilter
+      );
 
-      const allTags = Array.from(new Set(photos.flatMap(p => p.tags || [])));
-      const filterContainer = document.getElementById('photoTagFilters');
-      filterContainer.innerHTML = [
-        `<button onclick="setTagFilter('ALL')" class="px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 transition ${selectedTagFilter === 'ALL' ? 'bg-navy-900 text-white' : 'bg-slate-100 text-slate-600'}">ทั้งหมด (${photos.length})</button>`,
-        ...allTags.map(t => `
-          <button onclick="setTagFilter('${escapeHtml(t)}')" class="px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 transition ${selectedTagFilter === t ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}">
-            #${escapeHtml(t)}
-          </button>
-        `)
-      ].join('');
-
-      const filtered = photos.filter(p => {
-        const matchTag = selectedTagFilter === 'ALL' || (p.tags || []).includes(selectedTagFilter);
-        const matchText = !searchQuery ||
-          (p.title || '').toLowerCase().includes(searchQuery) ||
-          (p.tags || []).some(t => t.toLowerCase().includes(searchQuery));
-        return matchTag && matchText;
-      });
-
-      const grid = document.getElementById('photosGrid');
-      const empty = document.getElementById('photosEmpty');
+      document.getElementById('notesCountLabel').textContent = `${filtered.length} รายการ`;
+      const listEl = document.getElementById('notesList');
+      const emptyEl = document.getElementById('notesEmptyState');
 
       if (filtered.length === 0) {
-        grid.innerHTML = '';
-        empty.classList.remove('hidden');
+        listEl.innerHTML = '';
+        emptyEl.classList.remove('hidden');
         return;
       }
 
-      empty.classList.add('hidden');
-      grid.innerHTML = filtered.map((photo, idx) => `
-        <div onclick="openLightbox(${idx})"
-          class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-2xs active:scale-[0.98] transition cursor-pointer flex flex-col">
-          <div class="aspect-[4/3] bg-slate-100 overflow-hidden relative">
-            <img src="${photo.dataUrl}" alt="${escapeHtml(photo.title)}" loading="lazy" class="w-full h-full object-cover" />
-          </div>
-          <div class="p-3 flex-1 flex flex-col justify-between">
-            <div class="font-semibold text-xs sm:text-sm text-slate-800 line-clamp-1">${escapeHtml(photo.title || 'ภาพเลกเชอร์')}</div>
-            <div class="flex flex-wrap gap-1 mt-1.5">
-              ${(photo.tags || []).slice(0, 3).map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium">#${escapeHtml(t)}</span>`).join('')}
+      emptyEl.classList.add('hidden');
+      listEl.innerHTML = filtered.map(item => {
+        const urls = extractUrls(item.text);
+        const badge = item.period === 'final'
+          ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">📕 ปลายภาค</span>`
+          : `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">📘 กลางภาค</span>`;
+
+        return `
+          <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              ${badge}
+              <div class="flex items-center gap-1.5">
+                <button onclick="summarizeSingleNote('${escapeHtml(item.id)}')"
+                  class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
+                  ✨ สรุปสั้นๆ
+                </button>
+                <button onclick="deleteNoteItem('${escapeHtml(item.id)}')"
+                  class="w-7 h-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center text-xs">
+                  🗑️
+                </button>
+              </div>
             </div>
+
+            <div class="text-sm text-slate-800 whitespace-pre-line leading-relaxed break-words">${escapeHtml(item.text)}</div>
+
+            ${urls.length > 0 ? `
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${urls.map(u => `
+                  <a href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold max-w-full">
+                    <span>🔗 เปิดลิงก์</span>
+                    <span class="truncate max-w-[180px] opacity-75">${escapeHtml(u.replace(/^https?:\/\//, ''))}</span>
+                    <span>↗</span>
+                  </a>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
-        </div>
-      `).join('');
-
-      lightboxPhotos = filtered;
+        `;
+      }).join('');
     }
 
-    function setTagFilter(tag) {
-      selectedTagFilter = tag;
-      renderPhotos();
-    }
-
-    // ==================== LIGHTBOX & PINCH-TO-ZOOM ====================
-    function openLightbox(index) {
-      if (!lightboxPhotos.length) return;
-      lightboxIndex = index;
-      resetZoom();
-      updateLightboxDisplay();
-      document.getElementById('lightboxModal').classList.remove('hidden');
-      window.history.pushState({ view: 'lightbox' }, '', '#lightbox');
-    }
-
-    function closeLightbox(fromPopState = false) {
-      document.getElementById('lightboxModal').classList.add('hidden');
-      if (!fromPopState && window.history.state?.view === 'lightbox') {
-        window.history.back();
-      }
-    }
-
-    function updateLightboxDisplay() {
-      const photo = lightboxPhotos[lightboxIndex];
-      if (!photo) return;
-      document.getElementById('lightboxImg').src = photo.dataUrl;
-      document.getElementById('lightboxTitle').textContent = photo.title || 'ภาพเลกเชอร์';
-      document.getElementById('lightboxCounter').textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
-    }
-
-    function prevLightboxPhoto() {
-      if (lightboxPhotos.length <= 1) return;
-      lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
-      resetZoom();
-      updateLightboxDisplay();
-    }
-
-    function nextLightboxPhoto() {
-      if (lightboxPhotos.length <= 1) return;
-      lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
-      resetZoom();
-      updateLightboxDisplay();
-    }
-
-    function applyZoomTransform() {
-      const img = document.getElementById('lightboxImg');
-      img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
-      document.getElementById('zoomLevelLabel').textContent = `${Math.round(zoomScale * 100)}%`;
-    }
-
-    function adjustZoom(delta) {
-      zoomScale = Math.min(4, Math.max(1, zoomScale + delta));
-      if (zoomScale === 1) { panX = 0; panY = 0; }
-      applyZoomTransform();
-    }
-
-    function resetZoom() {
-      zoomScale = 1;
-      panX = 0;
-      panY = 0;
-      applyZoomTransform();
-    }
-
-    (() => {
-      const vp = document.getElementById('lightboxViewport');
-      let initialDistance = 0;
-      let initialScale = 1;
-      let startX = 0;
-      let startY = 0;
-      let lastTap = 0;
-
-      vp.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-          initialDistance = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          initialScale = zoomScale;
-        } else if (e.touches.length === 1) {
-          const now = Date.now();
-          if (now - lastTap < 280) {
-            if (zoomScale > 1) resetZoom();
-            else { zoomScale = 2.5; applyZoomTransform(); }
-          }
-          lastTap = now;
-          startX = e.touches[0].clientX - panX;
-          startY = e.touches[0].clientY - panY;
-        }
-      }, { passive: true });
-
-      vp.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2 && initialDistance > 0) {
-          const dist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          zoomScale = Math.min(4, Math.max(1, initialScale * (dist / initialDistance)));
-          if (zoomScale === 1) { panX = 0; panY = 0; }
-          applyZoomTransform();
-        } else if (e.touches.length === 1 && zoomScale > 1) {
-          panX = e.touches[0].clientX - startX;
-          panY = e.touches[0].clientY - startY;
-          applyZoomTransform();
-        }
-      }, { passive: true });
-
-      vp.addEventListener('touchend', (e) => {
-        if (e.changedTouches.length === 1 && zoomScale === 1 && initialDistance === 0) {
-          const dx = e.changedTouches[0].clientX - startX;
-          if (Math.abs(dx) > 65) {
-            if (dx > 0) prevLightboxPhoto();
-            else nextLightboxPhoto();
-          }
-        }
-        if (e.touches.length < 2) initialDistance = 0;
-      }, { passive: true });
-    })();
-
-    async function deleteLightboxPhoto() {
+    async function deleteNoteItem(id) {
       const subj = getCurrentSubject();
-      const photo = lightboxPhotos[lightboxIndex];
-      if (!subj || !photo) return;
-      if (!confirm('ต้องการลบรูปภาพนี้ใช่หรือไม่?')) return;
-
-      subj.photos = (subj.photos || []).filter(p => p.id !== photo.id);
-      await saveSubjectToDB(subj);
-      closeLightbox();
-      renderSubjectHeader();
-      renderPhotos();
-      showToast('ลบรูปภาพเรียบร้อย', 'info');
-    }
-
-    async function shareLightboxPhoto() {
-      const photo = lightboxPhotos[lightboxIndex];
-      if (!photo) return;
-      try {
-        const res = await fetch(photo.dataUrl);
-        const blob = await res.blob();
-        const file = new File([blob], `${photo.title || 'lecture'}.jpg`, { type: 'image/jpeg' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: photo.title || 'ภาพเลกเชอร์', files: [file] });
-        } else {
-          const a = document.createElement('a');
-          a.href = photo.dataUrl;
-          a.download = `${photo.title || 'lecture'}.jpg`;
-          a.click();
-        }
-      } catch (e) {}
-    }
-
-    // ==================== NOTES, TASKS & LINKS ====================
-    function renderNotesAndLinks() {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      document.getElementById('subjectNotesTextarea').value = subj.notes || '';
-      renderTasks();
-      renderLinks();
-    }
-
-    function handleNoteInput() {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      subj.notes = document.getElementById('subjectNotesTextarea').value;
-
-      clearTimeout(noteSaveTimer);
-      noteSaveTimer = setTimeout(async () => {
-        await saveSubjectToDB(subj);
-        const status = document.getElementById('noteSaveStatus');
-        status.style.opacity = '1';
-        setTimeout(() => { status.style.opacity = '0'; }, 1500);
-      }, 450);
-    }
-
-    async function shareSubjectNotes() {
-      const subj = getCurrentSubject();
-      if (!subj || !subj.notes?.trim()) {
-        showToast('ยังไม่มีข้อความในโน้ตสรุป', 'info');
-        return;
-      }
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: `โน้ตสรุปวิชา ${subj.name}`, text: subj.notes });
-          return;
-        } catch {}
-      }
-      await navigator.clipboard.writeText(subj.notes);
-      showToast('คัดลอกโน้ตสรุปลงคลิปบอร์ดแล้ว', 'success');
-    }
-
-    function renderTasks() {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      const tasks = subj.tasks || [];
-      const doneCount = tasks.filter(t => t.done).length;
-      const pct = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
-
-      document.getElementById('taskProgressText').textContent = `${doneCount}/${tasks.length} (${pct}%)`;
-      document.getElementById('taskProgressBar').style.width = `${pct}%`;
-
-      const list = document.getElementById('tasksList');
-      if (tasks.length === 0) {
-        list.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">ยังไม่มีรายการงานหรือบทที่ต้องอ่านสอบ</p>`;
-        return;
-      }
-
-      list.innerHTML = tasks.map(t => `
-        <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-          <label class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
-            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${escapeHtml(t.id)}')" class="w-4 h-4 accent-indigo-600 rounded" />
-            <span class="text-sm truncate ${t.done ? 'line-through text-slate-400' : 'text-slate-800'}">${escapeHtml(t.text)}</span>
-          </label>
-          <button onclick="deleteTask('${escapeHtml(t.id)}')" class="text-slate-400 hover:text-rose-500 text-xs px-1.5">✕</button>
-        </div>
-      `).join('');
-    }
-
-    async function addTask(e) {
-      e.preventDefault();
-      const subj = getCurrentSubject();
-      const input = document.getElementById('newTaskInput');
-      const text = input.value.trim();
-      if (!subj || !text) return;
-
-      subj.tasks = subj.tasks || [];
-      subj.tasks.unshift({ id: 'task_' + Date.now(), text, done: false });
-      input.value = '';
+      if (!subj || !confirm('ลบโน้ตนี้ใช่หรือไม่?')) return;
+      subj.items = (subj.items || []).filter(i => i.id !== id);
       await saveSubjectToDB(subj);
       renderSubjectHeader();
-      renderTasks();
+      renderNotesList();
+      showToast('ลบโน้ตแล้ว', 'info');
     }
 
-    async function toggleTask(taskId) {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      const task = (subj.tasks || []).find(t => t.id === taskId);
-      if (task) task.done = !task.done;
-      await saveSubjectToDB(subj);
-      renderSubjectHeader();
-      renderTasks();
-    }
-
-    async function deleteTask(taskId) {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      subj.tasks = (subj.tasks || []).filter(t => t.id !== taskId);
-      await saveSubjectToDB(subj);
-      renderSubjectHeader();
-      renderTasks();
-    }
-
-    function renderLinks() {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      const links = subj.links || [];
-      const list = document.getElementById('linksList');
-
-      if (links.length === 0) {
-        list.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">ยังไม่มีลิงก์คลิปติวหรือชีทเรียนในวิชานี้</p>`;
-        return;
-      }
-
-      list.innerHTML = links.map(l => `
-        <div class="flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="min-w-0 flex-1 group">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 shrink-0">${escapeHtml(l.category)}</span>
-              <span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 truncate">${escapeHtml(l.title)}</span>
-            </div>
-            <div class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(l.url)}</div>
-          </a>
-          <button onclick="deleteLink('${escapeHtml(l.id)}')" class="w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center shrink-0">
-            🗑️
-          </button>
-        </div>
-      `).join('');
-    }
-
-    async function addLink(e) {
-      e.preventDefault();
-      const subj = getCurrentSubject();
-      const titleInput = document.getElementById('newLinkTitle');
-      const urlInput = document.getElementById('newLinkUrl');
-      const catInput = document.getElementById('newLinkCategory');
-
-      const title = titleInput.value.trim();
-      const url = urlInput.value.trim();
-      if (!subj || !title || !url) return;
-
-      subj.links = subj.links || [];
-      subj.links.unshift({
-        id: 'link_' + Date.now(),
-        title,
-        url,
-        category: catInput.value
-      });
-
-      titleInput.value = '';
-      urlInput.value = '';
-      await saveSubjectToDB(subj);
-      renderSubjectHeader();
-      renderLinks();
-      showToast('บันทึกลิงก์เรียบร้อย', 'success');
-    }
-
-    async function deleteLink(linkId) {
-      const subj = getCurrentSubject();
-      if (!subj) return;
-      subj.links = (subj.links || []).filter(l => l.id !== linkId);
-      await saveSubjectToDB(subj);
-      renderSubjectHeader();
-      renderLinks();
-    }
-
-    // ==================== GEMINI AI TUTOR ====================
+    // ==================== 1-TAP AI EXAM HELPER ====================
     function getSavedApiKey() {
       return (localStorage.getItem(STORAGE_KEY_API) || '').trim();
     }
@@ -1775,12 +843,9 @@
 
     function updateAiStatusIndicator() {
       const hasKey = Boolean(getSavedApiKey());
-      const dot = document.getElementById('aiStatusDot');
-      dot.className = hasKey
+      document.getElementById('aiStatusDot').className = hasKey
         ? 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block'
         : 'w-2.5 h-2.5 rounded-full bg-amber-400 inline-block';
-      const badge = document.getElementById('activeModelBadge');
-      if (badge) badge.textContent = getSavedModel();
     }
 
     function openAiSettingsModal() {
@@ -1796,76 +861,26 @@
     function saveGeminiSettings() {
       const key = document.getElementById('geminiApiKeyInput').value.trim();
       const model = document.getElementById('geminiModelInput').value.trim() || DEFAULT_GEMINI_MODEL;
-
       if (!key) {
-        showToast('กรุณากรอก Gemini API Key ก่อนบันทึก', 'error');
+        showToast('กรุณาใส่ Gemini API Key ก่อนบันทึก', 'error');
         return;
       }
-
       localStorage.setItem(STORAGE_KEY_API, key);
       localStorage.setItem(STORAGE_KEY_MODEL, model);
       updateAiStatusIndicator();
       closeAiSettingsModal();
-      showToast('บันทึกการตั้งค่า AI เรียบร้อยแล้ว', 'success');
+      showToast('บันทึก API Key เรียบร้อย', 'success');
     }
 
     function clearGeminiApiKey() {
       localStorage.removeItem(STORAGE_KEY_API);
       document.getElementById('geminiApiKeyInput').value = '';
       updateAiStatusIndicator();
-      showToast('ล้าง API Key เรียบร้อย', 'info');
+      showToast('ล้าง API Key แล้ว', 'info');
     }
 
-    function updateAiModeCards() {
-      document.querySelectorAll('.ai-mode-card').forEach(card => {
-        const checked = card.querySelector('input[type="radio"]').checked;
-        card.className = checked
-          ? 'flex items-start gap-3 p-3.5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/40 cursor-pointer transition ai-mode-card'
-          : 'flex items-start gap-3 p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 cursor-pointer transition ai-mode-card';
-      });
-    }
-
-    function populateAiPhotoDropdown() {
-      const subj = getCurrentSubject();
-      const select = document.getElementById('aiPhotoSelect');
-      const currentVal = select.value;
-
-      const options = [`<option value="">-- ไม่แนบรูปภาพ --</option>`];
-      (subj?.photos || []).forEach(p => {
-        options.push(`<option value="${escapeHtml(p.id)}">📸 ${escapeHtml(p.title || 'ภาพเลกเชอร์')}</option>`);
-      });
-
-      select.innerHTML = options.join('');
-      if ((subj?.photos || []).some(p => p.id === currentVal)) {
-        select.value = currentVal;
-      }
-      handleAiPhotoSelect();
-    }
-
-    function handleAiPhotoSelect() {
-      const subj = getCurrentSubject();
-      const photoId = document.getElementById('aiPhotoSelect').value;
-      const previewBox = document.getElementById('aiPhotoPreviewBox');
-
-      if (!subj || !photoId) {
-        previewBox.classList.add('hidden');
-        return;
-      }
-
-      const photo = (subj.photos || []).find(p => p.id === photoId);
-      if (!photo) {
-        previewBox.classList.add('hidden');
-        return;
-      }
-
-      document.getElementById('aiPhotoPreviewImg').src = photo.dataUrl;
-      document.getElementById('aiPhotoPreviewTitle').textContent = photo.title || 'ภาพเลกเชอร์';
-      previewBox.classList.remove('hidden');
-    }
-
-    function clearAiSelectedPhoto() {
-      document.getElementById('aiPhotoSelect').value = '';
-      document.getElementById('aiPhotoPreviewBox').classList.add('hidden');
+    function closeAiHelperPanel() {
+      document.getElementById('aiHelperPanel').classList.add('hidden');
     }
 
     function formatMarkdownToHtml(text) {
@@ -1879,212 +894,252 @@
       html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
       html = html
         .split(/\n{2,}/)
-        .map(block => {
-          if (block.startsWith('<h') || block.startsWith('<ul')) return block;
-          return `<p>${block.replace(/\n/g, '<br/>')}</p>`;
-        })
+        .map(b => (b.startsWith('<h') || b.startsWith('<ul')) ? b : `<p>${b.replace(/\n/g, '<br/>')}</p>`)
         .join('');
       return html;
     }
 
-    async function runAiTutor() {
+    async function callGeminiApi(promptText) {
       const apiKey = getSavedApiKey();
       if (!apiKey) {
-        showToast('กรุณากดปุ่ม "⚙️ ตั้งค่า AI" ด้านบนเพื่อใส่ Gemini API Key ก่อนใช้งาน', 'error');
+        showToast('กดปุ่ม "ตั้งค่า AI" ด้านบนเพื่อใส่ API Key ก่อนใช้งานครับ', 'error');
         openAiSettingsModal();
-        return;
+        return null;
       }
 
+      const model = getSavedModel();
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: promptText }] }]
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error?.message || `Error ${response.status}`);
+      }
+
+      return data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('\n').trim() || '';
+    }
+
+    async function summarizeSingleNote(itemId) {
       const subj = getCurrentSubject();
-      const photoId = document.getElementById('aiPhotoSelect').value;
-      const selectedPhoto = (subj?.photos || []).find(p => p.id === photoId);
-      const userTopic = document.getElementById('aiPromptInput').value.trim();
+      const item = (subj?.items || []).find(i => i.id === itemId);
+      if (!item) return;
 
-      if (!selectedPhoto && !userTopic) {
-        showToast('กรุณาเลือกรูปกระดาน หรือพิมพ์หัวข้อที่ต้องการให้ AI ช่วยติวก่อนครับ', 'info');
+      await executeAiCram(
+        `รายวิชา: ${subj.name}\nช่วยสรุปโน้ตต่อไปนี้ให้สั้น กระชับ อ่านเข้าใจง่ายภายใน 1 นาที เป็นข้อๆ ภาษาไทย:\n\n${item.text}`,
+        '✨ สรุปย่อโน้ตนี้'
+      );
+    }
+
+    async function runExamHelper(type) {
+      const subj = getCurrentSubject();
+      if (!subj) return;
+
+      const items = (subj.items || []).filter(i =>
+        activePeriodFilter === 'ALL' || i.period === activePeriodFilter
+      );
+
+      if (items.length === 0) {
+        showToast('ยังไม่มีเนื้อหาในหมวดนี้ ลองพิมพ์หรือวางเนื้อหาในกล่องด้านบนก่อนนะครับ', 'info');
         return;
       }
 
-      const mode = document.querySelector('input[name="aiMode"]:checked')?.value || 'summary';
-      const modeInstructions = {
-        summary: 'ช่วยสรุปเนื้อหาจากข้อมูลและ/หรือภาพกระดานที่แนบมานี้เป็นภาษาไทยแบบกระชับ เข้าใจง่าย แยกประเด็นสำคัญเป็นข้อๆ เพื่อใช้อ่านทบทวนก่อนสอบมหาวิทยาลัย',
-        quiz: 'จากเนื้อหาและ/หรือภาพกระดานที่แนบมานี้ ช่วยสร้างแนวข้อสอบระดับมหาวิทยาลัยจำนวน 5 ข้อ (พร้อมตัวเลือกและเฉลยอธิบายเหตุผลอย่างละเอียดในตอนท้าย) เป็นภาษาไทย',
-        explain: 'ช่วยอธิบายเนื้อหาจากข้อมูลและ/หรือภาพกระดานที่แนบมานี้แบบเจาะลึกเข้าใจง่าย เหมือนมีรุ่นพี่เก่งๆ มาติวให้ พร้อมยกตัวอย่างประกอบให้เห็นภาพชัดเจน เป็นภาษาไทย'
-      };
+      const combinedText = items.map((it, idx) => `[ส่วนที่ ${idx + 1}]\n${it.text}`).join('\n\n');
+      const periodLabel = activePeriodFilter === 'midterm' ? 'สอบกลางภาค' : activePeriodFilter === 'final' ? 'สอบปลายภาค' : 'เตรียมสอบ';
 
-      const fullPrompt = [
-        `รายวิชา: ${subj?.name || 'ทั่วไป'}`,
-        modeInstructions[mode],
-        userTopic ? `หัวข้อ/เนื้อหาเพิ่มเติมจากนักศึกษา: ${userTopic}` : 'โปรดอ่านและวิเคราะห์เนื้อหาทั้งหมดจากรูปภาพกระดาน/สไลด์ที่แนบมา'
-      ].join('\n\n');
-
-      const parts = [{ text: fullPrompt }];
-      if (selectedPhoto && selectedPhoto.dataUrl) {
-        const match = selectedPhoto.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-        if (match) {
-          parts.push({
-            inlineData: {
-              mimeType: match[1],
-              data: match[2]
-            }
-          });
-        }
+      if (type === 'cram') {
+        const prompt = `รายวิชา: ${subj.name} (${periodLabel})\nจากเนื้อหาทั้งหมดด้านล่าง ช่วยสรุปเป็น "โพยอ่านก่อนเข้าห้องสอบ" ภาษาไทยแบบสั้น กระชับ ตรงประเด็น แยกเป็นหัวข้อสำคัญ สูตรหรือหลักการที่ต้องจำ และจุดที่ข้อสอบมักออกหลอก:\n\n${combinedText}`;
+        await executeAiCram(prompt, `⚡ โพยสรุป${periodLabel}`);
+      } else {
+        await executeInteractiveQuiz(subj.name, periodLabel, combinedText);
       }
+    }
 
-      const btn = document.getElementById('runAiBtn');
-      btn.disabled = true;
-      btn.classList.add('opacity-60');
-      document.getElementById('aiOutputPlaceholder').classList.add('hidden');
-      document.getElementById('aiOutputContent').classList.add('hidden');
-      document.getElementById('aiResultActions').classList.add('hidden');
-      document.getElementById('aiOutputLoading').classList.remove('hidden');
+    async function executeAiCram(prompt, title) {
+      const panel = document.getElementById('aiHelperPanel');
+      panel.classList.remove('hidden');
+      document.getElementById('aiHelperTitle').textContent = title;
+      document.getElementById('aiHelperLoading').classList.remove('hidden');
+      document.getElementById('aiCramOutput').classList.add('hidden');
+      document.getElementById('aiQuizOutput').classList.add('hidden');
+      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
       try {
-        const model = getSavedModel();
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts }]
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          const errMsg = data?.error?.message || `HTTP ${response.status}`;
-          throw new Error(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ AI (รหัส ${response.status}: ${errMsg})`);
+        const result = await callGeminiApi(prompt);
+        if (result === null) {
+          closeAiHelperPanel();
+          return;
         }
-
-        const resultText = data?.candidates?.[0]?.content?.parts
-          ?.map(p => p.text || '')
-          .join('\n')
-          .trim();
-
-        if (!resultText) {
-          throw new Error('AI ไม่สามารถสร้างคำตอบได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
-        }
-
-        lastAiResultMarkdown = resultText;
-        const outputEl = document.getElementById('aiOutputContent');
-        outputEl.innerHTML = formatMarkdownToHtml(resultText);
-
-        document.getElementById('aiOutputLoading').classList.add('hidden');
-        outputEl.classList.remove('hidden');
-        document.getElementById('aiResultActions').classList.remove('hidden');
+        lastAiCramText = result;
+        const out = document.getElementById('aiCramOutput');
+        out.innerHTML = formatMarkdownToHtml(result);
+        document.getElementById('aiHelperLoading').classList.add('hidden');
+        out.classList.remove('hidden');
+        document.getElementById('saveAiSummaryBtn').classList.remove('hidden');
       } catch (err) {
-        document.getElementById('aiOutputLoading').classList.add('hidden');
-        document.getElementById('aiOutputPlaceholder').classList.remove('hidden');
-        showToast(err.message || 'ไม่สามารถเชื่อมต่อผู้ช่วย AI ได้ กรุณาตรวจสอบ API Key และอินเทอร์เน็ต', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.classList.remove('opacity-60');
+        closeAiHelperPanel();
+        showToast('เชื่อมต่อ AI ไม่สำเร็จ: ' + err.message, 'error');
       }
     }
 
-    async function saveAiResultToNotes() {
+    async function saveAiCramToNotes() {
       const subj = getCurrentSubject();
-      if (!subj || !lastAiResultMarkdown) return;
+      if (!subj || !lastAiCramText) return;
 
-      const stamp = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-      const separator = subj.notes?.trim() ? '\n\n────────────────────\n' : '';
-      subj.notes = (subj.notes || '') + `${separator}✨ สรุปจาก AI (${stamp}):\n${lastAiResultMarkdown}`;
+      subj.items = subj.items || [];
+      subj.items.unshift({
+        id: 'item_ai_' + Date.now(),
+        period: activePeriodFilter === 'final' ? 'final' : 'midterm',
+        text: `⚡ โพยสรุปจาก AI:\n${lastAiCramText}`,
+        createdAt: Date.now()
+      });
 
       await saveSubjectToDB(subj);
-      showToast('บันทึกลงใน "โน้ตสรุปประจำวิชา" เรียบร้อยแล้ว!', 'success');
+      renderSubjectHeader();
+      renderNotesList();
+      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
+      showToast('เก็บโพยสรุปลงรายการด้านล่างแล้ว!', 'success');
     }
 
-    async function copyAiResult() {
-      if (!lastAiResultMarkdown) return;
-      await navigator.clipboard.writeText(lastAiResultMarkdown);
-      showToast('คัดลอกผลลัพธ์ลงคลิปบอร์ดแล้ว', 'success');
-    }
+    // ==================== INTERACTIVE 1-TAP QUIZ ====================
+    async function executeInteractiveQuiz(subjectName, periodLabel, combinedText) {
+      const panel = document.getElementById('aiHelperPanel');
+      panel.classList.remove('hidden');
+      document.getElementById('aiHelperTitle').textContent = `🎯 ควิซทดสอบ${periodLabel} (5 ข้อ)`;
+      document.getElementById('aiHelperLoading').classList.remove('hidden');
+      document.getElementById('aiCramOutput').classList.add('hidden');
+      document.getElementById('aiQuizOutput').classList.add('hidden');
+      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    async function shareAiResult() {
-      if (!lastAiResultMarkdown) return;
-      const subj = getCurrentSubject();
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: `สรุปติววิชา ${subj?.name || 'StudyHub'}`,
-            text: lastAiResultMarkdown
-          });
+      const prompt = `รายวิชา: ${subjectName}
+จากเนื้อหาด้านล่าง สร้างข้อสอบปรนัย 4 ตัวเลือก จำนวน 5 ข้อ เป็นภาษาไทย เพื่อทดสอบความเข้าใจก่อนสอบ
+ตอบกลับเป็น JSON Array เท่านั้น ห้ามมีข้อความอื่นนอก JSON โดยใช้โครงสร้างนี้:
+[
+  {
+    "q": "คำถามข้อที่ 1",
+    "options": ["ตัวเลือก ก", "ตัวเลือก ข", "ตัวเลือก ค", "ตัวเลือก ง"],
+    "answer": 0,
+    "explain": "คำอธิบายสั้นๆ ว่าทำไมข้อนี้ถึงถูก"
+  }
+]
+(หมายเหตุ: "answer" คือลำดับ index ของคำตอบที่ถูกต้อง เริ่มจาก 0 ถึง 3)
+
+เนื้อหา:
+${combinedText}`;
+
+      try {
+        const raw = await callGeminiApi(prompt);
+        if (raw === null) {
+          closeAiHelperPanel();
           return;
-        } catch {}
+        }
+
+        const cleanedJson = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        const parsed = JSON.parse(cleanedJson);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error('รูปแบบข้อสอบไม่ถูกต้อง');
+        }
+
+        currentQuizData = parsed;
+        renderInteractiveQuiz();
+        document.getElementById('aiHelperLoading').classList.add('hidden');
+        document.getElementById('aiQuizOutput').classList.remove('hidden');
+      } catch (err) {
+        closeAiHelperPanel();
+        showToast('สร้างควิซไม่สำเร็จ ลองกดใหม่อีกครั้งนะครับ', 'error');
       }
-      copyAiResult();
     }
 
-    // ==================== BACKUP, RESTORE & INSTALL MODALS ====================
+    function renderInteractiveQuiz() {
+      const container = document.getElementById('aiQuizOutput');
+      container.innerHTML = currentQuizData.map((item, qIdx) => `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5" id="quizCard_${qIdx}">
+          <div class="font-semibold text-sm text-slate-900">ข้อ ${qIdx + 1}. ${escapeHtml(item.q)}</div>
+          <div class="space-y-1.5">
+            ${(item.options || []).map((opt, optIdx) => `
+              <button type="button" onclick="selectQuizOption(${qIdx}, ${optIdx})"
+                id="quizOpt_${qIdx}_${optIdx}"
+                class="w-full text-left px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 text-xs sm:text-sm text-slate-700 transition">
+                ${escapeHtml(opt)}
+              </button>
+            `).join('')}
+          </div>
+          <div id="quizExplain_${qIdx}" class="hidden text-xs p-3 rounded-xl bg-indigo-50 text-indigo-900 leading-relaxed"></div>
+        </div>
+      `).join('');
+    }
+
+    function selectQuizOption(qIdx, chosenIdx) {
+      const item = currentQuizData[qIdx];
+      if (!item) return;
+
+      (item.options || []).forEach((_, idx) => {
+        const btn = document.getElementById(`quizOpt_${qIdx}_${idx}`);
+        btn.disabled = true;
+        if (idx === item.answer) {
+          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold text-xs sm:text-sm';
+        } else if (idx === chosenIdx) {
+          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 text-xs sm:text-sm';
+        } else {
+          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white opacity-60 text-xs sm:text-sm text-slate-500';
+        }
+      });
+
+      const expEl = document.getElementById(`quizExplain_${qIdx}`);
+      const isCorrect = chosenIdx === item.answer;
+      expEl.innerHTML = `<strong>${isCorrect ? '✅ ถูกต้อง!' : '❌ ยังไม่ถูก'}</strong> ${escapeHtml(item.explain || '')}`;
+      expEl.classList.remove('hidden');
+    }
+
+    // ==================== CLIPBOARD BACKUP ====================
     function openBackupModal() {
+      document.getElementById('restoreCodeInput').value = '';
       document.getElementById('backupModal').classList.remove('hidden');
     }
     function closeBackupModal() {
       document.getElementById('backupModal').classList.add('hidden');
     }
 
-    function exportBackupJson() {
-      const payload = {
-        app: 'StudyHub',
-        exportedAt: new Date().toISOString(),
-        subjects
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `StudyHub_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      closeBackupModal();
-      showToast('ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย', 'success');
-    }
-
-    async function importBackupJson(event) {
-      const file = event.target.files?.[0];
-      event.target.value = '';
-      if (!file) return;
-
+    async function copyBackupToClipboard() {
+      const payload = JSON.stringify({ app: 'StudyHub', subjects });
       try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
-        const importedSubjects = Array.isArray(parsed) ? parsed : parsed.subjects;
-
-        if (!Array.isArray(importedSubjects)) {
-          throw new Error('รูปแบบไฟล์ไม่ถูกต้อง');
-        }
-
-        for (const s of importedSubjects) {
-          if (s && s.id && s.name) {
-            const existingIdx = subjects.findIndex(item => item.id === s.id);
-            if (existingIdx !== -1) subjects[existingIdx] = s;
-            else subjects.push(s);
-            await saveSubjectToDB(s);
-          }
-        }
-
-        closeBackupModal();
-        renderSubjectsGrid();
-        showToast(`นำเข้าข้อมูลสำเร็จ (${importedSubjects.length} วิชา)`, 'success');
-      } catch (err) {
-        showToast('ไฟล์สำรองข้อมูลไม่ถูกต้องหรือเสียหาย', 'error');
+        await navigator.clipboard.writeText(payload);
+        showToast('คัดลอกโค้ดข้อมูลแล้ว นำไปวางเก็บในแชตหรือโน้ตได้เลย', 'success');
+      } catch {
+        showToast('คัดลอกไม่สำเร็จ', 'error');
       }
     }
 
-    function openInstallModal() {
-      document.getElementById('installModal').classList.remove('hidden');
-    }
-    function closeInstallModal() {
-      document.getElementById('installModal').classList.add('hidden');
-    }
-    async function triggerNativeInstall() {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      closeInstallModal();
+    async function restoreFromClipboardText() {
+      const raw = document.getElementById('restoreCodeInput').value.trim();
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        const list = Array.isArray(parsed) ? parsed : parsed.subjects;
+        if (!Array.isArray(list)) throw new Error();
+        for (const s of list) {
+          if (s && s.id && s.name) {
+            const norm = normalizeSubject(s);
+            const idx = subjects.findIndex(x => x.id === norm.id);
+            if (idx !== -1) subjects[idx] = norm;
+            else subjects.push(norm);
+            await saveSubjectToDB(norm);
+          }
+        }
+        closeBackupModal();
+        renderSubjectsGrid();
+        showToast('กู้คืนข้อมูลสำเร็จ', 'success');
+      } catch {
+        showToast('โค้ดข้อมูลไม่ถูกต้อง', 'error');
+      }
     }
   </script>
 </body>
