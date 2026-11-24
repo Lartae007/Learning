@@ -6,12 +6,13 @@
   <meta name="theme-color" content="#0A2458" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>StudyHub - ผู้ช่วยติวสอบแบบ 1 คลิก</title>
+  <title>StudyHub - รวมไฟล์ส่ง Gemini & นับคะแนนสอบ</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -51,30 +52,23 @@
     }
     .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
 
-    .ai-markdown h1, .ai-markdown h2, .ai-markdown h3 {
-      font-weight: 600;
-      color: #0A2458;
-      margin-top: 0.9rem;
-      margin-bottom: 0.35rem;
-    }
-    .ai-markdown h2 { font-size: 1.05rem; }
-    .ai-markdown h3 { font-size: 0.98rem; }
-    .ai-markdown p { margin-bottom: 0.6rem; line-height: 1.65; }
-    .ai-markdown ul, .ai-markdown ol { padding-left: 1.25rem; margin-bottom: 0.7rem; }
-    .ai-markdown ul { list-style-type: disc; }
-    .ai-markdown ol { list-style-type: decimal; }
-    .ai-markdown li { margin-bottom: 0.3rem; line-height: 1.6; }
-    .ai-markdown strong { color: #0F172A; font-weight: 600; }
-    .ai-markdown code {
-      background: #EEF2FF;
-      color: #3730A3;
-      padding: 0.1rem 0.35rem;
-      border-radius: 0.3rem;
-      font-size: 0.9em;
+    /* Print / Save as PDF clean styling */
+    @media print {
+      body { background: #FFFFFF !important; }
+      header, #homeView, #subjectView, #subjectModal, #imagePreviewModal, #backupModal, #toastContainer {
+        display: none !important;
+      }
+      #printBundleContainer {
+        display: block !important;
+        padding: 0 !important;
+      }
     }
   </style>
 </head>
 <body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Hidden Print Container for Save-as-PDF -->
+  <div id="printBundleContainer" class="hidden"></div>
 
   <!-- Top Bar -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 safe-top">
@@ -91,11 +85,10 @@
       </button>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="openAiSettingsModal()"
-          class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1.5 text-xs font-medium text-slate-700">
-          <span id="aiStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-          <span>ตั้งค่า AI</span>
-        </button>
+        <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer"
+          class="h-9 px-3 rounded-full border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 active:scale-95 transition flex items-center gap-1 text-xs font-semibold text-indigo-700">
+          <span>✨ เปิด Gemini</span>
+        </a>
 
         <button id="headerBackupBtn" onclick="openBackupModal()"
           class="h-9 px-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition flex items-center gap-1 text-xs font-medium text-slate-700">
@@ -110,14 +103,14 @@
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 pt-5 pb-20">
+  <main class="max-w-3xl mx-auto px-4 pt-5 pb-24">
 
-    <!-- ==================== VIEW 1: HOME (CLEAN SUBJECT LIST) ==================== -->
+    <!-- ==================== VIEW 1: HOME (SUBJECT DASHBOARD) ==================== -->
     <section id="homeView" class="animate-fade-in">
       <div class="flex items-center justify-between gap-3 mb-5">
         <div>
           <h1 class="text-xl font-bold text-slate-900">วิชาเรียนของฉัน</h1>
-          <p class="text-xs text-slate-500 mt-0.5">แตะที่วิชาเพื่อเก็บโน้ต สรุปโพย และทำควิซก่อนสอบ</p>
+          <p class="text-xs text-slate-500 mt-0.5">รวม PDF ส่ง Gemini • เช็กอ่านจบ • นับคะแนนเก็บและวันสอบ</p>
         </div>
         <button onclick="openSubjectModal()"
           class="px-4 py-2.5 rounded-2xl bg-navy-900 hover:bg-navy-800 active:scale-95 text-white font-semibold text-sm shadow-sm flex items-center gap-1.5 shrink-0 transition">
@@ -126,12 +119,11 @@
         </button>
       </div>
 
-      <!-- Empty State -->
       <div id="emptySubjectsState" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-10 text-center my-4">
         <div class="text-4xl mb-3">🎓</div>
         <h2 class="text-base font-bold text-slate-800">ยังไม่มีวิชาเรียน</h2>
         <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1 mb-5">
-          กดเพิ่มวิชาเรียนของคุณ เพื่อโยนเลกเชอร์เก็บไว้ให้ AI ช่วยสรุปโพยและออกข้อสอบให้
+          สร้างวิชาเรียนของคุณ เพื่อรวมไฟล์ PDF ส่งเข้า Gemini เช็กสถานะอ่านสอบ และนับคะแนนเก็บได้เลย
         </p>
         <button onclick="openSubjectModal()"
           class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition">
@@ -139,11 +131,10 @@
         </button>
       </div>
 
-      <!-- Big Subject Buttons -->
       <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
     </section>
 
-    <!-- ==================== VIEW 2: ALL-IN-ONE SUBJECT HELPER ==================== -->
+    <!-- ==================== VIEW 2: SUBJECT WORKSPACE ==================== -->
     <section id="subjectView" class="hidden animate-fade-in space-y-4">
 
       <!-- Subject Header -->
@@ -152,112 +143,263 @@
           <div id="subjectBannerIcon" class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">📚</div>
           <div class="min-w-0">
             <h1 id="subjectBannerTitle" class="text-lg sm:text-xl font-bold text-slate-900 truncate"></h1>
-            <p id="subjectBannerSub" class="text-xs text-slate-600 truncate mt-0.5"></p>
+            <div id="subjectBannerBadges" class="flex items-center gap-1.5 flex-wrap mt-1"></div>
           </div>
         </div>
         <div class="flex items-center gap-1 shrink-0">
-          <button onclick="openEditCurrentSubject()" title="แก้ไขชื่อวิชา"
+          <button onclick="openEditCurrentSubject()" title="แก้ไขข้อมูลวิชา"
             class="w-9 h-9 rounded-xl bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center text-sm">✏️</button>
           <button onclick="deleteCurrentSubject()" title="ลบวิชานี้"
             class="w-9 h-9 rounded-xl bg-white/80 hover:bg-rose-50 text-rose-600 flex items-center justify-center text-sm">🗑️</button>
         </div>
       </div>
 
-      <!-- Period Filter Pills -->
-      <div class="bg-white p-1.5 rounded-2xl border border-slate-200/80 flex gap-1.5 shadow-2xs">
-        <button onclick="setPeriodFilter('ALL')" data-period="ALL"
-          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">ทั้งหมด</button>
-        <button onclick="setPeriodFilter('midterm')" data-period="midterm"
-          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📘 กลางภาค</button>
-        <button onclick="setPeriodFilter('final')" data-period="final"
-          class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📕 ปลายภาค</button>
-      </div>
-
-      <!-- 1. QUICK DUMP BOX (Zero-friction note & link saver) -->
-      <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
-        <textarea id="quickDumpInput" rows="3"
-          placeholder="วางเนื้อหาจากสไลด์ จดสูตรสั้นๆ หรือแปะลิงก์ชีทเรียนตรงนี้เลย..."
-          class="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
-
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <!-- Period Selector for new note -->
-          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-            <button type="button" onclick="setNewNotePeriod('midterm')" id="newPeriodMidBtn"
-              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition">📘 กลางภาค</button>
-            <button type="button" onclick="setNewNotePeriod('final')" id="newPeriodFinBtn"
-              class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition">📕 ปลายภาค</button>
-          </div>
-
-          <div class="flex items-center gap-2 flex-1 sm:flex-initial justify-end">
-            <button type="button" onclick="saveQuickDump(false)"
-              class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold transition">
-              + เก็บไว้
-            </button>
-            <button type="button" onclick="saveQuickDump(true)"
-              class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold shadow-xs transition">
-              ✨ เก็บและสรุปเลย
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. ONE-TAP EXAM HELPER BAR -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="runExamHelper('cram')"
-          class="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-600 to-navy-900 hover:opacity-95 active:scale-[0.98] text-white text-left shadow-sm transition">
-          <div class="text-lg mb-0.5">⚡</div>
-          <div class="font-bold text-xs sm:text-sm">สรุปโพยรวมก่อนสอบ</div>
-          <div id="cramBtnSub" class="text-[11px] text-indigo-200 mt-0.5">สรุปเนื้อหาทั้งหมดให้อ่านไว</div>
+      <!-- Mode Switcher: Bundler vs Score & Exam Tracker -->
+      <div class="bg-white p-1.5 rounded-2xl border border-slate-200/80 grid grid-cols-2 gap-1.5 shadow-2xs">
+        <button onclick="switchSubMode('files')" id="modeFilesBtn"
+          class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-navy-900 text-white shadow-2xs transition flex items-center justify-center gap-1.5">
+          <span>📦</span>
+          <span>คลังไฟล์ & ส่ง Gemini</span>
         </button>
-
-        <button onclick="runExamHelper('quiz')"
-          class="p-3.5 rounded-2xl bg-white hover:bg-indigo-50/50 active:scale-[0.98] border-2 border-indigo-200 text-slate-900 text-left shadow-2xs transition">
-          <div class="text-lg mb-0.5">🎯</div>
-          <div class="font-bold text-xs sm:text-sm text-indigo-950">ควิซทดสอบ 5 ข้อ</div>
-          <div id="quizBtnSub" class="text-[11px] text-slate-500 mt-0.5">กดเลือกคำตอบเช็กความแม่น</div>
+        <button onclick="switchSubMode('scores')" id="modeScoresBtn"
+          class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5">
+          <span>📊</span>
+          <span>นับคะแนน & วันสอบ</span>
         </button>
       </div>
 
-      <!-- 3. AI HELPER RESULT PANEL (Hidden until triggered) -->
-      <div id="aiHelperPanel" class="hidden bg-white rounded-3xl p-5 border-2 border-indigo-200 shadow-sm space-y-3 animate-fade-in">
-        <div class="flex items-center justify-between gap-2">
-          <h2 id="aiHelperTitle" class="font-bold text-sm sm:text-base text-navy-900">✨ ผู้ช่วยติวสอบ AI</h2>
-          <div class="flex items-center gap-1.5">
-            <button id="saveAiSummaryBtn" onclick="saveAiCramToNotes()"
-              class="hidden px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
-              + เก็บโพยนี้ไว้
+      <!-- ==================== SUB-PANEL A: FILES & BUNDLE TO GEMINI ==================== -->
+      <div id="panelFiles" class="space-y-4">
+        <!-- Exam Period Tabs -->
+        <div class="bg-white p-1.5 rounded-2xl border border-slate-200/80 flex gap-1.5 shadow-2xs">
+          <button onclick="setPeriodFilter('ALL')" data-period="ALL"
+            class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">ทั้งหมด</button>
+          <button onclick="setPeriodFilter('midterm')" data-period="midterm"
+            class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📘 กลางภาค</button>
+          <button onclick="setPeriodFilter('final')" data-period="final"
+            class="period-btn flex-1 py-2 rounded-xl text-xs font-semibold transition">📕 ปลายภาค</button>
+        </div>
+
+        <!-- MAIN ACTION: BUNDLE & SEND TO GEMINI -->
+        <div class="bg-gradient-to-br from-navy-900 to-indigo-800 rounded-3xl p-4 sm:p-5 text-white shadow-md space-y-3">
+          <div>
+            <h2 id="bundleHeaderTitle" class="font-bold text-sm sm:text-base flex items-center gap-1.5">
+              <span>📦</span>
+              <span>รวมเนื้อหาทำไฟล์ส่ง Gemini</span>
+            </h2>
+            <p id="bundleSelectionInfo" class="text-xs text-indigo-200 mt-0.5 leading-relaxed">
+              รวมข้อความจาก PDF โน้ต และรูปภาพที่เลือกเป็นไฟล์เดียว พร้อมคัดลอกคำสั่งส่งเข้าแอป Gemini ทันที
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+            <button onclick="bundleAndShareToGemini('summary')"
+              class="py-3 px-4 rounded-2xl bg-white hover:bg-indigo-50 active:scale-[0.98] text-navy-900 font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition">
+              <span>🚀</span>
+              <span>รวมไฟล์ส่ง Gemini (สรุปโพย)</span>
             </button>
-            <button onclick="closeAiHelperPanel()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs">✕</button>
+
+            <button onclick="bundleAndShareToGemini('quiz')"
+              class="py-3 px-4 rounded-2xl bg-indigo-500/40 hover:bg-indigo-500/60 active:scale-[0.98] border border-indigo-300/40 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
+              <span>🎯</span>
+              <span>รวมไฟล์ส่ง Gemini (ออกข้อสอบ)</span>
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/15 text-[11px] text-indigo-200">
+            <button type="button" onclick="exportPrintablePdfBundle()" class="hover:text-white underline flex items-center gap-1">
+              <span>🖨️ บันทึกเป็นไฟล์ PDF รวม (รวมรูป+ข้อความ)</span>
+            </button>
+            <button type="button" onclick="toggleSelectAllVisible()" id="selectAllToggleBtn" class="hover:text-white font-semibold">
+              เลือกทั้งหมด
+            </button>
+          </div>
+
+          <!-- Exported Ready Banner -->
+          <div id="bundleReadyBox" class="hidden bg-white/10 border border-white/20 rounded-2xl p-3.5 text-xs space-y-2.5 animate-fade-in">
+            <div class="font-semibold text-emerald-300">
+              ✅ สร้างไฟล์รวมเนื้อหา & คัดลอกคำสั่งติวเรียบร้อยแล้ว!
+            </div>
+            <p class="text-indigo-100 leading-relaxed">
+              หากหน้าต่างแชร์ไม่เด้งอัตโนมัติ กดดาวน์โหลดไฟล์ด้านล่าง แล้วเปิดแอป <strong>Gemini</strong> กดแนบไฟล์ + กดวาง (Paste) คำสั่งได้เลย:
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <a id="manualDownloadBundleBtn" href="#" download="StudyHub_Bundle.txt"
+                class="px-3.5 py-2 rounded-xl bg-white text-navy-900 font-bold text-xs inline-flex items-center gap-1.5">
+                <span>⬇️ ดาวน์โหลดไฟล์รวม (.txt)</span>
+              </a>
+              <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer"
+                class="px-3.5 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs inline-flex items-center gap-1.5">
+                <span>✨ เปิด Gemini ↗</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        <!-- Loading State -->
-        <div id="aiHelperLoading" class="hidden py-8 text-center">
-          <div class="w-9 h-9 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-2.5"></div>
-          <p class="text-xs font-semibold text-indigo-700">กำลังอ่านเนื้อหาและเตรียมข้อมูลให้คุณ...</p>
+        <!-- ADD MATERIALS BOX -->
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700">เพิ่มสื่อการเรียนเข้าคลัง</span>
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+              <button type="button" onclick="setTargetPeriod('midterm')" id="targetMidBtn"
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition">📘 กลางภาค</button>
+              <button type="button" onclick="setTargetPeriod('final')" id="targetFinBtn"
+                class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 transition">📕 ปลายภาค</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="relative rounded-2xl bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 text-rose-800 font-semibold text-xs sm:text-sm py-3 px-3 flex items-center justify-center gap-1.5 transition overflow-hidden">
+              <span>📄</span>
+              <span>เพิ่มไฟล์ PDF</span>
+              <input type="file" accept=".pdf,application/pdf" multiple onchange="handlePdfUpload(event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+            </div>
+
+            <div class="relative rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 font-semibold text-xs sm:text-sm py-3 px-3 flex items-center justify-center gap-1.5 transition overflow-hidden">
+              <span>🖼️</span>
+              <span>เพิ่มรูปภาพ</span>
+              <input type="file" accept="image/*" multiple onchange="handleImageUpload(event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+            </div>
+          </div>
+
+          <textarea id="quickDumpInput" rows="2"
+            placeholder="หรือวางลิงก์ PDF ใน Google Drive / คัดลอกข้อความสไลด์มาวางตรงนี้..."
+            class="w-full p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed focus:outline-none focus:border-indigo-500 focus:bg-white transition"></textarea>
+
+          <div class="flex items-center justify-between gap-2">
+            <button type="button" onclick="openInChromeBrowser()"
+              class="text-[11px] text-slate-400 hover:text-indigo-600 underline text-left">
+              กดเลือกไฟล์ในแอปไม่ได้? เปิดใน Chrome
+            </button>
+
+            <button type="button" onclick="saveTextOrLink()"
+              class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold shrink-0 transition">
+              + บันทึกรายการ
+            </button>
+          </div>
         </div>
 
-        <!-- Cram Sheet Markdown Output -->
-        <div id="aiCramOutput" class="hidden ai-markdown text-sm text-slate-700 bg-slate-50 rounded-2xl p-4 border border-slate-100"></div>
+        <!-- READING PROGRESS + SAVED MATERIALS LIST -->
+        <div class="pt-1 space-y-2.5">
+          <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-2xs">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="font-bold text-slate-700">📖 ความคืบหน้าการอ่านทบทวน</span>
+              <span id="readProgressLabel" class="font-bold text-emerald-600">อ่านแล้ว 0/0 รายการ</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+              <div id="readProgressBar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
 
-        <!-- Interactive Quiz Output -->
-        <div id="aiQuizOutput" class="hidden space-y-4"></div>
+          <div id="itemsEmptyState" class="hidden bg-white rounded-3xl p-8 text-center border border-dashed border-slate-300">
+            <p class="text-sm font-medium text-slate-600">ยังไม่มีไฟล์ PDF รูปภาพ หรือเนื้อหาในหมวดนี้</p>
+            <p class="text-xs text-slate-400 mt-1">กดเพิ่มไฟล์ PDF รูปภาพ หรือวางลิงก์ Google Drive ด้านบนได้เลย</p>
+          </div>
+
+          <div id="itemsList" class="space-y-2.5"></div>
+        </div>
       </div>
 
-      <!-- 4. SAVED NOTES & LINKS STREAM -->
-      <div class="pt-1">
-        <div class="flex items-center justify-between mb-2.5 px-1">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">เนื้อหาและลิงก์ที่เก็บไว้</h2>
-          <span id="notesCountLabel" class="text-xs font-medium text-slate-500">0 รายการ</span>
+      <!-- ==================== SUB-PANEL B: SCORE TRACKER & EXAM COUNTDOWN ==================== -->
+      <div id="panelScores" class="hidden space-y-4">
+
+        <!-- Total Score & Target Grade Summary Card -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">คะแนนสะสมรวมวิชานี้</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="scoreTotalEarned" class="text-3xl font-bold text-navy-900">0</span>
+                <span id="scoreTotalMax" class="text-sm font-semibold text-slate-400">/ 0 คะแนนที่ประกาศแล้ว</span>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">เกรดเป้าหมาย</label>
+              <select id="targetGradeSelect" onchange="updateTargetScore(this.value)"
+                class="px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-800 focus:outline-none">
+                <option value="80">เกรด A (80)</option>
+                <option value="75">เกรด B+ (75)</option>
+                <option value="70">เกรด B (70)</option>
+                <option value="65">เกรด C+ (65)</option>
+                <option value="60">เกรด C (60)</option>
+                <option value="50">ผ่าน D (50)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Progress Bar towards Target -->
+          <div class="space-y-1.5">
+            <div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden relative">
+              <div id="scoreTargetBar" class="h-full bg-gradient-to-r from-indigo-600 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div id="scoreTargetAdvice" class="text-xs font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              เพิ่มรายการคะแนนด้านล่างเพื่อคำนวณคะแนนที่ต้องทำเพิ่ม
+            </div>
+          </div>
         </div>
 
-        <div id="notesEmptyState" class="hidden bg-white rounded-3xl p-8 text-center border border-dashed border-slate-300">
-          <p class="text-sm font-medium text-slate-600">ยังไม่มีเนื้อหาในหมวดนี้</p>
-          <p class="text-xs text-slate-400 mt-1">พิมพ์หรือวางเนื้อหาในกล่องด้านบนแล้วกด "+ เก็บไว้" ได้เลย</p>
+        <!-- Quick Add Score Form -->
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
+          <h3 class="text-xs font-bold text-slate-700">+ เพิ่มรายการคะแนน (สอบย่อย / กลางภาค / งานเก็บ)</h3>
+          <form onsubmit="addScoreItem(event)" class="space-y-2.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input id="scoreTitleInput" type="text" required placeholder="เช่น สอบกลางภาค, ควิซ 1, งานกลุ่ม"
+                class="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+              <select id="scorePeriodInput" class="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700">
+                <option value="midterm">📘 คะแนนกลางภาค</option>
+                <option value="final">📕 คะแนนปลายภาค</option>
+                <option value="other">📝 คะแนนเก็บ / งาน / เข้าเรียน</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="flex-1">
+                <input id="scoreEarnedInput" type="number" step="0.01" min="0" required placeholder="คะแนนที่ได้ (เช่น 24.5)"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+              </div>
+              <span class="text-slate-400 font-bold">/</span>
+              <div class="flex-1">
+                <input id="scoreMaxInput" type="number" step="0.01" min="0.1" required placeholder="คะแนนเต็ม (เช่น 30)"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" />
+              </div>
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold shrink-0 transition">
+                เพิ่ม
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div id="notesList" class="space-y-2.5"></div>
+        <!-- Score Items List -->
+        <div id="scoresList" class="space-y-2"></div>
+
+        <!-- Exam Countdown Dates Card -->
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
+          <h3 class="text-xs font-bold text-slate-700">⏳ ตั้งวันสอบเพื่อแจ้งเตือนนับถอยหลัง</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="p-3 rounded-2xl bg-sky-50/70 border border-sky-100 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-sky-900">📘 วันสอบกลางภาค</label>
+                <span id="midtermCountdownText" class="text-[11px] font-semibold text-sky-700"></span>
+              </div>
+              <input id="midtermDateInput" type="date" onchange="saveExamDates()"
+                class="w-full px-3 py-2 rounded-xl bg-white border border-sky-200 text-xs text-slate-800" />
+            </div>
+
+            <div class="p-3 rounded-2xl bg-rose-50/70 border border-rose-100 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-rose-900">📕 วันสอบปลายภาค</label>
+                <span id="finalCountdownText" class="text-[11px] font-semibold text-rose-700"></span>
+              </div>
+              <input id="finalDateInput" type="date" onchange="saveExamDates()"
+                class="w-full px-3 py-2 rounded-xl bg-white border border-rose-200 text-xs text-slate-800" />
+            </div>
+          </div>
+        </div>
       </div>
+
     </section>
   </main>
 
@@ -301,40 +443,18 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: AI SETTINGS ==================== -->
-  <div id="aiSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">⚙️ ตั้งค่า AI (Gemini)</h3>
-        <button onclick="closeAiSettingsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">✕</button>
-      </div>
-      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-        ใส่ <strong>Gemini API Key</strong> ฟรีจาก Google AI Studio (เก็บไว้ในเครื่องของคุณเท่านั้น)
-      </p>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key *</label>
-          <input id="geminiApiKeyInput" type="password" placeholder="AIzaSy..."
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500" />
-          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
-            class="inline-block text-xs text-indigo-600 font-medium mt-1.5 hover:underline">
-            ↗ กดรับ API Key ฟรีที่นี่
-          </a>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">รุ่นโมเดล AI</label>
-          <input id="geminiModelInput" type="text" value="gemini-3.8-flash"
-            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs" />
-        </div>
-        <div class="flex gap-2 pt-2">
-          <button type="button" onclick="clearGeminiApiKey()" class="px-4 py-3 rounded-2xl bg-rose-50 text-rose-600 font-semibold text-xs">ล้างคีย์</button>
-          <button type="button" onclick="saveGeminiSettings()" class="flex-1 py-3 rounded-2xl bg-navy-900 text-white font-semibold text-sm">บันทึก</button>
-        </div>
-      </div>
+  <!-- ==================== MODAL: IMAGE PREVIEW ==================== -->
+  <div id="imagePreviewModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col">
+    <div class="flex items-center justify-between px-4 py-3 text-white safe-top">
+      <span id="previewImageTitle" class="text-sm font-semibold truncate pr-2"></span>
+      <button onclick="closeImagePreview()" class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">✕</button>
+    </div>
+    <div class="flex-1 flex items-center justify-center p-2 overflow-auto">
+      <img id="previewImageEl" src="" alt="Preview" class="max-w-full max-h-full object-contain rounded-lg" />
     </div>
   </div>
 
-  <!-- ==================== MODAL: SIMPLE CLIPBOARD BACKUP ==================== -->
+  <!-- ==================== MODAL: BACKUP ==================== -->
   <div id="backupModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-fade-in">
       <div class="flex items-center justify-between mb-3">
@@ -343,7 +463,7 @@
       </div>
       <div class="space-y-3">
         <button onclick="copyBackupToClipboard()" class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 text-white font-semibold text-sm">
-          📋 คัดลอกโค้ดข้อมูลทั้งหมด (เก็บไว้ในแชต/โน้ต)
+          📋 คัดลอกโค้ดข้อมูล (เก็บไว้ในแชต/โน้ต)
         </button>
         <div class="pt-2 border-t border-slate-100">
           <textarea id="restoreCodeInput" rows="3" placeholder="วางโค้ดสำรองข้อมูลตรงนี้เพื่อกู้คืน..."
@@ -360,9 +480,10 @@
   <div id="toastContainer" class="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 sm:max-w-sm z-50 pointer-events-none flex flex-col gap-2"></div>
 
   <script>
-    const STORAGE_KEY_API = 'studyhub_gemini_api_key';
-    const STORAGE_KEY_MODEL = 'studyhub_gemini_model';
-    const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
     const DB_NAME = 'StudyHubDB';
     const DB_VERSION = 1;
     const STORE_NAME = 'subjects';
@@ -381,14 +502,14 @@
 
     let subjects = [];
     let currentSubjectId = null;
+    let currentSubMode = 'files'; // 'files' | 'scores'
     let activePeriodFilter = 'ALL'; // 'ALL' | 'midterm' | 'final'
-    let newNotePeriod = 'midterm';
+    let targetPeriod = 'midterm';
     let selectedFormIcon = '📚';
     let selectedFormTheme = 'indigo';
-    let lastAiCramText = '';
-    let currentQuizData = [];
+    let lastBundleUrl = null;
 
-    // ==================== DATABASE (WITH SEAMLESS MIGRATION) ====================
+    // ==================== DATABASE ====================
     function openDatabase() {
       return new Promise((resolve, reject) => {
         if (!window.indexedDB) return reject(new Error('No IndexedDB'));
@@ -405,29 +526,16 @@
     }
 
     function normalizeSubject(s) {
-      s.items = Array.isArray(s.items) ? s.items : [];
-      // Migrate older structures seamlessly
-      if (Array.isArray(s.lectures) && s.lectures.length > 0 && s.items.length === 0) {
-        s.lectures.forEach(l => {
-          const text = [l.title, l.content, l.url].filter(Boolean).join('\n');
-          if (text) {
-            s.items.push({
-              id: l.id || ('item_' + Date.now() + Math.random()),
-              period: l.period || 'midterm',
-              text,
-              createdAt: l.createdAt || Date.now()
-            });
-          }
-        });
-      }
-      if (s.notes && s.notes.trim() && s.items.length === 0) {
-        s.items.push({
-          id: 'item_' + Date.now(),
-          period: 'midterm',
-          text: s.notes.trim(),
-          createdAt: Date.now()
-        });
-      }
+      s.materials = Array.isArray(s.materials) ? s.materials : [];
+      s.materials = s.materials.map(m => ({
+        isRead: false,
+        selectedForBundle: true,
+        ...m
+      }));
+      s.scores = Array.isArray(s.scores) ? s.scores : [];
+      s.targetScore = Number(s.targetScore) || 80;
+      s.midtermDate = s.midtermDate || '';
+      s.finalDate = s.finalDate || '';
       return s;
     }
 
@@ -484,11 +592,14 @@
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', async () => {
       renderFormPickers();
-      updateAiStatusIndicator();
       subjects = await loadAllSubjects();
       renderSubjectsGrid();
 
       window.addEventListener('popstate', () => {
+        if (!document.getElementById('imagePreviewModal').classList.contains('hidden')) {
+          closeImagePreview();
+          return;
+        }
         if (currentSubjectId) goHome(true);
       });
     });
@@ -513,7 +624,7 @@
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.2s';
         setTimeout(() => el.remove(), 220);
-      }, 3800);
+      }, 4000);
     }
 
     function getThemeObj(id) {
@@ -522,6 +633,30 @@
 
     function getCurrentSubject() {
       return subjects.find(s => s.id === currentSubjectId) || null;
+    }
+
+    function getUpcomingExamBadge(subj) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const candidates = [];
+
+      if (subj.midtermDate) {
+        const d = new Date(subj.midtermDate + 'T00:00:00');
+        const diff = Math.round((d - today) / 86400000);
+        if (diff >= 0) candidates.push({ label: 'กลางภาค', diff });
+      }
+      if (subj.finalDate) {
+        const d = new Date(subj.finalDate + 'T00:00:00');
+        const diff = Math.round((d - today) / 86400000);
+        if (diff >= 0) candidates.push({ label: 'ปลายภาค', diff });
+      }
+
+      if (candidates.length === 0) return '';
+      candidates.sort((a, b) => a.diff - b.diff);
+      const next = candidates[0];
+      if (next.diff === 0) return `🔥 วันนี้สอบ${next.label}!`;
+      if (next.diff === 1) return `⏰ พรุ่งนี้สอบ${next.label}`;
+      return `⏳ อีก ${next.diff} วันสอบ${next.label}`;
     }
 
     // ==================== NAVIGATION ====================
@@ -549,12 +684,44 @@
       document.getElementById('headerBackBtn').classList.remove('hidden');
       document.getElementById('headerBackBtn').classList.add('flex');
       document.getElementById('quickDumpInput').value = '';
-      closeAiHelperPanel();
+      document.getElementById('bundleReadyBox').classList.add('hidden');
 
       renderSubjectHeader();
+      switchSubMode('files');
       setPeriodFilter('ALL');
       window.history.pushState({ view: 'subject', id }, '', '#subject-' + id);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchSubMode(mode) {
+      currentSubMode = mode;
+      const filesBtn = document.getElementById('modeFilesBtn');
+      const scoresBtn = document.getElementById('modeScoresBtn');
+
+      if (mode === 'files') {
+        filesBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-navy-900 text-white shadow-2xs transition flex items-center justify-center gap-1.5';
+        scoresBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5';
+        document.getElementById('panelFiles').classList.remove('hidden');
+        document.getElementById('panelScores').classList.add('hidden');
+        renderMaterialsList();
+      } else {
+        scoresBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-navy-900 text-white shadow-2xs transition flex items-center justify-center gap-1.5';
+        filesBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5';
+        document.getElementById('panelScores').classList.remove('hidden');
+        document.getElementById('panelFiles').classList.add('hidden');
+        renderScoresPanel();
+      }
+    }
+
+    function openInChromeBrowser() {
+      const url = window.location.href;
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        const cleanUrl = url.replace(/^https?:\/\//, '');
+        window.location.href = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+      } else {
+        window.open(url, '_blank');
+      }
     }
 
     // ==================== HOME GRID & SUBJECT MODAL ====================
@@ -571,22 +738,28 @@
       empty.classList.add('hidden');
       grid.innerHTML = subjects.map(s => {
         const theme = getThemeObj(s.theme);
-        const count = (s.items || []).length;
+        const mats = s.materials || [];
+        const readCount = mats.filter(m => m.isRead).length;
+        const earned = (s.scores || []).reduce((sum, item) => sum + (Number(item.earned) || 0), 0);
+        const examBadge = getUpcomingExamBadge(s);
+
         return `
           <button onclick="openSubject('${escapeHtml(s.id)}')"
-            class="text-left p-5 rounded-3xl border-2 ${theme.card} active:scale-[0.98] transition flex flex-col justify-between min-h-[132px]">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
-                ${escapeHtml(s.icon || '📚')}
+            class="text-left p-5 rounded-3xl border-2 ${theme.card} active:scale-[0.98] transition flex flex-col justify-between min-h-[146px]">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="w-11 h-11 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
+                  ${escapeHtml(s.icon || '📚')}
+                </div>
+                ${examBadge ? `<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/90 text-rose-700 shadow-2xs">${examBadge}</span>` : ''}
               </div>
-              <div class="min-w-0">
-                <h2 class="text-base sm:text-lg font-bold text-slate-900 line-clamp-1">${escapeHtml(s.name)}</h2>
-                <p class="text-xs text-slate-500 truncate mt-0.5">${escapeHtml(s.code || `เก็บไว้ ${count} รายการ`)}</p>
-              </div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900 line-clamp-1 mt-3">${escapeHtml(s.name)}</h2>
+              <p class="text-xs text-slate-500 truncate mt-0.5">${escapeHtml(s.code || `เป้าหมาย ${s.targetScore || 80} คะแนน`)}</p>
             </div>
-            <div class="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs font-medium text-slate-600">
-              <span>📝 ${count} เนื้อหา</span>
-              <span class="text-indigo-700 font-semibold">เปิดติวสอบ →</span>
+
+            <div class="mt-3.5 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs font-medium text-slate-600">
+              <span>📊 ${Number(earned.toFixed(2))} คะแนน</span>
+              <span>📖 อ่านแล้ว ${readCount}/${mats.length}</span>
             </div>
           </button>
         `;
@@ -656,7 +829,11 @@
           icon: selectedFormIcon,
           theme: selectedFormTheme,
           createdAt: Date.now(),
-          items: []
+          materials: [],
+          scores: [],
+          targetScore: 80,
+          midtermDate: '',
+          finalDate: ''
         };
         subjects.unshift(newSubj);
         await saveSubjectToDB(newSubj);
@@ -674,7 +851,15 @@
       document.getElementById('subjectBanner').className = `rounded-3xl p-4 sm:p-5 border-2 ${theme.card} flex items-center justify-between gap-3`;
       document.getElementById('subjectBannerIcon').textContent = subj.icon || '📚';
       document.getElementById('subjectBannerTitle').textContent = subj.name;
-      document.getElementById('subjectBannerSub').textContent = subj.code || `เก็บเนื้อหาไว้ ${(subj.items || []).length} รายการ`;
+
+      const earned = (subj.scores || []).reduce((sum, item) => sum + (Number(item.earned) || 0), 0);
+      const examBadge = getUpcomingExamBadge(subj);
+      const badges = [];
+      if (subj.code) badges.push(`<span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-white/80 text-slate-700">${escapeHtml(subj.code)}</span>`);
+      badges.push(`<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-indigo-800">📊 ${Number(earned.toFixed(2))}/${subj.targetScore || 80} แต้ม</span>`);
+      if (examBadge) badges.push(`<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700">${examBadge}</span>`);
+
+      document.getElementById('subjectBannerBadges').innerHTML = badges.join('');
     }
 
     function openEditCurrentSubject() {
@@ -691,7 +876,7 @@
       goHome();
     }
 
-    // ==================== QUICK DUMP & NOTES STREAM ====================
+    // ==================== PERIOD FILTERING & MATERIALS ====================
     function setPeriodFilter(period) {
       activePeriodFilter = period;
       document.querySelectorAll('.period-btn').forEach(btn => {
@@ -702,77 +887,197 @@
       });
 
       if (period === 'midterm' || period === 'final') {
-        setNewNotePeriod(period);
+        setTargetPeriod(period);
       }
 
-      const periodLabel = period === 'midterm' ? 'กลางภาค' : period === 'final' ? 'ปลายภาค' : 'ทั้งหมด';
-      document.getElementById('cramBtnSub').textContent = `สรุปเนื้อหา${periodLabel}ให้อ่านไว`;
-      document.getElementById('quizBtnSub').textContent = `สุ่มข้อสอบจากเนื้อหา${periodLabel}`;
-
-      renderNotesList();
+      const label = period === 'midterm' ? 'กลางภาค' : period === 'final' ? 'ปลายภาค' : 'ทั้งหมด';
+      document.getElementById('bundleHeaderTitle').textContent = `รวมเนื้อหา${label}ทำไฟล์ส่ง Gemini`;
+      document.getElementById('bundleReadyBox').classList.add('hidden');
+      renderMaterialsList();
     }
 
-    function setNewNotePeriod(period) {
-      newNotePeriod = period;
-      const midBtn = document.getElementById('newPeriodMidBtn');
-      const finBtn = document.getElementById('newPeriodFinBtn');
+    function setTargetPeriod(period) {
+      targetPeriod = period;
+      const midBtn = document.getElementById('targetMidBtn');
+      const finBtn = document.getElementById('targetFinBtn');
       if (period === 'midterm') {
-        midBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition';
-        finBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition';
+        midBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-sky-700 shadow-2xs transition';
+        finBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 transition';
       } else {
-        finBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-rose-700 shadow-2xs transition';
-        midBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 transition';
+        finBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-rose-700 shadow-2xs transition';
+        midBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 transition';
       }
     }
 
-    async function saveQuickDump(alsoSummarize = false) {
-      const subj = getCurrentSubject();
-      const input = document.getElementById('quickDumpInput');
-      const text = input.value.trim();
+    async function extractTextFromPdfFile(file) {
+      if (!window.pdfjsLib) return `[ไฟล์ PDF: ${file.name}]`;
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const maxPages = Math.min(pdf.numPages, 60);
+        let fullText = '';
 
-      if (!subj) return;
-      if (!text) {
-        showToast('พิมพ์หรือวางเนื้อหาก่อนกดนะครับ', 'info');
-        return;
+        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getPage ? await page.getTextContent() : await page.getTextContent();
+          const pageText = textContent.items.map(it => it.str).join(' ');
+          if (pageText.trim()) {
+            fullText += `\n--- หน้า ${pageNum} ---\n${pageText.trim()}`;
+          }
+        }
+        return fullText.trim() || `[ไฟล์ PDF สแกน/รูปภาพ: ${file.name} (${pdf.numPages} หน้า)]`;
+      } catch {
+        return `[ไฟล์ PDF: ${file.name}]`;
       }
+    }
 
-      const newItem = {
-        id: 'item_' + Date.now(),
-        period: newNotePeriod,
-        text,
-        createdAt: Date.now()
-      };
+    async function handlePdfUpload(event) {
+      const files = Array.from(event.target.files || []);
+      event.target.value = '';
+      const subj = getCurrentSubject();
+      if (!subj || files.length === 0) return;
 
-      subj.items = subj.items || [];
-      subj.items.unshift(newItem);
-      input.value = '';
+      showToast(`กำลังอ่านข้อความจากไฟล์ PDF (${files.length} ไฟล์)...`, 'info');
+      subj.materials = subj.materials || [];
+
+      for (const file of files) {
+        const extractedText = await extractTextFromPdfFile(file);
+        subj.materials.unshift({
+          id: 'pdf_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          type: 'pdf',
+          period: targetPeriod,
+          title: file.name,
+          content: extractedText,
+          dataUrl: '',
+          isRead: false,
+          selectedForBundle: true,
+          createdAt: Date.now()
+        });
+      }
 
       await saveSubjectToDB(subj);
       renderSubjectHeader();
-      renderNotesList();
-      showToast('เก็บเนื้อหาเรียบร้อย', 'success');
-
-      if (alsoSummarize) {
-        summarizeSingleNote(newItem.id);
-      }
+      renderMaterialsList();
+      showToast(`เพิ่มไฟล์ PDF เรียบร้อย (${files.length} ไฟล์)`, 'success');
     }
 
-    function extractUrls(text) {
-      const matches = text.match(/https?:\/\/[^\s]+/g);
-      return matches ? Array.from(new Set(matches)) : [];
+    function compressImage(file, maxDim = 1280, quality = 0.78) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            else { w = Math.round((w * maxDim) / h); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          URL.revokeObjectURL(url);
+          resolve(dataUrl);
+        };
+        img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+        img.src = url;
+      });
     }
 
-    function renderNotesList() {
+    async function handleImageUpload(event) {
+      const files = Array.from(event.target.files || []);
+      event.target.value = '';
       const subj = getCurrentSubject();
+      if (!subj || files.length === 0) return;
+
+      showToast('กำลังบันทึกรูปภาพ...', 'info');
+      subj.materials = subj.materials || [];
+
+      for (const file of files) {
+        try {
+          const dataUrl = await compressImage(file);
+          subj.materials.unshift({
+            id: 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            type: 'image',
+            period: targetPeriod,
+            title: file.name || 'รูปภาพเลกเชอร์',
+            content: '',
+            dataUrl,
+            isRead: false,
+            selectedForBundle: true,
+            createdAt: Date.now()
+          });
+        } catch {
+          showToast('ไม่สามารถอ่านรูปภาพบางไฟล์ได้', 'error');
+        }
+      }
+
+      await saveSubjectToDB(subj);
+      renderSubjectHeader();
+      renderMaterialsList();
+      showToast(`เพิ่มรูปภาพเรียบร้อย (${files.length} รูป)`, 'success');
+    }
+
+    async function saveTextOrLink() {
+      const subj = getCurrentSubject();
+      const input = document.getElementById('quickDumpInput');
+      const raw = input.value.trim();
       if (!subj) return;
+      if (!raw) {
+        showToast('วางลิงก์ไฟล์ PDF หรือพิมพ์ข้อความก่อนกดบันทึกนะครับ', 'info');
+        return;
+      }
 
-      const filtered = (subj.items || []).filter(item =>
-        activePeriodFilter === 'ALL' || item.period === activePeriodFilter
+      const isLinkOnly = /^https?:\/\/\S+$/i.test(raw);
+      const firstLine = raw.split('\n')[0].trim();
+
+      subj.materials = subj.materials || [];
+      subj.materials.unshift({
+        id: 'mat_' + Date.now(),
+        type: isLinkOnly ? 'link' : 'text',
+        period: targetPeriod,
+        title: isLinkOnly ? 'ลิงก์เอกสาร / สไลด์ / PDF' : firstLine.slice(0, 60),
+        content: raw,
+        dataUrl: '',
+        isRead: false,
+        selectedForBundle: true,
+        createdAt: Date.now()
+      });
+
+      input.value = '';
+      await saveSubjectToDB(subj);
+      renderSubjectHeader();
+      renderMaterialsList();
+      showToast('บันทึกรายการเรียบร้อย', 'success');
+    }
+
+    function getVisibleMaterials() {
+      const subj = getCurrentSubject();
+      if (!subj) return [];
+      return (subj.materials || []).filter(m =>
+        activePeriodFilter === 'ALL' || m.period === activePeriodFilter
       );
+    }
 
-      document.getElementById('notesCountLabel').textContent = `${filtered.length} รายการ`;
-      const listEl = document.getElementById('notesList');
-      const emptyEl = document.getElementById('notesEmptyState');
+    function renderMaterialsList() {
+      const filtered = getVisibleMaterials();
+      const readCount = filtered.filter(m => m.isRead).length;
+      const selectedCount = filtered.filter(m => m.selectedForBundle !== false).length;
+      const pct = filtered.length ? Math.round((readCount / filtered.length) * 100) : 0;
+
+      document.getElementById('readProgressLabel').textContent = `อ่านแล้ว ${readCount}/${filtered.length} รายการ (${pct}%)`;
+      document.getElementById('readProgressBar').style.width = `${pct}%`;
+      document.getElementById('bundleSelectionInfo').textContent =
+        filtered.length > 0
+          ? `เลือกไว้ ${selectedCount}/${filtered.length} รายการ เพื่อรวมเป็นไฟล์เดียวส่งเข้าแอป Gemini`
+          : 'รวมข้อความจาก PDF โน้ต และรูปภาพเป็นไฟล์เดียว พร้อมคัดลอกคำสั่งส่งเข้าแอป Gemini';
+
+      const allSelected = filtered.length > 0 && selectedCount === filtered.length;
+      document.getElementById('selectAllToggleBtn').textContent = allSelected ? 'ยกเลิกเลือกทั้งหมด' : 'เลือกทั้งหมด';
+
+      const listEl = document.getElementById('itemsList');
+      const emptyEl = document.getElementById('itemsEmptyState');
 
       if (filtered.length === 0) {
         listEl.innerHTML = '';
@@ -781,37 +1086,67 @@
       }
 
       emptyEl.classList.add('hidden');
-      listEl.innerHTML = filtered.map(item => {
-        const urls = extractUrls(item.text);
-        const badge = item.period === 'final'
+      listEl.innerHTML = filtered.map(m => {
+        const isSelected = m.selectedForBundle !== false;
+        const periodBadge = m.period === 'final'
           ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">📕 ปลายภาค</span>`
           : `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">📘 กลางภาค</span>`;
 
+        const typeBadge = m.type === 'pdf'
+          ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">📄 PDF</span>`
+          : m.type === 'image'
+          ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">🖼️ รูปภาพ</span>`
+          : m.type === 'link'
+          ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">🔗 ลิงก์</span>`
+          : `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">📝 โน้ต</span>`;
+
+        const urls = (m.content || '').match(/https?:\/\/[^\s]+/g) || [];
+
         return `
-          <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-2.5">
-            <div class="flex items-center justify-between gap-2">
-              ${badge}
-              <div class="flex items-center gap-1.5">
-                <button onclick="summarizeSingleNote('${escapeHtml(item.id)}')"
-                  class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
-                  ✨ สรุปสั้นๆ
+          <div class="bg-white rounded-2xl p-4 border transition shadow-2xs space-y-2.5 ${isSelected ? 'border-indigo-200' : 'border-slate-200/70 opacity-75'}">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2.5 min-w-0">
+                <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleBundleSelect('${escapeHtml(m.id)}')"
+                  title="เลือกรวมไฟล์นี้ส่ง Gemini"
+                  class="mt-1 w-4 h-4 accent-indigo-600 rounded shrink-0 cursor-pointer" />
+                <div class="space-y-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    ${periodBadge}
+                    ${typeBadge}
+                  </div>
+                  <div class="font-bold text-sm text-slate-900 truncate pt-0.5 ${m.isRead ? 'line-through text-slate-400' : ''}">${escapeHtml(m.title)}</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="toggleMaterialRead('${escapeHtml(m.id)}')"
+                  class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${m.isRead ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                  ${m.isRead ? '✅ อ่านแล้ว' : 'ยังไม่จบ'}
                 </button>
-                <button onclick="deleteNoteItem('${escapeHtml(item.id)}')"
+                <button onclick="deleteMaterial('${escapeHtml(m.id)}')"
                   class="w-7 h-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center text-xs">
                   🗑️
                 </button>
               </div>
             </div>
 
-            <div class="text-sm text-slate-800 whitespace-pre-line leading-relaxed break-words">${escapeHtml(item.text)}</div>
+            ${m.type === 'image' && m.dataUrl ? `
+              <div onclick="openImagePreview('${escapeHtml(m.id)}')" class="rounded-xl overflow-hidden bg-slate-100 border border-slate-200 max-h-44 flex items-center justify-center cursor-pointer">
+                <img src="${m.dataUrl}" alt="${escapeHtml(m.title)}" class="max-h-44 w-full object-contain" />
+              </div>
+            ` : ''}
+
+            ${m.content && m.type !== 'link' ? `
+              <div class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 line-clamp-3 whitespace-pre-line leading-relaxed">${escapeHtml(m.content)}</div>
+            ` : ''}
 
             ${urls.length > 0 ? `
-              <div class="flex flex-wrap gap-1.5 pt-1">
+              <div class="flex flex-wrap gap-1.5">
                 ${urls.map(u => `
                   <a href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer"
                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold max-w-full">
-                    <span>🔗 เปิดลิงก์</span>
-                    <span class="truncate max-w-[180px] opacity-75">${escapeHtml(u.replace(/^https?:\/\//, ''))}</span>
+                    <span>🔗 เปิดดูลิงก์</span>
+                    <span class="truncate max-w-[160px] opacity-75">${escapeHtml(u.replace(/^https?:\/\//, ''))}</span>
                     <span>↗</span>
                   </a>
                 `).join('')}
@@ -822,284 +1157,310 @@
       }).join('');
     }
 
-    async function deleteNoteItem(id) {
+    async function toggleBundleSelect(id) {
       const subj = getCurrentSubject();
-      if (!subj || !confirm('ลบโน้ตนี้ใช่หรือไม่?')) return;
-      subj.items = (subj.items || []).filter(i => i.id !== id);
+      const item = (subj?.materials || []).find(m => m.id === id);
+      if (!item) return;
+      item.selectedForBundle = item.selectedForBundle === false ? true : false;
+      await saveSubjectToDB(subj);
+      renderMaterialsList();
+    }
+
+    async function toggleSelectAllVisible() {
+      const subj = getCurrentSubject();
+      const visible = getVisibleMaterials();
+      if (!subj || visible.length === 0) return;
+
+      const allSelected = visible.every(m => m.selectedForBundle !== false);
+      visible.forEach(m => { m.selectedForBundle = !allSelected; });
+      await saveSubjectToDB(subj);
+      renderMaterialsList();
+    }
+
+    async function toggleMaterialRead(id) {
+      const subj = getCurrentSubject();
+      const item = (subj?.materials || []).find(m => m.id === id);
+      if (!item) return;
+      item.isRead = !item.isRead;
+      await saveSubjectToDB(subj);
+      renderMaterialsList();
+    }
+
+    async function deleteMaterial(id) {
+      const subj = getCurrentSubject();
+      if (!subj || !confirm('ลบรายการนี้ใช่หรือไม่?')) return;
+      subj.materials = (subj.materials || []).filter(m => m.id !== id);
       await saveSubjectToDB(subj);
       renderSubjectHeader();
-      renderNotesList();
-      showToast('ลบโน้ตแล้ว', 'info');
+      renderMaterialsList();
+      showToast('ลบรายการเรียบร้อย', 'info');
     }
 
-    // ==================== 1-TAP AI EXAM HELPER ====================
-    function getSavedApiKey() {
-      return (localStorage.getItem(STORAGE_KEY_API) || '').trim();
-    }
-
-    function getSavedModel() {
-      return (localStorage.getItem(STORAGE_KEY_MODEL) || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL;
-    }
-
-    function updateAiStatusIndicator() {
-      const hasKey = Boolean(getSavedApiKey());
-      document.getElementById('aiStatusDot').className = hasKey
-        ? 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block'
-        : 'w-2.5 h-2.5 rounded-full bg-amber-400 inline-block';
-    }
-
-    function openAiSettingsModal() {
-      document.getElementById('geminiApiKeyInput').value = getSavedApiKey();
-      document.getElementById('geminiModelInput').value = getSavedModel();
-      document.getElementById('aiSettingsModal').classList.remove('hidden');
-    }
-
-    function closeAiSettingsModal() {
-      document.getElementById('aiSettingsModal').classList.add('hidden');
-    }
-
-    function saveGeminiSettings() {
-      const key = document.getElementById('geminiApiKeyInput').value.trim();
-      const model = document.getElementById('geminiModelInput').value.trim() || DEFAULT_GEMINI_MODEL;
-      if (!key) {
-        showToast('กรุณาใส่ Gemini API Key ก่อนบันทึก', 'error');
-        return;
-      }
-      localStorage.setItem(STORAGE_KEY_API, key);
-      localStorage.setItem(STORAGE_KEY_MODEL, model);
-      updateAiStatusIndicator();
-      closeAiSettingsModal();
-      showToast('บันทึก API Key เรียบร้อย', 'success');
-    }
-
-    function clearGeminiApiKey() {
-      localStorage.removeItem(STORAGE_KEY_API);
-      document.getElementById('geminiApiKeyInput').value = '';
-      updateAiStatusIndicator();
-      showToast('ล้าง API Key แล้ว', 'info');
-    }
-
-    function closeAiHelperPanel() {
-      document.getElementById('aiHelperPanel').classList.add('hidden');
-    }
-
-    function formatMarkdownToHtml(text) {
-      let html = escapeHtml(text);
-      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-      html = html.replace(/^# (.+)$/gm, '<h2>$1</h2>');
-      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-      html = html.replace(/^\s*[-*•]\s+(.+)$/gm, '<li>$1</li>');
-      html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
-      html = html
-        .split(/\n{2,}/)
-        .map(b => (b.startsWith('<h') || b.startsWith('<ul')) ? b : `<p>${b.replace(/\n/g, '<br/>')}</p>`)
-        .join('');
-      return html;
-    }
-
-    async function callGeminiApi(promptText) {
-      const apiKey = getSavedApiKey();
-      if (!apiKey) {
-        showToast('กดปุ่ม "ตั้งค่า AI" ด้านบนเพื่อใส่ API Key ก่อนใช้งานครับ', 'error');
-        openAiSettingsModal();
-        return null;
-      }
-
-      const model = getSavedModel();
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error?.message || `Error ${response.status}`);
-      }
-
-      return data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('\n').trim() || '';
-    }
-
-    async function summarizeSingleNote(itemId) {
+    function openImagePreview(id) {
       const subj = getCurrentSubject();
-      const item = (subj?.items || []).find(i => i.id === itemId);
-      if (!item) return;
-
-      await executeAiCram(
-        `รายวิชา: ${subj.name}\nช่วยสรุปโน้ตต่อไปนี้ให้สั้น กระชับ อ่านเข้าใจง่ายภายใน 1 นาที เป็นข้อๆ ภาษาไทย:\n\n${item.text}`,
-        '✨ สรุปย่อโน้ตนี้'
-      );
+      const item = (subj?.materials || []).find(m => m.id === id);
+      if (!item || !item.dataUrl) return;
+      document.getElementById('previewImageTitle').textContent = item.title || 'รูปภาพ';
+      document.getElementById('previewImageEl').src = item.dataUrl;
+      document.getElementById('imagePreviewModal').classList.remove('hidden');
     }
 
-    async function runExamHelper(type) {
+    function closeImagePreview() {
+      document.getElementById('imagePreviewModal').classList.add('hidden');
+    }
+
+    // ==================== BUNDLE & SEND TO GEMINI + PRINTABLE PDF ====================
+    function getSelectedItemsForBundle() {
+      return getVisibleMaterials().filter(m => m.selectedForBundle !== false);
+    }
+
+    async function bundleAndShareToGemini(mode) {
       const subj = getCurrentSubject();
       if (!subj) return;
 
-      const items = (subj.items || []).filter(i =>
-        activePeriodFilter === 'ALL' || i.period === activePeriodFilter
-      );
-
+      const items = getSelectedItemsForBundle();
       if (items.length === 0) {
-        showToast('ยังไม่มีเนื้อหาในหมวดนี้ ลองพิมพ์หรือวางเนื้อหาในกล่องด้านบนก่อนนะครับ', 'info');
+        showToast('กรุณาติ๊กเลือกอย่างน้อย 1 รายการที่จะรวมส่งนะครับ', 'info');
         return;
       }
 
-      const combinedText = items.map((it, idx) => `[ส่วนที่ ${idx + 1}]\n${it.text}`).join('\n\n');
-      const periodLabel = activePeriodFilter === 'midterm' ? 'สอบกลางภาค' : activePeriodFilter === 'final' ? 'สอบปลายภาค' : 'เตรียมสอบ';
+      const periodName = activePeriodFilter === 'midterm' ? 'กลางภาค' : activePeriodFilter === 'final' ? 'ปลายภาค' : 'ทั้งหมด';
+      const safeSubjName = subj.name.replace(/[^\u0E00-\u0E7Fa-zA-Z0-9_-]/g, '_');
+      const fileName = `StudyHub_${safeSubjName}_${periodName}.txt`;
 
-      if (type === 'cram') {
-        const prompt = `รายวิชา: ${subj.name} (${periodLabel})\nจากเนื้อหาทั้งหมดด้านล่าง ช่วยสรุปเป็น "โพยอ่านก่อนเข้าห้องสอบ" ภาษาไทยแบบสั้น กระชับ ตรงประเด็น แยกเป็นหัวข้อสำคัญ สูตรหรือหลักการที่ต้องจำ และจุดที่ข้อสอบมักออกหลอก:\n\n${combinedText}`;
-        await executeAiCram(prompt, `⚡ โพยสรุป${periodLabel}`);
-      } else {
-        await executeInteractiveQuiz(subj.name, periodLabel, combinedText);
-      }
-    }
+      const header = [
+        `====================================================`,
+        `รายวิชา: ${subj.name} ${subj.code ? `(${subj.code})` : ''}`,
+        `ชุดเนื้อหา: เตรียมสอบ${periodName}`,
+        `จำนวนเอกสารที่รวม: ${items.length} รายการ`,
+        `====================================================\n`
+      ].join('\n');
 
-    async function executeAiCram(prompt, title) {
-      const panel = document.getElementById('aiHelperPanel');
-      panel.classList.remove('hidden');
-      document.getElementById('aiHelperTitle').textContent = title;
-      document.getElementById('aiHelperLoading').classList.remove('hidden');
-      document.getElementById('aiCramOutput').classList.add('hidden');
-      document.getElementById('aiQuizOutput').classList.add('hidden');
-      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const body = items.map((m, idx) => {
+        const typeLabel = m.type === 'pdf' ? 'ไฟล์ PDF' : m.type === 'image' ? 'รูปภาพ' : m.type === 'link' ? 'ลิงก์เอกสาร' : 'โน้ต';
+        return [
+          `### [เอกสารที่ ${idx + 1}] (${typeLabel}) : ${m.title}`,
+          m.content ? m.content : '(ไฟล์รูปภาพประกอบ)',
+          `\n----------------------------------------------------`
+        ].join('\n');
+      }).join('\n\n');
+
+      const fullBundleText = header + '\n' + body;
+
+      const promptForGemini = mode === 'quiz'
+        ? `จากไฟล์เนื้อหาวิชา "${subj.name}" (${periodName}) ที่แนบมานี้ ช่วยสร้างแนวข้อสอบระดับมหาวิทยาลัย 10 ข้อ (มีทั้งปรนัยและอัตนัย) พร้อมเฉลยอธิบายละเอียดเป็นภาษาไทยหน่อยครับ`
+        : `จากไฟล์เนื้อหาวิชา "${subj.name}" (${periodName}) ที่แนบมานี้ ช่วยสรุปเนื้อหาทั้งหมดเป็นโพยอ่านก่อนเข้าห้องสอบ แบบกระชับ เข้าใจง่าย แยกประเด็นสำคัญ สูตร และจุดที่มักออกสอบให้หน่อยครับ`;
 
       try {
-        const result = await callGeminiApi(prompt);
-        if (result === null) {
-          closeAiHelperPanel();
-          return;
-        }
-        lastAiCramText = result;
-        const out = document.getElementById('aiCramOutput');
-        out.innerHTML = formatMarkdownToHtml(result);
-        document.getElementById('aiHelperLoading').classList.add('hidden');
-        out.classList.remove('hidden');
-        document.getElementById('saveAiSummaryBtn').classList.remove('hidden');
-      } catch (err) {
-        closeAiHelperPanel();
-        showToast('เชื่อมต่อ AI ไม่สำเร็จ: ' + err.message, 'error');
+        await navigator.clipboard.writeText(promptForGemini);
+      } catch {}
+
+      if (lastBundleUrl) URL.revokeObjectURL(lastBundleUrl);
+      const textBlob = new Blob([fullBundleText], { type: 'text/plain;charset=utf-8' });
+      lastBundleUrl = URL.createObjectURL(textBlob);
+
+      const dlBtn = document.getElementById('manualDownloadBundleBtn');
+      dlBtn.href = lastBundleUrl;
+      dlBtn.download = fileName;
+      document.getElementById('bundleReadyBox').classList.remove('hidden');
+
+      const shareFiles = [
+        new File([textBlob], fileName, { type: 'text/plain' })
+      ];
+
+      const imageItems = items.filter(m => m.type === 'image' && m.dataUrl);
+      for (let i = 0; i < imageItems.length; i++) {
+        try {
+          const res = await fetch(imageItems[i].dataUrl);
+          const blob = await res.blob();
+          shareFiles.push(new File([blob], `Slide_Image_${i + 1}.jpg`, { type: 'image/jpeg' }));
+        } catch {}
       }
+
+      if (navigator.canShare && navigator.canShare({ files: shareFiles })) {
+        try {
+          showToast('คัดลอกคำสั่งติวแล้ว! เลือกแอป "Gemini" ในหน้าต่างแชร์ได้เลย', 'success');
+          await navigator.share({
+            title: `เนื้อหาสอบ${periodName} - ${subj.name}`,
+            text: promptForGemini,
+            files: shareFiles
+          });
+          return;
+        } catch {}
+      }
+
+      dlBtn.click();
+      showToast('ดาวน์โหลดไฟล์รวม & คัดลอกคำสั่งแล้ว! เปิด Gemini แนบไฟล์ได้เลย', 'success');
     }
 
-    async function saveAiCramToNotes() {
+    function exportPrintablePdfBundle() {
       const subj = getCurrentSubject();
-      if (!subj || !lastAiCramText) return;
+      const items = getSelectedItemsForBundle();
+      if (!subj || items.length === 0) {
+        showToast('กรุณาเลือกรายการอย่างน้อย 1 รายการก่อนครับ', 'info');
+        return;
+      }
 
-      subj.items = subj.items || [];
-      subj.items.unshift({
-        id: 'item_ai_' + Date.now(),
-        period: activePeriodFilter === 'final' ? 'final' : 'midterm',
-        text: `⚡ โพยสรุปจาก AI:\n${lastAiCramText}`,
-        createdAt: Date.now()
+      const periodName = activePeriodFilter === 'midterm' ? 'กลางภาค' : activePeriodFilter === 'final' ? 'ปลายภาค' : 'ทั้งหมด';
+      const printBox = document.getElementById('printBundleContainer');
+      printBox.innerHTML = `
+        <div style="font-family: 'Prompt', sans-serif; color: #0F172A; line-height: 1.6;">
+          <h1 style="font-size: 22px; font-weight: 700; margin-bottom: 4px;">${escapeHtml(subj.name)} (${periodName})</h1>
+          <p style="font-size: 12px; color: #64748B; margin-bottom: 20px;">รวมเอกสารทั้งหมด ${items.length} รายการ • สร้างจาก StudyHub</p>
+          ${items.map((m, idx) => `
+            <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0; page-break-inside: avoid;">
+              <h2 style="font-size: 16px; font-weight: 700; color: #0A2458; margin-bottom: 8px;">${idx + 1}. ${escapeHtml(m.title)}</h2>
+              ${m.type === 'image' && m.dataUrl ? `<img src="${m.dataUrl}" style="max-width: 100%; max-height: 520px; border-radius: 8px; margin-bottom: 8px;" />` : ''}
+              ${m.content ? `<div style="font-size: 13px; white-space: pre-line;">${escapeHtml(m.content)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      showToast('เลือก "บันทึกเป็น PDF (Save as PDF)" ในหน้าต่างพิมพ์ได้เลย', 'info');
+      setTimeout(() => window.print(), 250);
+    }
+
+    // ==================== SCORE TRACKER & EXAM COUNTDOWN ====================
+    function renderScoresPanel() {
+      const subj = getCurrentSubject();
+      if (!subj) return;
+
+      const scores = subj.scores || [];
+      const target = Number(subj.targetScore) || 80;
+      document.getElementById('targetGradeSelect').value = String(target);
+
+      const totalEarned = scores.reduce((sum, s) => sum + (Number(s.earned) || 0), 0);
+      const totalMax = scores.reduce((sum, s) => sum + (Number(s.max) || 0), 0);
+
+      document.getElementById('scoreTotalEarned').textContent = Number(totalEarned.toFixed(2));
+      document.getElementById('scoreTotalMax').textContent = `/ ${Number(totalMax.toFixed(2))} คะแนนที่ประกาศแล้ว`;
+
+      const pct = Math.min(100, Math.round((totalEarned / target) * 100));
+      document.getElementById('scoreTargetBar').style.width = `${pct}%`;
+
+      const needed = Number((target - totalEarned).toFixed(2));
+      const remainingPool = Number(Math.max(0, 100 - totalMax).toFixed(2));
+      const adviceEl = document.getElementById('scoreTargetAdvice');
+
+      if (totalEarned >= target) {
+        adviceEl.innerHTML = `<span class="text-emerald-700 font-bold">🎉 ยินดีด้วย! คะแนนสะสมของคุณถึงเป้าหมาย ${target} คะแนนเรียบร้อยแล้ว</span>`;
+      } else if (totalMax > 0 && needed > remainingPool) {
+        adviceEl.innerHTML = `<span class="text-rose-700 font-semibold">⚠️ ขาดอีก ${needed} คะแนน (จากคะแนนเต็มที่เหลือ ${remainingPool} คะแนน) ลองเลือกเกรดเป้าหมายที่เหมาะสมด้านบน</span>`;
+      } else {
+        adviceEl.innerHTML = `🎯 ต้องการอีก <strong class="text-indigo-700">${needed} คะแนน</strong> เพื่อถึงเป้าหมาย ${target} คะแนน ${totalMax > 0 ? `(เหลือคะแนนเต็มให้เก็บอีกประมาณ ${remainingPool} คะแนน)` : ''}`;
+      }
+
+      // Render Score Items
+      const listEl = document.getElementById('scoresList');
+      if (scores.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-white rounded-2xl border border-dashed border-slate-200">ยังไม่มีรายการคะแนน ลองเพิ่มคะแนนสอบย่อยหรือกลางภาคด้านบนได้เลย</p>`;
+      } else {
+        listEl.innerHTML = scores.map(sc => {
+          const periodLabel = sc.period === 'final' ? '📕 ปลายภาค' : sc.period === 'midterm' ? '📘 กลางภาค' : '📝 คะแนนเก็บ';
+          const itemPct = sc.max > 0 ? Math.round((sc.earned / sc.max) * 100) : 0;
+          return `
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80 flex items-center justify-between gap-2 shadow-2xs">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${periodLabel}</span>
+                  <span class="font-bold text-sm text-slate-900 truncate">${escapeHtml(sc.title)}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">คิดเป็น ${itemPct}% ของส่วนนี้</div>
+              </div>
+              <div class="flex items-center gap-2.5 shrink-0">
+                <div class="text-right">
+                  <span class="font-bold text-base text-navy-900">${Number(sc.earned)}</span>
+                  <span class="text-xs text-slate-400">/${Number(sc.max)}</span>
+                </div>
+                <button onclick="deleteScoreItem('${escapeHtml(sc.id)}')" class="w-7 h-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center text-xs">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Exam Dates
+      document.getElementById('midtermDateInput').value = subj.midtermDate || '';
+      document.getElementById('finalDateInput').value = subj.finalDate || '';
+      document.getElementById('midtermCountdownText').textContent = formatCountdownLabel(subj.midtermDate);
+      document.getElementById('finalCountdownText').textContent = formatCountdownLabel(subj.finalDate);
+    }
+
+    function formatCountdownLabel(dateStr) {
+      if (!dateStr) return '';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(dateStr + 'T00:00:00');
+      const diff = Math.round((target - today) / 86400000);
+      if (diff < 0) return 'สอบผ่านไปแล้ว';
+      if (diff === 0) return '🔥 วันนี้สอบ!';
+      if (diff === 1) return '⏰ พรุ่งนี้สอบ';
+      return `อีก ${diff} วัน`;
+    }
+
+    async function updateTargetScore(val) {
+      const subj = getCurrentSubject();
+      if (!subj) return;
+      subj.targetScore = Number(val) || 80;
+      await saveSubjectToDB(subj);
+      renderSubjectHeader();
+      renderScoresPanel();
+    }
+
+    async function addScoreItem(e) {
+      e.preventDefault();
+      const subj = getCurrentSubject();
+      if (!subj) return;
+
+      const title = document.getElementById('scoreTitleInput').value.trim();
+      const period = document.getElementById('scorePeriodInput').value;
+      const earned = parseFloat(document.getElementById('scoreEarnedInput').value);
+      const max = parseFloat(document.getElementById('scoreMaxInput').value);
+
+      if (!title || isNaN(earned) || isNaN(max) || max <= 0) return;
+
+      subj.scores = subj.scores || [];
+      subj.scores.unshift({
+        id: 'sc_' + Date.now(),
+        title,
+        period,
+        earned,
+        max
       });
+
+      document.getElementById('scoreTitleInput').value = '';
+      document.getElementById('scoreEarnedInput').value = '';
+      document.getElementById('scoreMaxInput').value = '';
 
       await saveSubjectToDB(subj);
       renderSubjectHeader();
-      renderNotesList();
-      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
-      showToast('เก็บโพยสรุปลงรายการด้านล่างแล้ว!', 'success');
+      renderScoresPanel();
+      showToast('บันทึกคะแนนเรียบร้อย', 'success');
     }
 
-    // ==================== INTERACTIVE 1-TAP QUIZ ====================
-    async function executeInteractiveQuiz(subjectName, periodLabel, combinedText) {
-      const panel = document.getElementById('aiHelperPanel');
-      panel.classList.remove('hidden');
-      document.getElementById('aiHelperTitle').textContent = `🎯 ควิซทดสอบ${periodLabel} (5 ข้อ)`;
-      document.getElementById('aiHelperLoading').classList.remove('hidden');
-      document.getElementById('aiCramOutput').classList.add('hidden');
-      document.getElementById('aiQuizOutput').classList.add('hidden');
-      document.getElementById('saveAiSummaryBtn').classList.add('hidden');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-      const prompt = `รายวิชา: ${subjectName}
-จากเนื้อหาด้านล่าง สร้างข้อสอบปรนัย 4 ตัวเลือก จำนวน 5 ข้อ เป็นภาษาไทย เพื่อทดสอบความเข้าใจก่อนสอบ
-ตอบกลับเป็น JSON Array เท่านั้น ห้ามมีข้อความอื่นนอก JSON โดยใช้โครงสร้างนี้:
-[
-  {
-    "q": "คำถามข้อที่ 1",
-    "options": ["ตัวเลือก ก", "ตัวเลือก ข", "ตัวเลือก ค", "ตัวเลือก ง"],
-    "answer": 0,
-    "explain": "คำอธิบายสั้นๆ ว่าทำไมข้อนี้ถึงถูก"
-  }
-]
-(หมายเหตุ: "answer" คือลำดับ index ของคำตอบที่ถูกต้อง เริ่มจาก 0 ถึง 3)
-
-เนื้อหา:
-${combinedText}`;
-
-      try {
-        const raw = await callGeminiApi(prompt);
-        if (raw === null) {
-          closeAiHelperPanel();
-          return;
-        }
-
-        const cleanedJson = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-        const parsed = JSON.parse(cleanedJson);
-        if (!Array.isArray(parsed) || parsed.length === 0) {
-          throw new Error('รูปแบบข้อสอบไม่ถูกต้อง');
-        }
-
-        currentQuizData = parsed;
-        renderInteractiveQuiz();
-        document.getElementById('aiHelperLoading').classList.add('hidden');
-        document.getElementById('aiQuizOutput').classList.remove('hidden');
-      } catch (err) {
-        closeAiHelperPanel();
-        showToast('สร้างควิซไม่สำเร็จ ลองกดใหม่อีกครั้งนะครับ', 'error');
-      }
+    async function deleteScoreItem(id) {
+      const subj = getCurrentSubject();
+      if (!subj) return;
+      subj.scores = (subj.scores || []).filter(s => s.id !== id);
+      await saveSubjectToDB(subj);
+      renderSubjectHeader();
+      renderScoresPanel();
+      showToast('ลบรายการคะแนนแล้ว', 'info');
     }
 
-    function renderInteractiveQuiz() {
-      const container = document.getElementById('aiQuizOutput');
-      container.innerHTML = currentQuizData.map((item, qIdx) => `
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5" id="quizCard_${qIdx}">
-          <div class="font-semibold text-sm text-slate-900">ข้อ ${qIdx + 1}. ${escapeHtml(item.q)}</div>
-          <div class="space-y-1.5">
-            ${(item.options || []).map((opt, optIdx) => `
-              <button type="button" onclick="selectQuizOption(${qIdx}, ${optIdx})"
-                id="quizOpt_${qIdx}_${optIdx}"
-                class="w-full text-left px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 text-xs sm:text-sm text-slate-700 transition">
-                ${escapeHtml(opt)}
-              </button>
-            `).join('')}
-          </div>
-          <div id="quizExplain_${qIdx}" class="hidden text-xs p-3 rounded-xl bg-indigo-50 text-indigo-900 leading-relaxed"></div>
-        </div>
-      `).join('');
+    async function saveExamDates() {
+      const subj = getCurrentSubject();
+      if (!subj) return;
+      subj.midtermDate = document.getElementById('midtermDateInput').value;
+      subj.finalDate = document.getElementById('finalDateInput').value;
+      await saveSubjectToDB(subj);
+      renderSubjectHeader();
+      renderScoresPanel();
+      showToast('บันทึกวันสอบเรียบร้อย', 'success');
     }
 
-    function selectQuizOption(qIdx, chosenIdx) {
-      const item = currentQuizData[qIdx];
-      if (!item) return;
-
-      (item.options || []).forEach((_, idx) => {
-        const btn = document.getElementById(`quizOpt_${qIdx}_${idx}`);
-        btn.disabled = true;
-        if (idx === item.answer) {
-          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold text-xs sm:text-sm';
-        } else if (idx === chosenIdx) {
-          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 text-xs sm:text-sm';
-        } else {
-          btn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white opacity-60 text-xs sm:text-sm text-slate-500';
-        }
-      });
-
-      const expEl = document.getElementById(`quizExplain_${qIdx}`);
-      const isCorrect = chosenIdx === item.answer;
-      expEl.innerHTML = `<strong>${isCorrect ? '✅ ถูกต้อง!' : '❌ ยังไม่ถูก'}</strong> ${escapeHtml(item.explain || '')}`;
-      expEl.classList.remove('hidden');
-    }
-
-    // ==================== CLIPBOARD BACKUP ====================
+    // ==================== BACKUP ====================
     function openBackupModal() {
       document.getElementById('restoreCodeInput').value = '';
       document.getElementById('backupModal').classList.remove('hidden');
@@ -1109,7 +1470,11 @@ ${combinedText}`;
     }
 
     async function copyBackupToClipboard() {
-      const payload = JSON.stringify({ app: 'StudyHub', subjects });
+      const slimSubjects = subjects.map(s => ({
+        ...s,
+        materials: (s.materials || []).map(m => m.type === 'image' ? { ...m, dataUrl: '' } : m)
+      }));
+      const payload = JSON.stringify({ app: 'StudyHub', subjects: slimSubjects });
       try {
         await navigator.clipboard.writeText(payload);
         showToast('คัดลอกโค้ดข้อมูลแล้ว นำไปวางเก็บในแชตหรือโน้ตได้เลย', 'success');
